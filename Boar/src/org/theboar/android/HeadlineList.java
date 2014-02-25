@@ -6,7 +6,7 @@ import java.util.List;
 public class HeadlineList implements IHeadlineList {
 
 	private ArrayList<IHeadline> list;
-	private int numLoaded;
+	private int numLoaded = 0;
 	private int numTotal;
 	private boolean doneLoading;
 	
@@ -16,6 +16,7 @@ public class HeadlineList implements IHeadlineList {
 	
 	public void addHeadline(Headline hl){
 		list.add(hl);
+		numLoaded++;
 	}
 	
 	@Override
@@ -41,6 +42,11 @@ public class HeadlineList implements IHeadlineList {
 	@Override
 	public int numTotal() {
 		return numTotal;
+	}
+
+	public void setDoneLoading(boolean b) {
+		doneLoading = b;
+		
 	}
 
 }

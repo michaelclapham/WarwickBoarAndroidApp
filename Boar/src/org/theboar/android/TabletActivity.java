@@ -75,7 +75,17 @@ public class TabletActivity extends Activity {
 		 */
 		
 		//-------------------------MAKE decoding ASYNCTASK----------------------------
-		List<IHeadline> hl_list = newsStore.getHeadlines(10).getList();
+		IHeadlineList headlines = newsStore.getHeadlines(10);
+		List<IHeadline> hl_list = headlines.getList();
+		/* while (!headlines.doneLoading()){
+			try {
+				Thread.sleep(1);
+				Log.v(this.toString(),"Num Loaded: " + headlines.numLoaded());
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		} */
 		for (int i = 0; i < hl_list.size(); i++) {
 
 			//--------------------calculating the height of content-------------------------
@@ -116,7 +126,7 @@ public class TabletActivity extends Activity {
 				newsName = (TextView) newsItems.findViewById(R.id.topicname);
 				//TODO return title String
 //				String newsTitle = "";
-				if (i % 3 == 0) ////in order to randomise for now
+				//if (i % 3 == 0) ////in order to randomise for now
 					newsName.setText(hl_list.get(i).getHeadline());
 				//-----------------------------------------News Author------------------------------------
 				authorName = (TextView) newsItems.findViewById(R.id.author_name);
