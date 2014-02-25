@@ -1,4 +1,4 @@
-package org.theboar.adroid;
+package org.theboar.android;
 
 import java.util.ArrayList;
 import java.util.List;

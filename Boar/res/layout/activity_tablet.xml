@@ -3,7 +3,7 @@
     android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/grey"
+    android:background="#CCCCCC"
     tools:context=".TabletActivity" >
 
     <ScrollView
@@ -47,7 +47,39 @@
                 android:orientation="vertical"
                 android:visibility="gone" >
             </LinearLayout>
-        </LinearLayout>
+        </LinearLayout>   
     </ScrollView>
+    
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="70sp"
+        android:background="@drawable/top_bar_bg"
+        android:padding="4sp"
+        android:weightSum="1">
+        <ImageView
+			android:layout_margin="2sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/menu"/>
+
+
+
+        <ImageView
+            android:layout_weight="1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/imageView"
+            android:src="@drawable/the_boar_logo" />
+
+
+        <ImageView
+            android:layout_marginRight="3sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/refresh"
+            android:layout_gravity="right"/>
+
+    </LinearLayout>
 
 </FrameLayout>

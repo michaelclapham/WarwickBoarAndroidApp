@@ -1,4 +1,4 @@
-package org.theboar.adroid;
+package org.theboar.android;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -76,7 +76,10 @@ public class NewsStore implements INewsStore {
 
 	@Override
 	public IHeadlineList getHeadlines(int lastN) {
+		HeadlineList list = new HeadlineList(lastN);
+		new RequestTask1(list).execute("http://www.theboar.org/?json=1");
 		return getStubHeadlines();
+		//return list;
 	}
 
 	@Override
