@@ -17,6 +17,7 @@ public class Headline implements IHeadline {
 	private String[] tags;
 	private int catagory = Catagory.OTHER;
 	private String internalHTML;
+	private String pageUrl;
 	
 	public Headline() {
 		//
@@ -125,6 +126,14 @@ public class Headline implements IHeadline {
 
 	public int getUniqueId() {
 		return uniqueId;
+	}
+
+	public String getPageUrl() {
+		return pageUrl;
+	}
+
+	public void setPageUrl(String pageUrl) {
+		this.pageUrl = pageUrl;
 	}
 
 }

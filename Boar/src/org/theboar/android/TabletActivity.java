@@ -10,15 +10,19 @@ import java.util.List;
 import android.app.Activity;
 import android.content.Context;
 import android.content.ClipData.Item;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable.Orientation;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnTouchListener;
 import android.view.Window;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -148,6 +152,9 @@ public class TabletActivity extends Activity {
 				//TODO return boolean if new or not
 				if (i % 4 == 0) content_isNew.setVisibility(FrameLayout.INVISIBLE);
 				else content_isNew.setVisibility(FrameLayout.VISIBLE);
+				
+				String clickUrl = hl_list.get(i).getPageUrl();
+				newsItems.setOnTouchListener(new MyTouchListener(clickUrl));
 
 				//-------------------------------------------------------------------------------------------
 //				Log.v("print","SCREEN SIZE: "	+ getResources().getConfiguration().screenLayout);
@@ -203,5 +210,25 @@ public class TabletActivity extends Activity {
 	public boolean isPortrait(Context context) {
 		if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) return true;
 		else return false;
+	}
+	
+	private class MyTouchListener implements OnTouchListener {
+		
+		private String touchUrl;
+		
+		public MyTouchListener(String touchUrl) {
+			this.touchUrl = touchUrl;
+		}
+
+		@Override
+		public boolean onTouch(View v, MotionEvent event) {
+			if(event.getAction() == MotionEvent.ACTION_UP){
+				Intent i = new Intent(Intent.ACTION_VIEW);
+				i.setData(Uri.parse(touchUrl));
+				startActivity(i);
+			}
+			return true;
+		}
+		
 	}
 }

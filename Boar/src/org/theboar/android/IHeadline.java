@@ -53,4 +53,7 @@ public interface IHeadline {
 	/* I'd assume the articles will be stored as HTML */
 	public String getArticleHTML();
 	
+	/* Get URL to page of article */
+	public String getPageUrl();
+	
 }

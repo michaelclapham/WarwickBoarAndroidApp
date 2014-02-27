@@ -164,6 +164,7 @@ public class NewsStore implements INewsStore {
 					head.setAuthor(story.getJSONObject("author").getString("name"));
 					Log.v(this.toString(), "STORY: " + story.getString("title"));
 					Log.v(this.toString(), "IMG URL: " + imageURL);
+					head.setPageUrl(story.getString("url"));
 					list.addHeadline(head);
 				}
 				list.setDoneLoading(true);
