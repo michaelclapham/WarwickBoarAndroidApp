@@ -99,6 +99,14 @@ public class Headline implements IHeadline {
 		this.isNew = isNew;
 		return true;
 	}
+	
+	public void setAuthor(String authorName){
+		this.authorName = authorName;
+	}
+	
+	public void setDatePublished(Date datePublished) {
+		this.datePublished = datePublished;
+	}
 
 	@Override
 	public String getAuthor() {

@@ -8,8 +8,11 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Locale;
 
 import org.apache.*;
 import org.apache.http.HttpEntity;
@@ -26,6 +29,8 @@ import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Environment;
+import android.text.format.DateFormat;
+import android.text.format.DateUtils;
 import android.util.Log;
 
 public class NewsStore implements INewsStore {
@@ -131,28 +136,47 @@ public class NewsStore implements INewsStore {
 		
 		// Now parse JSON
 		//Create JSON Object
-    	try {
-			JSONObject jObject = new JSONObject(result);
-			JSONArray jArray = jObject.getJSONArray("posts");
-			for(int i = 0; i < jArray.length(); i++){
-				JSONObject story = jArray.getJSONObject(i);
-				Headline head = new Headline();
-				head.setHeadlineTitle(story.getString("title"));
-				//String imageURL = story.getJSONArray("attachments").getJSONObject(0).getJSONObject("images").getJSONObject("full").getString("url");
-				String imageURL = story.getJSONObject("thumbnail_images").getJSONObject("full").getString("url");
-				//String imageURL = "http://theboar.org/wp-content/uploads/2014/02/Dating.jpg";
-				head.setLowResImage(drawableFromUrl(imageURL));
-				Log.v(this.toString(), "STORY: " + story.getString("title"));
-				Log.v(this.toString(), "IMG URL: " + imageURL);
-				list.addHeadline(head);
+		if(result != null){
+	    	try {
+				JSONObject jObject = new JSONObject(result);
+				JSONArray jArray = jObject.getJSONArray("posts");
+				for(int i = 0; i < jArray.length(); i++){
+					JSONObject story = jArray.getJSONObject(i);
+					Headline head = new Headline();
+					String storyTitle = story.getString("title");
+					// Replace HTML codes with correct characters
+					// @TODO: More comprehensive code to do this
+					storyTitle = storyTitle.replace("&#8217;", "’");
+					storyTitle = storyTitle.replace("&#8216;", "‘");
+					storyTitle = storyTitle.replace("&#8218;", "‚");
+					storyTitle = storyTitle.replace("&#8220;", "“");
+					storyTitle = storyTitle.replace("&#8221;", "”");
+					storyTitle = storyTitle.replace("&#8222;", "„");
+					head.setHeadlineTitle(storyTitle);
+					//String imageURL = story.getJSONArray("attachments").getJSONObject(0).getJSONObject("images").getJSONObject("full").getString("url");
+					String imageURL = story.getJSONObject("thumbnail_images").getJSONObject("medium").getString("url");
+					//String imageURL = "http://theboar.org/wp-content/uploads/2014/02/Dating.jpg";
+					head.setLowResImage(drawableFromUrl(imageURL));
+					String dateTimeString = story.getString("date");
+					SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-DD HH:mm:ss", Locale.ENGLISH);
+					Date datePublished = df.parse(dateTimeString);
+					head.setDatePublished(datePublished);
+					head.setAuthor(story.getJSONObject("author").getString("name"));
+					Log.v(this.toString(), "STORY: " + story.getString("title"));
+					Log.v(this.toString(), "IMG URL: " + imageURL);
+					list.addHeadline(head);
+				}
+				list.setDoneLoading(true);
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-			list.setDoneLoading(true);
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 		
 		return list;

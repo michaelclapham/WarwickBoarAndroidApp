@@ -131,13 +131,13 @@ public class TabletActivity extends Activity {
 				//-----------------------------------------News Author------------------------------------
 				authorName = (TextView) newsItems.findViewById(R.id.author_name);
 //				String aName = "Snehil Is Awesome!";
-//				authorName.setText(aName);
+				authorName.setText(hl_list.get(i).getAuthor());
 				//-------------------------------------------Date----------------------------------------
 				newsDate = (TextView) newsItems.findViewById(R.id.content_date);
 				//TODO return date
 				//String currentDateTimeString = DateFormat.getDateTimeInstance().format(new Date());
-				String currentDateTimeString = DateFormat.getDateInstance().format(new Date());
-				newsDate.setText(currentDateTimeString);
+				String dateTimeString = DateFormat.getDateInstance().format(hl_list.get(i).getDatePublished());
+				newsDate.setText(dateTimeString);
 				//-----------------------------------If New or Favourite--------------------------------------
 				star = (ImageView) newsItems.findViewById(R.id.content_star);
 				//TODO true false is news is favourited
