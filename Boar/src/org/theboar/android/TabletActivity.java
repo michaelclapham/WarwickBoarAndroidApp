@@ -141,6 +141,7 @@ public class TabletActivity extends Activity {
 				//TODO return date
 				//String currentDateTimeString = DateFormat.getDateTimeInstance().format(new Date());
 				String dateTimeString = DateFormat.getDateInstance().format(hl_list.get(i).getDatePublished());
+				Log.i(this.toString(), "DATE IS: " + hl_list.get(i).getDatePublished().toString());
 				newsDate.setText(dateTimeString);
 				//-----------------------------------If New or Favourite--------------------------------------
 				star = (ImageView) newsItems.findViewById(R.id.content_star);

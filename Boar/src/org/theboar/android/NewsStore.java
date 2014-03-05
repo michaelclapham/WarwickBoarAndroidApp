@@ -209,7 +209,7 @@ public class NewsStore implements INewsStore {
 					//String imageURL = "http://theboar.org/wp-content/uploads/2014/02/Dating.jpg";
 					//
 					String dateTimeString = story.getString("date");
-					SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-DD HH:mm:ss", Locale.ENGLISH);
+					SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 					Date datePublished = df.parse(dateTimeString);
 					head.setDatePublished(datePublished);
 					head.setAuthor(story.getJSONObject("author").getString("name"));
