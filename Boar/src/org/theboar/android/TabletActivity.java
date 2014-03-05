@@ -45,7 +45,7 @@ public class TabletActivity extends Activity {
 
 	private void populateNews() {
 		
-		newsStore = new NewsStore();
+		newsStore = new NewsStore(getApplicationContext());
 
 		LinearLayout l1 = (LinearLayout) findViewById(R.id.tablet_lld1);
 		LinearLayout l2 = (LinearLayout) findViewById(R.id.tablet_lld2);

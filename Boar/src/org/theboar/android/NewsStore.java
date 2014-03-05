@@ -31,6 +31,8 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Environment;
 import android.text.format.DateFormat;
@@ -39,8 +41,10 @@ import android.util.Log;
 
 public class NewsStore implements INewsStore {
 
-	public NewsStore(){
-		//
+	private Context context;
+
+	public NewsStore(Context ctx){
+		context = ctx;
 	}
 	
 	public HeadlineList getStubHeadlines(){
@@ -104,38 +108,78 @@ public class NewsStore implements INewsStore {
 
 	@Override
 	public IHeadlineList getHeadlines(int lastN) {
+		
 		HeadlineList list = new HeadlineList(lastN);
 		//RequestTask1 rt = new RequestTask1(list);
 		//rt.execute("http://www.theboar.org/?json=1");
 		
-		// Load synchronously
-		DefaultHttpClient   httpclient = new DefaultHttpClient(new BasicHttpParams());
-		HttpPost httppost = new HttpPost("http://theboar.org/?json=1");
-		// Depends on your web service
-		httppost.setHeader("Content-type", "application/json");
-
-		InputStream inputStream = null;
 		String result = null;
-		try {
-		    HttpResponse response = httpclient.execute(httppost);           
-		    HttpEntity entity = response.getEntity();
+		
+		// File for local cache of JSON
+		String path = context.getFilesDir().getAbsolutePath();
+		File file = new File(path + "warwick_boar_latest_json.txt");
+		
+		// Check for internet connectivity
+		if (isNetworkConnected()){
+			// Load synchronously
+			DefaultHttpClient   httpclient = new DefaultHttpClient(new BasicHttpParams());
+			HttpPost httppost = new HttpPost("http://theboar.org/?json=1");
+			// Depends on your web service
+			httppost.setHeader("Content-type", "application/json");
+	
+			InputStream inputStream = null;
+			try {
+			    HttpResponse response = httpclient.execute(httppost);           
+			    HttpEntity entity = response.getEntity();
+	
+			    inputStream = entity.getContent();
+			    // json is UTF-8 by default
+			    BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"), 8);
+			    StringBuilder sb = new StringBuilder();
+	
+			    String line = null;
+			    while ((line = reader.readLine()) != null)
+			    {
+			        sb.append(line + "\n");
+			    }
+			    result = sb.toString();
+			} catch (Exception e) { 
+			    // Oops
+			}
+			finally {
+			    try{if(inputStream != null)inputStream.close();}catch(Exception squish){}
+			}
+			// Now take result JSON string and save it to a file
+			
+			try {
+				FileOutputStream stream = new FileOutputStream(file);
+				try {
+				    stream.write(result.getBytes());
+				} finally {
+				    stream.close();
+				}
+			} catch (IOException e2){
+				//
+			}
+		} else {
+			// If internet not connected load from JSON cache
+			int length = (int) file.length();
 
-		    inputStream = entity.getContent();
-		    // json is UTF-8 by default
-		    BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"), 8);
-		    StringBuilder sb = new StringBuilder();
+			byte[] bytes = new byte[length];
 
-		    String line = null;
-		    while ((line = reader.readLine()) != null)
-		    {
-		        sb.append(line + "\n");
-		    }
-		    result = sb.toString();
-		} catch (Exception e) { 
-		    // Oops
-		}
-		finally {
-		    try{if(inputStream != null)inputStream.close();}catch(Exception squish){}
+			try {
+				FileInputStream in = new FileInputStream(file);
+				try {
+				    in.read(bytes);
+				} finally {
+				    in.close();
+				}
+			} catch (IOException e3){
+				//
+			}
+
+			String contents = new String(bytes);
+			result = contents;
 		}
 		
 		// Now parse JSON
@@ -274,7 +318,7 @@ public class NewsStore implements INewsStore {
 		
 		// Use old method in case of pathetic failure or SD card being unavailable
 		try {
-			return drawableFromUrl(url);
+			dr = drawableFromUrl(url);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -309,5 +353,15 @@ public class NewsStore implements INewsStore {
         }
 
     }
+	
+	private boolean isNetworkConnected() {
+		  ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+		  NetworkInfo ni = cm.getActiveNetworkInfo();
+		  if (ni == null) {
+		   // There are no active networks.
+		   return false;
+		  } else
+		   return true;
+	}
 
 }
