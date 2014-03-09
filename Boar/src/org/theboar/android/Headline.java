@@ -15,7 +15,7 @@ public class Headline implements IHeadline {
 	private Drawable lowResImage = null;
 	private boolean hasImage = false;
 	private String[] tags;
-	private int catagory = Catagory.OTHER;
+	private int category = Category.OTHER;
 	private String internalHTML;
 	private String pageUrl;
 	
@@ -23,8 +23,8 @@ public class Headline implements IHeadline {
 		//
 	}
 	
-	public void setCatagory(int catagory) {
-		this.catagory = catagory;
+	public void setCategory(int category) {
+		this.category = category;
 	}
 	
 	public void setLowResImage(Drawable lowResImage) {
@@ -76,7 +76,7 @@ public class Headline implements IHeadline {
 
 	@Override
 	public int getCategory() {
-		return Catagory.NEWS;
+		return category;
 	}
 
 	@Override

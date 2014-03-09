@@ -124,8 +124,11 @@ public class TabletActivity extends Activity {
 
 				categoryColor = (LinearLayout) newsItems.findViewById(R.id.content_typecolor);
 				//TODO return color.  Ideally they would already be defined in res/values/color
-				if (i % 4 == 0) //in order to randomise for now
-					categoryColor.setBackgroundColor(getResources().getColor(R.color.orange));
+				categoryColor.setBackgroundColor(Category.getCategoryColour(hl_list.get(i).getCategory(),getResources()));
+				
+				// News Type Name
+				TextView categoryName = (TextView) newsItems.findViewById(R.id.category_name);
+				categoryName.setText(Category.getCategoryNameShort(hl_list.get(i).getCategory()).toUpperCase());
 				//--------------------------------News Title||-----------------------------
 				newsName = (TextView) newsItems.findViewById(R.id.topicname);
 				//TODO return title String
@@ -213,6 +216,7 @@ public class TabletActivity extends Activity {
 		else return false;
 	}
 	
+	/* Used for when an article is touched */
 	private class MyTouchListener implements OnTouchListener {
 		
 		private String touchUrl;

@@ -119,6 +119,8 @@ public class NewsStore implements INewsStore {
 		String path = context.getFilesDir().getAbsolutePath();
 		File file = new File(path + "warwick_boar_latest_json.txt");
 		
+		boolean downloadWorked = false;
+		
 		// Check for internet connectivity
 		if (isNetworkConnected()){
 			// Load synchronously
@@ -143,23 +145,27 @@ public class NewsStore implements INewsStore {
 			        sb.append(line + "\n");
 			    }
 			    result = sb.toString();
+			    downloadWorked = true;
 			} catch (Exception e) { 
-			    // Oops
+			    downloadWorked = false;
 			}
 			finally {
 			    try{if(inputStream != null)inputStream.close();}catch(Exception squish){}
 			}
-			// Now take result JSON string and save it to a file
 			
-			try {
-				FileOutputStream stream = new FileOutputStream(file);
+			/*Now take result JSON string and save it to a file
+			 	if the download worked*/
+			if(downloadWorked){
 				try {
-				    stream.write(result.getBytes());
-				} finally {
-				    stream.close();
+					FileOutputStream stream = new FileOutputStream(file);
+					try {
+					    stream.write(result.getBytes());
+					} finally {
+					    stream.close();
+					}
+				} catch (IOException e2){
+					downloadWorked = false;
 				}
-			} catch (IOException e2){
-				//
 			}
 		} else {
 			// If internet not connected load from JSON cache
@@ -216,6 +222,7 @@ public class NewsStore implements INewsStore {
 					Log.v(this.toString(), "STORY: " + story.getString("title"));
 					Log.v(this.toString(), "IMG URL: " + imageURL);
 					head.setPageUrl(story.getString("url"));
+					head.setCategory(Category.parseCategoryID(story));
 					list.addHeadline(head);
 				}
 				list.setDoneLoading(true);

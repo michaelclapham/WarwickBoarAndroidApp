@@ -1,12 +1,27 @@
 <resources>
-
-    <!-- Default screen margins, per the Android Design guidelines. -->
+	<!-- Default screen margins, per the Android Design guidelines. -->
+	<color name="black">#000000</color>
     <color name="grey">#e1d6d6</color>
     <color name="greylight">#f2eded</color>
 	<color name="white">#FFFFFF</color>
     <color name="red">#ff0000</color>
     <color name="blue">#00c8fa</color>
 	<color name="orange">#fac000</color>
-	<color name="black">#000000</color>
+	<color name="news">#c4161c</color>
+	<color name="comment">#ffc20e</color>
+	<color name="features">#8dc63f</color>
+	<color name="lifestyle">#F0F</color>
+	<color name="money">#F26522</color>
+	<color name="arts">#F26522</color>
+	<color name="books">#008fd5</color>
+	<color name="film">#790020</color>
+	<color name="games">#0096a6</color>
+	<color name="music">#ed1c24</color>
+	<color name="science_tech">#ed1c24</color>
+	<color name="travel">#1e196a</color>
+	<color name="tv">#92278f</color>
+	<color name="sport">#00a651</color>
+	<color name="photography">#777777</color>
+	
 	
 </resources>
