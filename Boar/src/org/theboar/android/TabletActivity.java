@@ -16,6 +16,7 @@ import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable.Orientation;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.DisplayMetrics;
