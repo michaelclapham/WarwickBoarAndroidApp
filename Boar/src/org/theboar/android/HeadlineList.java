@@ -6,16 +6,19 @@ import java.util.List;
 public class HeadlineList implements IHeadlineList {
 
 	private ArrayList<IHeadline> list;
+	private ArrayList<IHeadline> readyList;
 	private int numLoaded = 0;
 	private int numTotal;
 	private boolean doneLoading;
 	
 	public HeadlineList(int size) {
 		list = new ArrayList<IHeadline>(size);
+		readyList = new ArrayList<IHeadline>(size);
 	}
 	
 	public void addHeadline(Headline hl){
 		list.add(hl);
+		readyList.add(hl);
 		numLoaded++;
 	}
 	
@@ -47,6 +50,11 @@ public class HeadlineList implements IHeadlineList {
 	public void setDoneLoading(boolean b) {
 		doneLoading = b;
 		
+	}
+
+	@Override
+	public List<IHeadline> getReadyList() {
+		return readyList;
 	}
 
 }

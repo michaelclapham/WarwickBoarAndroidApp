@@ -3,9 +3,17 @@ package org.theboar.android;
 import java.io.File;
 import java.io.FileInputStream;
 import java.text.DateFormat;
+import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.app.Activity;
 import android.content.Context;
@@ -28,12 +36,20 @@ import android.view.Window;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+
 import android.widget.TextView;
 
-public class TabletActivity extends Activity {
-	boolean isTablet = false;
+public class TabletActivity extends Activity implements IHeadlineListener {
+	// Used to determine if the screen is large enough for more layouts
+	private boolean isTablet = false;
+	
+	// Layout for each column of news items
+	private LinearLayout l1, l2, l3;
 
+	// Object used to access cache of news articles, download news articles, and associated images
 	private NewsStore newsStore;
+	
+	private int currentCategory = Category.HOMEPAGE;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +57,12 @@ public class TabletActivity extends Activity {
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.activity_tablet);
 		
+		try {
+			Thread.sleep(100);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		populateNews();
 	}
 
@@ -50,8 +72,11 @@ public class TabletActivity extends Activity {
 
 		newsStore = new NewsStore(getApplicationContext());
 
-		LinearLayout l2 = (LinearLayout) findViewById(R.id.tablet_lld2);
-		LinearLayout l3 = (LinearLayout) findViewById(R.id.tablet_lld3);
+		l1 = (LinearLayout) findViewById(R.id.tablet_lld1);
+		l2 = (LinearLayout) findViewById(R.id.tablet_lld2);
+		l3 = (LinearLayout) findViewById(R.id.tablet_lld3);
+		
+		
 
 //			l3.setVisibility(LinearLayout.GONE); l3 is GONE by default
 		Log.d("Print","isPortrait:" + isPortrait(this));
@@ -67,157 +92,33 @@ public class TabletActivity extends Activity {
 			if (isPortrait(this)) l3.setVisibility(LinearLayout.GONE);
 			else if (!isPortrait(this)) l3.setVisibility(LinearLayout.VISIBLE);
 		}
+		
+		HeadlineAsyncTask hat = new HeadlineAsyncTask();
+		hat.execute("home");
 
-		new getHeadlines().execute(10);
 	}
 
-	public void addNewsLayout(List<IHeadline> hl_list)
-	{
-
-		newsStore = new NewsStore(getApplicationContext());
-
-		LinearLayout l1 = (LinearLayout) findViewById(R.id.tablet_lld1);
-		LinearLayout l2 = (LinearLayout) findViewById(R.id.tablet_lld2);
-		LinearLayout l3 = (LinearLayout) findViewById(R.id.tablet_lld3);
-
-		View newsItems = null;
-		ImageView iv = null, star = null;
-		LinearLayout categoryColor;
-		FrameLayout content_isNew;
-		TextView authorName = null, newsDate = null, newsName = null;
-
-		//-------------------------------Retrieve Headlines------------------------------------------------
-		/**Do this however you like. E.g fetching from xml from internet or some feed etc. In the end, required is:
-		 * Image of the News : Drawable d
-		 * News Title: String
-		 * News Date: String
-		 * News Author: String
-		 * favourited: boolean (if Favourited)
-		 */
-
-		//-------------------------MAKE decoding ASYNCTASK----------------------------
-//		IHeadlineList headlines = newsStore.getHeadlines(10);
-//		List<IHeadline> hl_list = headlines.getList();
-//		while (!headlines.doneLoading())
-//		{
-//			try
-//			{
-//				Thread.sleep(1);
-//				Log.v(this.toString(),"Num Loaded: " + headlines.numLoaded());
-//			}
-//			catch (InterruptedException e)
-//			{
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-//		}
-		for (int i = 0; i < hl_list.size(); i++)
-		{
-
-			//--------------------calculating the height of content-------------------------
-			//In case of some error--------------------------
-			Drawable d = hl_list.get(i).getImage();
-			if (d != null)
-			{
-				int hMin = convertDpToPixel((float) 150,this);
-				int hMax = convertDpToPixel((float) 700,this);
-				int hReal = d.getMinimumHeight();
-				int hFinal = hMin;
-				if (hReal > hMax)
-					hFinal = hMax;
-
-				//---------------------------------------------------------
-				FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
-						FrameLayout.LayoutParams.MATCH_PARENT,
-						hFinal);
-				Log.d("Print",": " + hl_list.get(i).getHeadline());
-				Log.d("Print","hSmallest:" + hMin
-						+ ", hLargest:"
-						+ hMax + ", heightPIX:" + hFinal);
-
-				//-----------------------------INFLATE + IMAGE--------------------------------
-				newsItems = getLayoutInflater().inflate(R.layout.content_fragment,null,false);
-				iv = (ImageView) newsItems.findViewById(R.id.content_newsImage);
-				iv.setImageDrawable(d);
-				iv.setLayoutParams(params);
-
-				//---------------------------------News Type Colour---------------------------
-				//---------------------------------News Type Colour---------------------------
-				//---------------------------------News Type Colour---------------------------
-
-				categoryColor = (LinearLayout) newsItems.findViewById(R.id.content_typecolor);
-				//TODO return color.  Ideally they would already be defined in res/values/color
-				categoryColor.setBackgroundColor(Category.getCategoryColour(hl_list.get(i).getCategory(),getResources()));
-
-				// News Type Name
-				TextView categoryName = (TextView) newsItems.findViewById(R.id.category_name);
-				categoryName.setText(Category.getCategoryNameShort(hl_list.get(i).getCategory()).toUpperCase());
-				//--------------------------------News Title||-----------------------------
-				newsName = (TextView) newsItems.findViewById(R.id.topicname);
-				//TODO return title String
-//				String newsTitle = "";
-				//if (i % 3 == 0) ////in order to randomise for now
-				newsName.setText(hl_list.get(i).getHeadline());
-				//-----------------------------------------News Author------------------------------------
-				authorName = (TextView) newsItems.findViewById(R.id.author_name);
-//				String aName = "Snehil Is Awesome!";
-				authorName.setText(hl_list.get(i).getAuthor());
-				//-------------------------------------------Date----------------------------------------
-				newsDate = (TextView) newsItems.findViewById(R.id.content_date);
-				//TODO return date
-				//String currentDateTimeString = DateFormat.getDateTimeInstance().format(new Date());
-				String dateTimeString = DateFormat.getDateInstance().format(hl_list.get(i).getDatePublished());
-				Log.i(this.toString(),"DATE IS: " + hl_list.get(i).getDatePublished().toString());
-				newsDate.setText(dateTimeString);
-				//-----------------------------------If New or Favourite--------------------------------------
-				star = (ImageView) newsItems.findViewById(R.id.content_star);
-				//TODO true false is news is favourited
-				boolean isFavourite = false;//provide if the news is in favourite
-//				if (isFavourite)  star.setImageDrawable(getResources().getDrawable(R.drawable.starFalse));
-
-				content_isNew = (FrameLayout) newsItems.findViewById(R.id.content_isNewLay);
-				//TODO return boolean if new or not
-				if (i % 4 == 0) content_isNew.setVisibility(FrameLayout.INVISIBLE);
-				else content_isNew.setVisibility(FrameLayout.VISIBLE);
-
-				String clickUrl = hl_list.get(i).getPageUrl();
-				newsItems.setOnTouchListener(new MyTouchListener(clickUrl));
-
-				//-------------------------------------------------------------------------------------------
-//				Log.v("print","SCREEN SIZE: "	+ getResources().getConfiguration().screenLayout);
-				//-------------------------------Finally Add View (Old Tablet Code)-----------------------------------------
-
-				switch (getNextLayoutAdd(i,isTablet))
-				{
-				case 1:
-					l1.addView(newsItems);
-					break;
-				case 2:
-					l2.addView(newsItems);
-					break;
-				case 3:
-					l3.addView(newsItems);
-					break;
-				}
-			}
-		}
-	}
-
-	private class getHeadlines extends AsyncTask<Integer, Void, List<IHeadline>>
+	private class HeadlineAsyncTask extends AsyncTask<String, Object, Void> implements IHeadlineListener
 	{
 
 		@Override
-		protected List<IHeadline> doInBackground(Integer... params)
-		{
-			IHeadlineList headlines = newsStore.getHeadlines(params[0]);
-			List<IHeadline> hl_list = headlines.getList();
-			return hl_list;
+		protected Void doInBackground(String... params) {
+			newsStore.getHeadlines2(10,this);
+			return null;
 		}
 
 		@Override
-		protected void onPostExecute(List<IHeadline> list)
-		{
-			addNewsLayout(list);
+		public void onHeadlineParsed(IHeadline hl) {
+			publishProgress(hl,"Loading: 0%");
+		}
+		
+		@Override
+		protected void onProgressUpdate(Object... values) {
+			super.onProgressUpdate(values);
+			Headline hl = (Headline) values[0];
+			String loadingMessage = (String) values[1];
+			// Do stuff on UI thread
+			addHeadlineToView(hl);
 		}
 
 	}
@@ -242,6 +143,7 @@ public class TabletActivity extends Activity {
 		}
 		return L;
 	}
+	
 	public static int convertDpToPixel(float dp, Context context) {
 		Resources resources = context.getResources();
 		DisplayMetrics metrics = resources.getDisplayMetrics();
@@ -277,6 +179,114 @@ public class TabletActivity extends Activity {
 				startActivity(i);
 			}
 			return true;
+		}
+		
+	}
+
+	// Increases everytime we parse and add a headline to the view
+	private int headlinesParsedSoFar = 0;
+	
+	@Override
+	public void onHeadlineParsed(IHeadline hl) {
+			addHeadlineToView(hl);
+	}
+
+
+	private void addHeadlineToView(IHeadline hl) {
+		View newsItems = null;
+		ImageView iv = null, star = null;
+		LinearLayout categoryColor;
+		FrameLayout content_isNew;
+		TextView authorName = null, newsDate = null, newsName = null;
+
+		//--------------------calculating the height of content-------------------------
+		//In case of some error--------------------------
+		Drawable d = hl.getImage();
+		if (d != null)
+		{
+			int hMin = convertDpToPixel((float) 150,this);
+			int hMax = convertDpToPixel((float) 700,this);
+			int hReal = d.getMinimumHeight();
+			int hFinal = hMin;
+			if (hReal > hMax)
+				hFinal = hMax;
+
+			//---------------------------------------------------------
+			FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+					FrameLayout.LayoutParams.MATCH_PARENT,
+					hFinal);
+			Log.d("Print",": " + hl.getHeadline());
+			Log.d("Print","hSmallest:" + hMin
+					+ ", hLargest:"
+					+ hMax + ", heightPIX:" + hFinal);
+
+			//-----------------------------INFLATE + IMAGE--------------------------------
+			newsItems = getLayoutInflater().inflate(R.layout.content_fragment,null,false);
+			iv = (ImageView) newsItems.findViewById(R.id.content_newsImage);
+			iv.setImageDrawable(d);
+			iv.setLayoutParams(params);
+
+			//---------------------------------News Type Colour---------------------------
+			//---------------------------------News Type Colour---------------------------
+			//---------------------------------News Type Colour---------------------------
+
+			categoryColor = (LinearLayout) newsItems.findViewById(R.id.content_typecolor);
+			//TODO return color.  Ideally they would already be defined in res/values/color
+			categoryColor.setBackgroundColor(Category.getCategoryColour(hl.getCategory(),getResources()));
+
+			// News Type Name
+			TextView categoryName = (TextView) newsItems.findViewById(R.id.category_name);
+			categoryName.setText(Category.getCategoryNameShort(hl.getCategory()).toUpperCase());
+			//--------------------------------News Title||-----------------------------
+			newsName = (TextView) newsItems.findViewById(R.id.topicname);
+			//TODO return title String
+//			String newsTitle = "";
+			//if (i % 3 == 0) ////in order to randomise for now
+			newsName.setText(hl.getHeadline());
+			//-----------------------------------------News Author------------------------------------
+			authorName = (TextView) newsItems.findViewById(R.id.author_name);
+//			String aName = "Snehil Is Awesome!";
+			authorName.setText(hl.getAuthor());
+			//-------------------------------------------Date----------------------------------------
+			newsDate = (TextView) newsItems.findViewById(R.id.content_date);
+			//TODO return date
+			//String currentDateTimeString = DateFormat.getDateTimeInstance().format(new Date());
+			String dateTimeString = DateFormat.getDateInstance().format(hl.getDatePublished());
+			Log.i(this.toString(),"DATE IS: " + hl.getDatePublished().toString());
+			newsDate.setText(dateTimeString);
+			//-----------------------------------If New or Favourite--------------------------------------
+			star = (ImageView) newsItems.findViewById(R.id.content_star);
+			//TODO true false is news is favourited
+			boolean isFavourite = false;//provide if the news is in favourite
+//			if (isFavourite)  star.setImageDrawable(getResources().getDrawable(R.drawable.starFalse));
+
+			content_isNew = (FrameLayout) newsItems.findViewById(R.id.content_isNewLay);
+			//TODO return boolean if new or not
+			if (headlinesParsedSoFar % 4 == 0) content_isNew.setVisibility(FrameLayout.INVISIBLE);
+			else content_isNew.setVisibility(FrameLayout.VISIBLE);
+
+			String clickUrl = hl.getPageUrl();
+			newsItems.setOnTouchListener(new MyTouchListener(clickUrl));
+			
+			// Increase number of headlines parsed
+			headlinesParsedSoFar++;
+
+			//-------------------------------------------------------------------------------------------
+//			Log.v("print","SCREEN SIZE: "	+ getResources().getConfiguration().screenLayout);
+			//-------------------------------Finally Add View (Old Tablet Code)-----------------------------------------
+
+			switch (getNextLayoutAdd(headlinesParsedSoFar,isTablet))
+			{
+			case 1:
+				l1.addView(newsItems);
+				break;
+			case 2:
+				l2.addView(newsItems);
+				break;
+			case 3:
+				l3.addView(newsItems);
+				break;
+			}
 		}
 		
 	}

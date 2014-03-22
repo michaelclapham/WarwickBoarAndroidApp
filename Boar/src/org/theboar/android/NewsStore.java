@@ -47,6 +47,55 @@ public class NewsStore implements INewsStore {
 		context = ctx;
 	}
 	
+	public JSONArray getJSONHeadlines(){
+		//RequestTask1 rt = new RequestTask1(list);
+		//rt.execute("http://www.theboar.org/?json=1");
+		
+		String result = null;
+		
+		// File for local cache of JSON
+		String path = context.getFilesDir().getAbsolutePath();
+		File file = new File(path + "warwick_boar_latest_json.txt");
+		
+		// Check if there is network available
+		if(isNetworkConnected()){
+			requestRefresh();
+		} 
+		// Load from JSON cache
+		int length = (int) file.length();
+
+		byte[] bytes = new byte[length];
+
+		try {
+			FileInputStream in = new FileInputStream(file);
+			try {
+			    in.read(bytes);
+			} finally {
+			    in.close();
+			}
+		} catch (IOException e3){
+			//
+		}
+
+		String contents = new String(bytes);
+		result = contents;
+		
+		// Return array of JSON objects
+		JSONArray jArray = null;
+		
+		// Now parse JSON
+		//Create JSON Object
+		if(result != null){
+	    	try {
+				JSONObject jObject = new JSONObject(result);
+				jArray = jObject.getJSONArray("posts");
+	    	} catch (JSONException jex){
+	    		//
+	    	}
+		}
+		return jArray;
+	}
+	
 	public HeadlineList getStubHeadlines(){
 		File DataStorage = new File(
 				Environment.getExternalStorageDirectory(),"Boar News");
@@ -90,7 +139,66 @@ public class NewsStore implements INewsStore {
 	
 	@Override
 	public int requestRefresh() {
-		// TODO Auto-generated method stub
+		// File for local cache of JSON
+		String path = context.getFilesDir().getAbsolutePath();
+		File file = new File(path + "warwick_boar_latest_json.txt");
+		
+		// Used to store the downloaded JSON
+		String result = "";
+		
+		// Changed to true if downloading the JSON worked
+		boolean downloadWorked = false;
+		
+		// Check for internet connectivity
+		if (isNetworkConnected()){
+			// Load synchronously
+			DefaultHttpClient   httpclient = new DefaultHttpClient(new BasicHttpParams());
+			HttpPost httppost = new HttpPost("http://theboar.org/?json=1");
+			// Depends on your web service
+			httppost.setHeader("Content-type", "application/json");
+	
+			InputStream inputStream = null;
+			try {
+			    HttpResponse response = httpclient.execute(httppost);           
+			    HttpEntity entity = response.getEntity();
+	
+			    inputStream = entity.getContent();
+			    // json is UTF-8 by default
+			    BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"), 8);
+			    StringBuilder sb = new StringBuilder();
+	
+			    String line = null;
+			    while ((line = reader.readLine()) != null)
+			    {
+			        sb.append(line + "\n");
+			    }
+			    result = sb.toString();
+			    downloadWorked = true;
+			} catch (Exception e) { 
+			    downloadWorked = false;
+			}
+			finally {
+			    try{if(inputStream != null)inputStream.close();}catch(Exception squish){}
+			}
+			
+			/*Now take result JSON string and save it to a file
+			 	if the download worked*/
+			if(downloadWorked){
+				try {
+					FileOutputStream stream = new FileOutputStream(file);
+					try {
+					    stream.write(result.getBytes());
+					} finally {
+					    stream.close();
+					}
+				} catch (IOException e2){
+					downloadWorked = false;
+				}
+			}
+		}
+		if(downloadWorked){
+			return 1;
+		}
 		return 0;
 	}
 
@@ -104,6 +212,98 @@ public class NewsStore implements INewsStore {
 	public IHeadlineList getHeadlines(Date dateFrom, Date dateTo) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+	
+	public IHeadlineList getHeadlines2(int lastN, IHeadlineListener hl_listener) {
+		
+		HeadlineList list = new HeadlineList(lastN);
+		//RequestTask1 rt = new RequestTask1(list);
+		//rt.execute("http://www.theboar.org/?json=1");
+		
+		String result = null;
+		
+		// File for local cache of JSON
+		String path = context.getFilesDir().getAbsolutePath();
+		File file = new File(path + "warwick_boar_latest_json.txt");
+		
+		// Check if there is network available
+		if(isNetworkConnected()){
+			requestRefresh();
+		} 
+		// Load from JSON cache
+		int length = (int) file.length();
+
+		byte[] bytes = new byte[length];
+
+		try {
+			FileInputStream in = new FileInputStream(file);
+			try {
+			    in.read(bytes);
+			} finally {
+			    in.close();
+			}
+		} catch (IOException e3){
+			//
+		}
+
+		String contents = new String(bytes);
+		result = contents;
+		
+		// Now parse JSON
+		//Create JSON Object
+		if(result != null){
+	    	try {
+				JSONObject jObject = new JSONObject(result);
+				JSONArray jArray = jObject.getJSONArray("posts");
+				for(int i = 0; i < jArray.length(); i++){
+					JSONObject story = jArray.getJSONObject(i);
+					Headline head = parseHeadlineJSON(story);
+					list.addHeadline(head);
+					// Inform listener that new headline was parsed
+					hl_listener.onHeadlineParsed(head);
+				}
+				list.setDoneLoading(true);
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return list;
+	}
+
+	public static Headline parseHeadlineJSON(JSONObject story) throws JSONException, ParseException {
+		Headline head = new Headline();
+		String storyTitle = story.getString("title");
+		// Replace HTML codes with correct characters
+		// @TODO: More comprehensive code to do this
+		storyTitle = storyTitle.replace("&#8217;", "’");
+		storyTitle = storyTitle.replace("&#8216;", "‘");
+		storyTitle = storyTitle.replace("&#8218;", "‚");
+		storyTitle = storyTitle.replace("&#8220;", "“");
+		storyTitle = storyTitle.replace("&#8221;", "”");
+		storyTitle = storyTitle.replace("&#8222;", "„");
+		head.setHeadlineTitle(storyTitle);
+		//String imageURL = story.getJSONArray("attachments").getJSONObject(0).getJSONObject("images").getJSONObject("full").getString("url");
+		String imageURL = story.getJSONObject("thumbnail_images").getJSONObject("medium").getString("url");
+		
+		// Try to find image on SD card, if not present download it.
+		head.setLowResImage(getSmartDrawableFromUrl(imageURL));
+		
+		//String imageURL = "http://theboar.org/wp-content/uploads/2014/02/Dating.jpg";
+		//
+		String dateTimeString = story.getString("date");
+		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		Date datePublished = df.parse(dateTimeString);
+		head.setDatePublished(datePublished);
+		head.setAuthor(story.getJSONObject("author").getString("name"));
+		Log.v("NewsStore", "STORY: " + story.getString("title"));
+		Log.v("NewsStore", "IMG URL: " + imageURL);
+		head.setPageUrl(story.getString("url"));
+		head.setCategory(Category.parseCategoryID(story));
+		return head;
 	}
 
 	@Override
@@ -285,7 +485,7 @@ public class NewsStore implements INewsStore {
         return x;
     }
 	
-	public Drawable getSmartDrawableFromUrl(String url){
+	public static Drawable getSmartDrawableFromUrl(String url){
 		Drawable dr = null;
 		String sdState = Environment.getExternalStorageState();
 		if( sdState.equalsIgnoreCase(Environment.MEDIA_MOUNTED)){
@@ -298,7 +498,7 @@ public class NewsStore implements INewsStore {
 			} else Log.d("Print","Directory Exists");
 
 			String fileName = Uri.parse(url).getLastPathSegment();
-			Log.v(this.toString(), "FILE NAME:: " + fileName);
+			Log.v("NewsStore", "FILE NAME:: " + fileName);
 			File[] files = DataStorage.listFiles();
 			
 			for(int i = 0; i < files.length; i++){
@@ -307,7 +507,7 @@ public class NewsStore implements INewsStore {
 					// Now use the image that was cached or just downloaded to create a drawable
 					FileInputStream fis;
 					try {
-						Log.i(this.toString(),"LOADING " + fileName + "FROM FILE...");
+						Log.i("NewsStore","LOADING " + fileName + "FROM FILE...");
 						fis = new FileInputStream(DataStorage
 								+ File.separator + files[i].getName());
 						dr = Drawable.createFromStream(fis,"news2");
@@ -333,7 +533,7 @@ public class NewsStore implements INewsStore {
 		return dr;
 	}
 	
-	public void downloadFile(String fileURL, String fileName, String directory) {
+	public static void downloadFile(String fileURL, String fileName, String directory) {
         try {
             URL u = new URL(fileURL);
             HttpURLConnection c = (HttpURLConnection) u.openConnection();
