@@ -36,10 +36,11 @@ import android.view.Window;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 
 import android.widget.TextView;
 
-public class TabletActivity extends Activity implements IHeadlineListener {
+public class TabletActivity extends Activity {
 	// Used to determine if the screen is large enough for more layouts
 	private boolean isTablet = false;
 	
@@ -77,7 +78,8 @@ public class TabletActivity extends Activity implements IHeadlineListener {
 		l3 = (LinearLayout) findViewById(R.id.tablet_lld3);
 		
 		
-
+		// Decide which layouts are present based on wether this is a phone or tablet
+		// and wether we are in portrait or landscape mode.
 //			l3.setVisibility(LinearLayout.GONE); l3 is GONE by default
 		Log.d("Print","isPortrait:" + isPortrait(this));
 		if (!isTablet(this))
@@ -100,6 +102,16 @@ public class TabletActivity extends Activity implements IHeadlineListener {
 
 	private class HeadlineAsyncTask extends AsyncTask<String, Object, Void> implements IHeadlineListener
 	{
+		
+		@Override
+		protected void onPreExecute() {
+			// TODO Auto-generated method stub
+			super.onPreExecute();
+			LinearLayout loadingLayout = (LinearLayout) findViewById(R.id.loading_layout);
+			loadingLayout.setVisibility(LinearLayout.VISIBLE);
+			//ScrollView sv = (ScrollView) findViewById(R.id.scrollView1);
+			//sv.setPadding(0, (int)(sv.getPaddingTop()*0.28f), 0, 0);
+		}
 
 		@Override
 		protected Void doInBackground(String... params) {
@@ -108,8 +120,8 @@ public class TabletActivity extends Activity implements IHeadlineListener {
 		}
 
 		@Override
-		public void onHeadlineParsed(IHeadline hl) {
-			publishProgress(hl,"Loading: 0%");
+		public void onHeadlineParsed(IHeadline hl, String loadingMessage) {
+			publishProgress(hl,loadingMessage);
 		}
 		
 		@Override
@@ -119,6 +131,19 @@ public class TabletActivity extends Activity implements IHeadlineListener {
 			String loadingMessage = (String) values[1];
 			// Do stuff on UI thread
 			addHeadlineToView(hl);
+			TextView loadingTV = (TextView) findViewById(R.id.loading_text);
+			loadingTV.setText(loadingMessage);
+		}
+		
+		@Override
+		protected void onPostExecute(Void result) {
+			// TODO Auto-generated method stub
+			super.onPostExecute(result);
+			LinearLayout loadingLayout = (LinearLayout) findViewById(R.id.loading_layout);
+			loadingLayout.setVisibility(LinearLayout.GONE);
+			// TODO Alter view so that padding doesn't need to be changed manually
+			//ScrollView sv = (ScrollView) findViewById(R.id.scrollView1);
+			//sv.setPadding(0, 20, 0, 0);
 		}
 
 	}
@@ -185,12 +210,6 @@ public class TabletActivity extends Activity implements IHeadlineListener {
 
 	// Increases everytime we parse and add a headline to the view
 	private int headlinesParsedSoFar = 0;
-	
-	@Override
-	public void onHeadlineParsed(IHeadline hl) {
-			addHeadlineToView(hl);
-	}
-
 
 	private void addHeadlineToView(IHeadline hl) {
 		View newsItems = null;
@@ -255,15 +274,15 @@ public class TabletActivity extends Activity implements IHeadlineListener {
 			Log.i(this.toString(),"DATE IS: " + hl.getDatePublished().toString());
 			newsDate.setText(dateTimeString);
 			//-----------------------------------If New or Favourite--------------------------------------
-			star = (ImageView) newsItems.findViewById(R.id.content_star);
+			//star = (ImageView) newsItems.findViewById(R.id.content_star);
 			//TODO true false is news is favourited
-			boolean isFavourite = false;//provide if the news is in favourite
+			//boolean isFavourite = false;//provide if the news is in favourite
 //			if (isFavourite)  star.setImageDrawable(getResources().getDrawable(R.drawable.starFalse));
 
-			content_isNew = (FrameLayout) newsItems.findViewById(R.id.content_isNewLay);
+			//content_isNew = (FrameLayout) newsItems.findViewById(R.id.content_isNewLay);
 			//TODO return boolean if new or not
-			if (headlinesParsedSoFar % 4 == 0) content_isNew.setVisibility(FrameLayout.INVISIBLE);
-			else content_isNew.setVisibility(FrameLayout.VISIBLE);
+			//if (headlinesParsedSoFar % 4 == 0) content_isNew.setVisibility(FrameLayout.INVISIBLE);
+			//else content_isNew.setVisibility(FrameLayout.VISIBLE);
 
 			String clickUrl = hl.getPageUrl();
 			newsItems.setOnTouchListener(new MyTouchListener(clickUrl));

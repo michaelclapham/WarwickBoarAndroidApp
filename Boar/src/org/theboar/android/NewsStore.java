@@ -259,8 +259,11 @@ public class NewsStore implements INewsStore {
 					JSONObject story = jArray.getJSONObject(i);
 					Headline head = parseHeadlineJSON(story);
 					list.addHeadline(head);
+					// Create loading string
+					String ls = "Loading: " + (i+1) + "/" + jArray.length() + " headlines loaded";
+					Log.e(this.toString(), "LOADING STRING: " + ls);
 					// Inform listener that new headline was parsed
-					hl_listener.onHeadlineParsed(head);
+					hl_listener.onHeadlineParsed(head,ls);
 				}
 				list.setDoneLoading(true);
 			} catch (JSONException e) {
