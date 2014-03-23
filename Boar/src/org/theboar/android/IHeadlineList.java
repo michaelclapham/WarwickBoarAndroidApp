@@ -20,6 +20,11 @@ public interface IHeadlineList {
 	/* The list of headlines so far */
 	public List<IHeadline> getList();
 	
+	/* The list of headlines ready to be added to the GUI. This list acts merely as
+	 * a buffer. Once a headline is parsed it is added to this list, and once it is
+	 * added to the GUI it is removed from this list */
+	public List<IHeadline> getReadyList();
+	
 	/* String presented to user whilst some headlines are loading.
 	 * Depending on the query
 	 * It Could be "Loading: ..." or maybe "Searching for: Nigel Thrift"

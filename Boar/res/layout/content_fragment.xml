@@ -126,14 +126,14 @@
                 android:layout_weight="0.9"
                 android:orientation="vertical" >
 
-                <ImageView
+                <!-- <ImageView
                     android:id="@+id/content_star"
                     android:layout_width="30dp"
                     android:layout_height="30dp"
                     android:layout_gravity="top|center_horizontal"
-                    android:src="@drawable/star512" />
+                    android:src="@drawable/star512" /> -->
 
-                <FrameLayout
+                <!--  <FrameLayout
                     android:id="@+id/content_isNewLay"
                     android:layout_width="fill_parent"
                     android:layout_height="15dp"
@@ -148,7 +148,7 @@
                         android:text="New"
                         android:textColor="#FFFFFF"
                         android:textSize="12sp" />
-                </FrameLayout>
+                </FrameLayout> -->
             </LinearLayout>
         </RelativeLayout>
     </LinearLayout>

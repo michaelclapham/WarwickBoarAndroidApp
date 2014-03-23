@@ -11,6 +11,8 @@ import android.util.Log;
 
 public class Category {
 	
+	public static final int HOMEPAGE = 30;
+	
 	public static final int NEWS = 0;
 	public static final int COMMENT = 1;
 	public static final int FEATURES = 2;
