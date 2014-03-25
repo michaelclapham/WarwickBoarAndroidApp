@@ -57,28 +57,33 @@ public final class R {
         public static final int the_boar_logo=0x7f020005;
         public static final int timthumb=0x7f020006;
         public static final int top_bar_bg=0x7f020007;
+        public static final int top_bar_shadow1=0x7f020008;
     }
     public static final class id {
-        public static final int action_settings=0x7f090013;
-        public static final int author_by=0x7f09000c;
-        public static final int author_name=0x7f09000d;
-        public static final int category_name=0x7f09000b;
+        public static final int author_by=0x7f090010;
+        public static final int author_name=0x7f090011;
+        public static final int category_name=0x7f09000f;
         public static final int container=0x7f090000;
-        public static final int content_date=0x7f09000e;
-        public static final int content_newsImage=0x7f090009;
-        public static final int content_picture=0x7f090008;
-        public static final int content_rightLay=0x7f090010;
-        public static final int content_title=0x7f09000f;
-        public static final int content_typecolor=0x7f09000a;
-        public static final int imageView=0x7f090007;
-        public static final int loading_layout=0x7f090005;
-        public static final int loading_text=0x7f090006;
-        public static final int scrollView1=0x7f090001;
-        public static final int section_label=0x7f090012;
-        public static final int tablet_lld1=0x7f090002;
-        public static final int tablet_lld2=0x7f090003;
-        public static final int tablet_lld3=0x7f090004;
-        public static final int topicname=0x7f090011;
+        public static final int content_date=0x7f090012;
+        public static final int content_newsImage=0x7f09000d;
+        public static final int content_picture=0x7f09000c;
+        public static final int content_rightLay=0x7f090014;
+        public static final int content_title=0x7f090013;
+        public static final int content_typecolor=0x7f09000e;
+        public static final int imageView=0x7f09000a;
+        public static final int loading_layout=0x7f090003;
+        public static final int loading_text=0x7f090005;
+        public static final int menu_button=0x7f090009;
+        public static final int progressBar1=0x7f090004;
+        public static final int refresh_button=0x7f09000b;
+        public static final int scrollView1=0x7f090002;
+        public static final int section_label=0x7f090016;
+        public static final int tablet_lld1=0x7f090006;
+        public static final int tablet_lld2=0x7f090007;
+        public static final int tablet_lld3=0x7f090008;
+        public static final int top_bar_layout=0x7f090001;
+        public static final int top_bar_shadow=0x7f090017;
+        public static final int topicname=0x7f090015;
     }
     public static final class layout {
         public static final int activity_tablet=0x7f030000;
