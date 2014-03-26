@@ -71,17 +71,17 @@ public final class R {
         public static final int content_title=0x7f090013;
         public static final int content_typecolor=0x7f09000e;
         public static final int imageView=0x7f09000a;
-        public static final int loading_layout=0x7f090003;
-        public static final int loading_text=0x7f090005;
+        public static final int loading_layout=0x7f090002;
+        public static final int loading_text=0x7f090004;
         public static final int menu_button=0x7f090009;
-        public static final int progressBar1=0x7f090004;
+        public static final int progressBar1=0x7f090003;
         public static final int refresh_button=0x7f09000b;
-        public static final int scrollView1=0x7f090002;
+        public static final int scrollView1=0x7f090001;
         public static final int section_label=0x7f090016;
-        public static final int tablet_lld1=0x7f090006;
-        public static final int tablet_lld2=0x7f090007;
-        public static final int tablet_lld3=0x7f090008;
-        public static final int top_bar_layout=0x7f090001;
+        public static final int tablet_lld1=0x7f090005;
+        public static final int tablet_lld2=0x7f090006;
+        public static final int tablet_lld3=0x7f090007;
+        public static final int top_bar_layout=0x7f090008;
         public static final int top_bar_shadow=0x7f090017;
         public static final int topicname=0x7f090015;
     }
