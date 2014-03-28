@@ -1,54 +1,34 @@
 package org.theboar.android;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.text.DateFormat;
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
-
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
-import android.content.ClipData.Item;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.content.res.Resources;
-import android.database.DataSetObserver;
-import android.graphics.Point;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.GradientDrawable.Orientation;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
+import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.view.Window;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListAdapter;
 import android.widget.ListView;
-import android.widget.ScrollView;
-
 import android.widget.TextView;
-import android.widget.AdapterView.OnItemClickListener;
+
+import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 
 
 public class TabletActivity extends Activity {
@@ -60,6 +40,9 @@ public class TabletActivity extends Activity {
 
 	// Object used to access cache of news articles, download news articles, and associated images
 	private NewsStore newsStore;
+	
+	// True if populating news and not yet finished
+	private boolean populating = false;
 	
 	private int currentCategory = Category.HOMEPAGE;
 	
@@ -79,7 +62,18 @@ public class TabletActivity extends Activity {
         menu.setShadowWidthRes(R.dimen.slidingmenu_shadow_size);
         menu.setMenu(R.layout.menu);
         menu.setFadeDegree(0.35f);
-        menu.toggle();
+        findViewById(R.id.menu_button).setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				menu.toggle();
+			}
+		});
+        findViewById(R.id.refresh_button).setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				populateNews();
+			}
+		});
 		populateNews();
 		ListView lv;
 		lv = (ListView) findViewById(R.id.menu_list);
@@ -96,7 +90,7 @@ public class TabletActivity extends Activity {
 				findViewById(R.id.top_bar_layout).setBackgroundColor(
 						Category.menuPositionToTopColour(position, getResources()));
 				currentCategory = Category.menuPositionToCategory(position);
-				
+				populateNews();
 			}
 		});
 		
@@ -105,33 +99,38 @@ public class TabletActivity extends Activity {
 
 	private void populateNews()
 	{
-
-		newsStore = new NewsStore(getApplicationContext());
-
-		l1 = (LinearLayout) findViewById(R.id.tablet_lld1);
-		l2 = (LinearLayout) findViewById(R.id.tablet_lld2);
-		l3 = (LinearLayout) findViewById(R.id.tablet_lld3);
-		
-		
-		// Decide which layouts are present based on wether this is a phone or tablet
-		// and wether we are in portrait or landscape mode.
-//			l3.setVisibility(LinearLayout.GONE); l3 is GONE by default
-		Log.d("Print","isPortrait:" + isPortrait(this));
-		if (!isTablet(this))
-		{
-			if (isPortrait(this)) l2.setVisibility(LinearLayout.GONE);
-			else if (!isPortrait(this)) l2.setVisibility(LinearLayout.VISIBLE);
+		if(!populating){
+			populating = true;
+			newsStore = new NewsStore(getApplicationContext());
+	
+			l1 = (LinearLayout) findViewById(R.id.tablet_lld1);
+			l2 = (LinearLayout) findViewById(R.id.tablet_lld2);
+			l3 = (LinearLayout) findViewById(R.id.tablet_lld3);
+			
+			l1.removeAllViews();
+			l2.removeAllViews();
+			l3.removeAllViews();
+			
+			// Decide which layouts are present based on wether this is a phone or tablet
+			// and wether we are in portrait or landscape mode.
+	//			l3.setVisibility(LinearLayout.GONE); l3 is GONE by default
+			Log.d("Print","isPortrait:" + isPortrait(this));
+			if (!isTablet(this))
+			{
+				if (isPortrait(this)) l2.setVisibility(LinearLayout.GONE);
+				else if (!isPortrait(this)) l2.setVisibility(LinearLayout.VISIBLE);
+			}
+			else if (isTablet(this))
+			{
+				isTablet = true;
+				l3.setVisibility(LinearLayout.VISIBLE);
+				if (isPortrait(this)) l3.setVisibility(LinearLayout.GONE);
+				else if (!isPortrait(this)) l3.setVisibility(LinearLayout.VISIBLE);
+			}
+			
+			HeadlineAsyncTask hat = new HeadlineAsyncTask();
+			hat.execute("home");
 		}
-		else if (isTablet(this))
-		{
-			isTablet = true;
-			l3.setVisibility(LinearLayout.VISIBLE);
-			if (isPortrait(this)) l3.setVisibility(LinearLayout.GONE);
-			else if (!isPortrait(this)) l3.setVisibility(LinearLayout.VISIBLE);
-		}
-		
-		HeadlineAsyncTask hat = new HeadlineAsyncTask();
-		hat.execute("home");
 
 	}
 
@@ -144,13 +143,15 @@ public class TabletActivity extends Activity {
 			super.onPreExecute();
 			LinearLayout loadingLayout = (LinearLayout) findViewById(R.id.loading_layout);
 			loadingLayout.setVisibility(LinearLayout.VISIBLE);
+			TextView loadingTV = (TextView) findViewById(R.id.loading_text);
+			loadingTV.setText("Loading...");
 			//ScrollView sv = (ScrollView) findViewById(R.id.scrollView1);
 			//sv.setPadding(0, (int)(sv.getPaddingTop()*0.28f), 0, 0);
 		}
 
 		@Override
 		protected Void doInBackground(String... params) {
-			newsStore.getHeadlines2(10,this);
+			newsStore.getHeadlinesFromCategory(currentCategory,10,this);
 			return null;
 		}
 
@@ -176,6 +177,7 @@ public class TabletActivity extends Activity {
 			super.onPostExecute(result);
 			LinearLayout loadingLayout = (LinearLayout) findViewById(R.id.loading_layout);
 			loadingLayout.setVisibility(LinearLayout.GONE);
+			populating = false;
 			// TODO Alter view so that padding doesn't need to be changed manually
 			//ScrollView sv = (ScrollView) findViewById(R.id.scrollView1);
 			//sv.setPadding(0, 20, 0, 0);
@@ -245,12 +247,20 @@ public class TabletActivity extends Activity {
 
 	// Increases everytime we parse and add a headline to the view
 	private int headlinesParsedSoFar = 0;
+	
+	@SuppressWarnings("deprecation")
+	@SuppressLint("InlinedApi")
+	private int getFillParent(){
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
+			return FrameLayout.LayoutParams.MATCH_PARENT;
+		}
+		return FrameLayout.LayoutParams.FILL_PARENT;
+	}
 
 	private void addHeadlineToView(IHeadline hl) {
 		View newsItems = null;
-		ImageView iv = null, star = null;
+		ImageView iv = null;
 		LinearLayout categoryColor;
-		FrameLayout content_isNew;
 		TextView authorName = null, newsDate = null, newsName = null;
 
 		//--------------------calculating the height of content-------------------------
@@ -266,9 +276,8 @@ public class TabletActivity extends Activity {
 				hFinal = hMax;
 
 			//---------------------------------------------------------
-			FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
-					FrameLayout.LayoutParams.MATCH_PARENT,
-					hFinal);
+			
+			FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(getFillParent(),hFinal);
 			Log.d("Print",": " + hl.getHeadline());
 			Log.d("Print","hSmallest:" + hMin
 					+ ", hLargest:"

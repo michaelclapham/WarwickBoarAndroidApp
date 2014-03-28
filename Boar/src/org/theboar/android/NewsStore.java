@@ -12,11 +12,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.Locale;
 
-import org.apache.*;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -35,8 +32,6 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Environment;
-import android.text.format.DateFormat;
-import android.text.format.DateUtils;
 import android.util.Log;
 
 public class NewsStore implements INewsStore {
@@ -258,14 +253,18 @@ public class NewsStore implements INewsStore {
 				JSONObject jObject = new JSONObject(result);
 				JSONArray jArray = jObject.getJSONArray("posts");
 				for(int i = 0; i < jArray.length(); i++){
+					try {
 					JSONObject story = jArray.getJSONObject(i);
-					Headline head = parseHeadlineJSON(story);
-					list.addHeadline(head);
-					// Create loading string
-					String ls = "Loading: " + (i+1) + "/" + jArray.length() + " headlines loaded";
-					Log.e(this.toString(), "LOADING STRING: " + ls);
-					// Inform listener that new headline was parsed
-					hl_listener.onHeadlineParsed(head,ls);
+						Headline head = parseHeadlineJSON(story);
+						list.addHeadline(head);
+						// Create loading string
+						String ls = "Loading: " + (i+1) + "/" + jArray.length() + " headlines loaded";
+						Log.e(this.toString(), "LOADING STRING: " + ls);
+						// Inform listener that new headline was parsed
+						hl_listener.onHeadlineParsed(head,ls);
+					} catch(JSONException e){
+						//
+					}
 				}
 				list.setDoneLoading(true);
 			} catch (JSONException e) {
@@ -418,9 +417,13 @@ public class NewsStore implements INewsStore {
 					storyTitle = storyTitle.replace("&#8222;", "„");
 					head.setHeadlineTitle(storyTitle);
 					//String imageURL = story.getJSONArray("attachments").getJSONObject(0).getJSONObject("images").getJSONObject("full").getString("url");
-					String imageURL = story.getJSONObject("thumbnail_images").getJSONObject("medium").getString("url");
-					
-					head.setLowResImage(getSmartDrawableFromUrl(imageURL));
+					try {
+						String imageURL = story.getJSONObject("thumbnail_images").getJSONObject("medium").getString("url");
+						Log.v(this.toString(), "IMG URL: " + imageURL);
+						head.setLowResImage(getSmartDrawableFromUrl(imageURL));
+					} catch (JSONException je){
+						Log.w(this.toString(), "No image");
+					}
 					
 					//String imageURL = "http://theboar.org/wp-content/uploads/2014/02/Dating.jpg";
 					//
@@ -430,7 +433,7 @@ public class NewsStore implements INewsStore {
 					head.setDatePublished(datePublished);
 					head.setAuthor(story.getJSONObject("author").getString("name"));
 					Log.v(this.toString(), "STORY: " + story.getString("title"));
-					Log.v(this.toString(), "IMG URL: " + imageURL);
+					
 					head.setPageUrl(story.getString("url"));
 					head.setCategory(Category.parseCategoryID(story));
 					list.addHeadline(head);
@@ -579,6 +582,11 @@ public class NewsStore implements INewsStore {
 		   return false;
 		  } else
 		   return true;
+	}
+
+	public IHeadlineList getHeadlinesFromCategory(int categoryId, int lastN, IHeadlineListener hl_listener) {
+		return getHeadlines3(lastN, Category.getCategoryRequestURL(categoryId), 
+				Category.getCacheFileName(categoryId), hl_listener);
 	}
 
 }
