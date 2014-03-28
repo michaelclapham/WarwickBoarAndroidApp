@@ -123,7 +123,7 @@
         android:id="@+id/top_bar_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/tv"
+        android:background="@color/white"
         android:orientation="vertical" >
 
         <LinearLayout

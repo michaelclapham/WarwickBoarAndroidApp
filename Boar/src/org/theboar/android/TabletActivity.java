@@ -15,12 +15,16 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.ClipData.Item;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.database.DataSetObserver;
+import android.graphics.Point;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable.Orientation;
 import android.net.Uri;
@@ -29,16 +33,23 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.View.OnTouchListener;
 import android.view.Window;
+import android.widget.AdapterView;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ListAdapter;
+import android.widget.ListView;
 import android.widget.ScrollView;
 
 import android.widget.TextView;
+import android.widget.AdapterView.OnItemClickListener;
+
 
 public class TabletActivity extends Activity {
 	// Used to determine if the screen is large enough for more layouts
@@ -52,19 +63,43 @@ public class TabletActivity extends Activity {
 	
 	private int currentCategory = Category.HOMEPAGE;
 	
+	private SlidingMenu menu;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.activity_tablet);
-		
-		try {
-			Thread.sleep(100);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		menu = new SlidingMenu(this);
+		menu.setMode(SlidingMenu.LEFT);
+        menu.setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);
+        menu.attachToActivity(this, SlidingMenu.SLIDING_CONTENT);
+        menu.setBehindWidthRes(R.dimen.slidingmenu_size);
+        menu.setShadowDrawable(R.drawable.side_bar_shadow1);
+        menu.setShadowWidthRes(R.dimen.slidingmenu_shadow_size);
+        menu.setMenu(R.layout.menu);
+        menu.setFadeDegree(0.35f);
+        menu.toggle();
 		populateNews();
+		ListView lv;
+		lv = (ListView) findViewById(R.id.menu_list);
+		//lv = new ListView(this);
+		
+		lv.setAdapter(new MySimpleArrayAdapter(this, Category.MENU_STRINGS));
+		lv.setOnItemClickListener(new OnItemClickListener()
+		{  
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view,
+					int position, long id) {
+				Log.i(this.toString(), "POSITION: " + id);
+				menu.toggle();
+				findViewById(R.id.top_bar_layout).setBackgroundColor(
+						Category.menuPositionToTopColour(position, getResources()));
+				currentCategory = Category.menuPositionToCategory(position);
+				
+			}
+		});
+		
 	}
 
 

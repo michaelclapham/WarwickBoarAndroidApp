@@ -32,6 +32,8 @@ public class Category {
 	private static final String[] CATEGORY_STRINGS = { "News", "Comment", "Features", "Lifestyle", "Money",
 		"Arts", "Books", "Film", "Games", "Music", "Science-Tech", "Travel", "TV", "Sport", "Photography"};
 	
+	public static final String[] MENU_STRINGS = { "Home", "News", "Comment", "Features", "Lifestyle", "Money",
+		"Arts", "Books", "Film", "Games", "Music", "Science-Tech", "Travel", "TV", "Sport" };
 	
 	public static final int SOCIAL = 40;
 	
@@ -47,9 +49,40 @@ public class Category {
 		else return "Other";
 	}
 	
+	public static String getCategoryRequestURL(int categoryId){
+		if(categoryId < 15 && categoryId >= 0){
+			return "http://theboar.org/category/" + CATEGORY_STRINGS[categoryId].toLowerCase() + "/?json=1";
+		}
+		return "http://theboar.org/?json=1";
+	}
+	
+	public static String getCacheFileName(int categoryId){
+		if(categoryId < 15 && categoryId >= 0){
+			return "warwick_boar_latest_" + CATEGORY_STRINGS[categoryId] + "_json.txt";
+		}
+		return "warwick_boar_latest_json";
+	}
+	
+	public static int menuPositionToCategory(int pos){
+		if(pos == 0){
+			return HOMEPAGE;
+		}
+		if(pos < 15){
+			return pos - 1;
+		}
+		return OTHER;
+	}
+	
+	public static int menuPositionToTopColour(int pos,Resources res){
+		if(pos == 0){
+			return res.getColor(R.color.white);
+		}
+		return getCategoryColour(pos-1,res);
+	}
 	
 	public static int getCategoryColour(int categoryId, Resources res){
 		switch (categoryId){
+			case HOMEPAGE: return res.getColor(R.color.home_colour);
 			case NEWS: return res.getColor(R.color.news);
 			case COMMENT: return res.getColor(R.color.comment);
 			case FEATURES: return res.getColor(R.color.features);
@@ -111,4 +144,15 @@ public class Category {
 		return OTHER;
 	}
 	
+	public static int getCategoryIDFromString(String name){
+		for(int i = 0; i < CATEGORY_STRINGS.length; i++){
+			if(CATEGORY_STRINGS[i].equalsIgnoreCase(name)){
+				return i;
+			}
+		}
+		if(name.equalsIgnoreCase("Home")){
+			return HOMEPAGE;
+		}
+		return OTHER;
+	}
 }

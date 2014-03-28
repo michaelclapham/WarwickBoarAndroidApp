@@ -139,9 +139,13 @@ public class NewsStore implements INewsStore {
 	
 	@Override
 	public int requestRefresh() {
+		return doRefresh("http://theboar.org/?json=1","warwick_boar_latest_json.txt");
+	}
+	
+	public int doRefresh(String requestURL, String cacheString) {
 		// File for local cache of JSON
 		String path = context.getFilesDir().getAbsolutePath();
-		File file = new File(path + "warwick_boar_latest_json.txt");
+		File file = new File(path + cacheString);
 		
 		// Used to store the downloaded JSON
 		String result = "";
@@ -151,10 +155,9 @@ public class NewsStore implements INewsStore {
 		
 		// Check for internet connectivity
 		if (isNetworkConnected()){
-			// Load synchronously
+			// Download JSON
 			DefaultHttpClient   httpclient = new DefaultHttpClient(new BasicHttpParams());
-			HttpPost httppost = new HttpPost("http://theboar.org/?json=1");
-			// Depends on your web service
+			HttpPost httppost = new HttpPost(requestURL);
 			httppost.setHeader("Content-type", "application/json");
 	
 			InputStream inputStream = null;
@@ -214,8 +217,7 @@ public class NewsStore implements INewsStore {
 		return null;
 	}
 	
-	public IHeadlineList getHeadlines2(int lastN, IHeadlineListener hl_listener) {
-		
+	public IHeadlineList getHeadlines3(int lastN, String requestURL, String cacheFile, IHeadlineListener hl_listener){
 		HeadlineList list = new HeadlineList(lastN);
 		//RequestTask1 rt = new RequestTask1(list);
 		//rt.execute("http://www.theboar.org/?json=1");
@@ -224,11 +226,11 @@ public class NewsStore implements INewsStore {
 		
 		// File for local cache of JSON
 		String path = context.getFilesDir().getAbsolutePath();
-		File file = new File(path + "warwick_boar_latest_json.txt");
+		File file = new File(path + cacheFile);
 		
 		// Check if there is network available
 		if(isNetworkConnected()){
-			requestRefresh();
+			doRefresh(requestURL, cacheFile);
 		} 
 		// Load from JSON cache
 		int length = (int) file.length();
@@ -276,6 +278,10 @@ public class NewsStore implements INewsStore {
 		}
 		return list;
 	}
+	
+	public IHeadlineList getHeadlines2(int lastN, IHeadlineListener hl_listener) {
+		return getHeadlines3(10, "http://theboar.org/?json=1", "warwick_boar_latest_json.txt", hl_listener);
+	}
 
 	public static Headline parseHeadlineJSON(JSONObject story) throws JSONException, ParseException {
 		Headline head = new Headline();
@@ -288,6 +294,7 @@ public class NewsStore implements INewsStore {
 		storyTitle = storyTitle.replace("&#8220;", "“");
 		storyTitle = storyTitle.replace("&#8221;", "”");
 		storyTitle = storyTitle.replace("&#8222;", "„");
+		storyTitle = storyTitle.replace("&#8230;", "…");
 		head.setHeadlineTitle(storyTitle);
 		//String imageURL = story.getJSONArray("attachments").getJSONObject(0).getJSONObject("images").getJSONObject("full").getString("url");
 		String imageURL = story.getJSONObject("thumbnail_images").getJSONObject("medium").getString("url");

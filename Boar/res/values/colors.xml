@@ -22,6 +22,7 @@
 	<color name="tv">#92278f</color>
 	<color name="sport">#00a651</color>
 	<color name="photography">#777777</color>
-	
+	<color name="menu_bg">#242424</color>
+	<color name="home_colour">#7f7f7f</color>
 	
 </resources>
