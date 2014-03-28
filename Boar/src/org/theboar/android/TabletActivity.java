@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.graphics.Point;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -15,17 +16,21 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
+import android.view.ViewGroup.LayoutParams;
 import android.view.Window;
+import android.webkit.WebView;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
@@ -47,12 +52,17 @@ public class TabletActivity extends Activity {
 	private int currentCategory = Category.HOMEPAGE;
 	
 	private SlidingMenu menu;
+
+	protected boolean articleOpen = false;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
+		
 		setContentView(R.layout.activity_tablet);
+		
+		/* Create sliding menu and setup it's parameters */
 		menu = new SlidingMenu(this);
 		menu.setMode(SlidingMenu.LEFT);
         menu.setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);
@@ -62,22 +72,34 @@ public class TabletActivity extends Activity {
         menu.setShadowWidthRes(R.dimen.slidingmenu_shadow_size);
         menu.setMenu(R.layout.menu);
         menu.setFadeDegree(0.35f);
+        
+        /* Makes menu button bring up the sliding menu */
         findViewById(R.id.menu_button).setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				menu.toggle();
 			}
 		});
+        
+        /* Makes refresh button reload the news items */
         findViewById(R.id.refresh_button).setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				populateNews();
+				populateNews(true);
 			}
 		});
-		populateNews();
+        
+        /* Make the close button on articles, close the article */
+        findViewById(R.id.close_article_button).setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				closeArticle();
+			}
+		});
+        
+        /* Fill sliding menu with list view that includes each news category */
 		ListView lv;
 		lv = (ListView) findViewById(R.id.menu_list);
-		//lv = new ListView(this);
 		
 		lv.setAdapter(new MySimpleArrayAdapter(this, Category.MENU_STRINGS));
 		lv.setOnItemClickListener(new OnItemClickListener()
@@ -94,10 +116,17 @@ public class TabletActivity extends Activity {
 			}
 		});
 		
+		/* Once all the pre-news setup is done, populate the view with news items */
+		populateNews();
+		
 	}
 
-
-	private void populateNews()
+	private void populateNews(){
+		populateNews(false);
+	}
+	
+	
+	private void populateNews(boolean useInternet)
 	{
 		if(!populating){
 			populating = true;
@@ -227,22 +256,52 @@ public class TabletActivity extends Activity {
 	/* Used for when an article is touched */
 	private class MyTouchListener implements OnTouchListener {
 		
-		private String touchUrl;
+		private Headline hl;
 		
-		public MyTouchListener(String touchUrl) {
-			this.touchUrl = touchUrl;
+		public MyTouchListener(IHeadline hl) {
+			this.hl = (Headline) hl;
 		}
 
+		
 		@Override
 		public boolean onTouch(View v, MotionEvent event) {
 			if(event.getAction() == MotionEvent.ACTION_UP){
-				Intent i = new Intent(Intent.ACTION_VIEW);
-				i.setData(Uri.parse(touchUrl));
-				startActivity(i);
+				//Intent i = new Intent(Intent.ACTION_VIEW);
+				//i.setData(Uri.parse(touchUrl));
+				//startActivity(i);
+				findViewById(R.id.news_story_frame).setVisibility(FrameLayout.VISIBLE);
+				articleOpen = true;
+				ScrollView sv = (ScrollView) findViewById(R.id.storyScrollView);
+				sv.fullScroll(ScrollView.FOCUS_UP);
+				ImageView iv = (ImageView) findViewById(R.id.story_newsImage);
+				Drawable headlineImage = hl.getImage();
+				if(headlineImage != null){
+					iv.setImageDrawable(headlineImage);
+				}
+				TextView tv = (TextView) findViewById(R.id.story_headline);
+				tv.setText(hl.getHeadline());
+				WebView webview = (WebView)findViewById(R.id.story_web_view);
+				//webview.getSettings().setJavaScriptEnabled(true);
+				webview.loadDataWithBaseURL("", hl.getArticleHTML(), "text/html", "UTF-8", "");
 			}
+			
 			return true;
 		}
 		
+	}
+	
+	@Override
+	public void onBackPressed() {
+		if(articleOpen){
+			closeArticle();
+		} else {
+			super.onBackPressed();
+		}
+	}
+
+	private void closeArticle() {
+		findViewById(R.id.news_story_frame).setVisibility(FrameLayout.GONE);
+		articleOpen = false;
 	}
 
 	// Increases everytime we parse and add a headline to the view
@@ -328,8 +387,7 @@ public class TabletActivity extends Activity {
 			//if (headlinesParsedSoFar % 4 == 0) content_isNew.setVisibility(FrameLayout.INVISIBLE);
 			//else content_isNew.setVisibility(FrameLayout.VISIBLE);
 
-			String clickUrl = hl.getPageUrl();
-			newsItems.setOnTouchListener(new MyTouchListener(clickUrl));
+			newsItems.setOnTouchListener(new MyTouchListener(hl));
 			
 			// Increase number of headlines parsed
 			headlinesParsedSoFar++;

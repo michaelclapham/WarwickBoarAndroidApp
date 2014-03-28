@@ -286,7 +286,7 @@ public class NewsStore implements INewsStore {
 		Headline head = new Headline();
 		String storyTitle = story.getString("title");
 		// Replace HTML codes with correct characters
-		// @TODO: More comprehensive code to do this
+		// TODO: More comprehensive code to do this
 		storyTitle = storyTitle.replace("&#8217;", "’");
 		storyTitle = storyTitle.replace("&#8216;", "‘");
 		storyTitle = storyTitle.replace("&#8218;", "‚");
@@ -311,6 +311,7 @@ public class NewsStore implements INewsStore {
 		Log.v("NewsStore", "STORY: " + story.getString("title"));
 		Log.v("NewsStore", "IMG URL: " + imageURL);
 		head.setPageUrl(story.getString("url"));
+		head.storeHTML(story.getString("content"));
 		head.setCategory(Category.parseCategoryID(story));
 		return head;
 	}
