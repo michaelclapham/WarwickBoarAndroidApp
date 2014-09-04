@@ -6,24 +6,16 @@
     android:background="@color/menu_bg"
     android:orientation="vertical" >
 
-<TextView
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_gravity="center_horizontal"
-    android:text="Menu"
-    android:textColor="#FFFFFF"
-    android:textSize="20sp" />
-
 <ListView
-    android:descendantFocusability="blocksDescendants"   
     android:id="@+id/menu_list"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/menu_bg"
+    android:cacheColorHint="@color/menu_bg"
+    android:descendantFocusability="blocksDescendants"
     android:divider="#565656"
-    android:textColor="#FFFFFF"
-    android:cacheColorHint="@color/menu_bg" >
-    
+    android:scrollbars="none"
+    android:textColor="#FFFFFF" >
 
 </ListView>
 </LinearLayout>

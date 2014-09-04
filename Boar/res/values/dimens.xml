@@ -5,7 +5,10 @@
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="tabMar">15dp</dimen>
     <dimen name="tabMarCentre">7dp</dimen>
-    <dimen name="slidingmenu_size">200sp</dimen>
-    <dimen name="slidingmenu_shadow_size">15sp</dimen>
-
+    <dimen name="slidingmenu_size">250dp</dimen>
+    <dimen name="slidingmenu_shadow_size">4sp</dimen>
+    <dimen name="articleMarg">0dp</dimen>
+    <dimen name="articleMargHor">0dp</dimen>
+	<dimen name="actionBarHeight">50dp</dimen>
+    
 </resources>

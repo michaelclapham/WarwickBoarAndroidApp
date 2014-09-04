@@ -1,29 +1,76 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="40dp"
-    android:background="@color/menu_bg"
-    android:orientation="horizontal"
-    android:padding="6sp" >
+    android:layout_height="wrap_content"
+    android:orientation="vertical" >
 
     <LinearLayout
-        android:orientation="horizontal"
-        android:id="@+id/menu_item_colour"
-        android:layout_width="5sp"
-        android:layout_height="20sp"
-        android:layout_gravity="center_vertical"
-        android:background="#FF0000" >
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/clickable"
+        android:orientation="vertical" >
 
+        <LinearLayout
+            android:id="@+id/menu_item"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:orientation="vertical" >
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:padding="10dp" >
+
+                <LinearLayout
+                    android:id="@+id/menu_item_colour"
+                    android:layout_width="3dp"
+                    android:layout_height="30dp"
+                    android:background="#FF0000"
+                    android:orientation="horizontal" >
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/menu_item_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginLeft="10dp"
+                    android:text="News"
+                    android:textColor="@color/black_50"
+                    android:textSize="18sp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/menu_item_home"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/actionBarHeight"
+            android:background="@color/black_50"
+            android:orientation="horizontal"
+            android:padding="10dp"
+            android:visibility="visible" >
+
+            <ImageView
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_gravity="center_vertical"
+                android:adjustViewBounds="true"
+                android:cropToPadding="false"
+                android:padding="5dp"
+                android:scaleType="centerInside"
+                android:src="@drawable/home" />
+
+            <TextView
+                android:id="@+id/menu_item_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginLeft="10dp"
+                android:text="Home"
+                android:textColor="@color/white"
+                android:textSize="18sp" />
+        </LinearLayout>
     </LinearLayout>
-
-    <TextView
-        android:id="@+id/menu_item_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical"
-        android:layout_marginLeft="10dp"
-        android:text="News"
-        android:textColor="#FFFFFF"
-        android:textSize="20sp" />
 
 </LinearLayout>
