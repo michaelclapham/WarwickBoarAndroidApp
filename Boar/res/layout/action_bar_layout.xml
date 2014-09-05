@@ -71,10 +71,13 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
-                    android:paddingRight="8dp"
                     android:text="About"
                     android:textColor="@color/black_op_90"
-                    android:textSize="25sp" />
+                    android:textSize="25sp"
+                    android:paddingRight="8dp"
+                    android:paddingStart="8dp"
+                    android:paddingEnd="8dp"
+                     />
             </LinearLayout>
 
             <FrameLayout
@@ -132,7 +135,6 @@
         android:layout_marginRight="10dp"
         android:layout_marginTop="@dimen/actionBarHeight"
         android:background="@color/white"
-        android:foreground="@drawable/dropdown_border"
         android:visibility="gone" >
 
         <LinearLayout
