@@ -1,41 +1,50 @@
 package org.theboar.android;
 
 import java.text.DateFormat;
+import java.util.LinkedList;
+import java.util.List;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.opengl.Visibility;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.text.Html;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.view.inputmethod.InputMethodManager;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.ListView;
-import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 
-public class TabletActivity extends Activity
+public class TabletActivity extends Activity implements BottomReachedListener
 {
+
+	public static Activity activity;
 	// Layout for each column of news items
 	private LinearLayout l1, l2, l3;
 
@@ -54,6 +63,12 @@ public class TabletActivity extends Activity
 	protected View currPos;
 	public static final String VISIBLE = "vis", GONE = "gone", INVISIBLE = "inv";
 	public String currentURL;
+	private boolean forSearch;
+
+	protected String query;
+	public int pageNum;
+	int lastN = 10;
+	public BottomReachedListener btmListener;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -62,25 +77,21 @@ public class TabletActivity extends Activity
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 
 		setContentView(R.layout.activity_tablet);
-		setSlidingMenu();
-		setAndroidVersionChanges();
+		activity = this;
+		btmListener = this;
+		pageNum = 1;
 
-		String catName = CNS.getSharedPreferences(this).getString("default_category","Home");
-//		catName = "Home";
-		currentCategory = Category.getCategoryIDFromString(catName);
-
-		setOnClickListeners();
-		startCategory(Category.categoryToMenuPosition(currentCategory),null);
-	}
-	private void setAndroidVersionChanges()
-	{
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-			int actionBarSize = CNS.getActionBarHeight(this);
-
-//			findViewById(R.id.main_container).setPadding(0,actionBarSize,0,0);
-//			findViewById(R.id.top_bar_layout).getLayoutParams().height = 
-//			findViewById(R.id.menu_item_home).setPadding(0,actionBarSize,0,0);
+		Bundle bundle = getIntent().getExtras();
+		forSearch = false;
+		if (bundle != null && bundle.getBoolean("forSearch",false)) {
+			forSearch = true;
+		} else {
+			setSlidingMenu();
+			String catName = CNS.getSharedPreferences(this).getString("default_category","Home");
+			currentCategory = Category.getCategoryIDFromString(catName);
+			startCategory(Category.categoryToMenuPosition(currentCategory),null);
 		}
+		setOnClickListeners();
 	}
 
 	@Override
@@ -91,6 +102,104 @@ public class TabletActivity extends Activity
 		} else {
 			super.onBackPressed();
 		}
+	}
+
+	@Override
+	public void onConfigurationChanged(Configuration newConfig)
+	{
+		super.onConfigurationChanged(newConfig);
+
+		Log.d("PRINT","CONFIFURATION CHANGED!");
+		populating = true;
+		refreshOrientationUX();
+
+		List<View> l1List = new LinkedList<View>();
+		List<View> l2List = new LinkedList<View>();
+		List<View> l3List = new LinkedList<View>();
+
+		View newsItem;
+
+		int childCountL1 = l1.getChildCount();
+		int childCountL2 = l2.getChildCount();
+		int childCountL3 = l3.getChildCount();
+
+		int mostChildCount = childCountL1;
+		if (mostChildCount < childCountL2) mostChildCount = childCountL2;
+		if (mostChildCount < childCountL3) mostChildCount = childCountL3;
+
+		int totalItems = 0;
+		for (int i = 0; i < mostChildCount; i++) {
+			if (i < childCountL1) {
+				newsItem = l1.getChildAt(i);
+				int nextLayoutAdd = getNextLayoutAdd(totalItems);
+				if (nextLayoutAdd == 1) l1List.add(newsItem);
+				else if (nextLayoutAdd == 2) l2List.add(newsItem);
+				totalItems++;
+			}
+			if (i < childCountL2) {
+				newsItem = l2.getChildAt(i);
+				int nextLayoutAdd = getNextLayoutAdd(totalItems);
+				if (nextLayoutAdd == 1) l1List.add(newsItem);
+				else if (nextLayoutAdd == 2) l2List.add(newsItem);
+				totalItems++;
+			}
+			if (i < childCountL3) {
+				newsItem = l3.getChildAt(i);
+				int nextLayoutAdd = getNextLayoutAdd(totalItems);
+				if (nextLayoutAdd == 1) l1List.add(newsItem);
+				else if (nextLayoutAdd == 2) l2List.add(newsItem);
+				totalItems++;
+			}
+		}
+
+		l1.removeAllViews();
+		l2.removeAllViews();
+		l3.removeAllViews();
+
+		selectColumns();
+
+		for (final View view : l1List) {
+			new Handler().postDelayed(new Runnable() {
+				public void run()
+				{
+					l1.addView(view);
+				}
+			},500);
+		}
+		for (final View view : l2List) {
+			new Handler().postDelayed(new Runnable() {
+				public void run()
+				{
+					l2.addView(view);
+				}
+			},500);
+		}
+		for (final View view : l3List) {
+			new Handler().postDelayed(new Runnable() {
+				public void run()
+				{
+					l3.addView(view);
+				}
+			},500);
+		}
+
+		new Handler().postDelayed(new Runnable() {
+			public void run()
+			{
+				populating = false;
+			}
+		},l1List.size() * 500);
+	}
+
+	private void refreshOrientationUX()
+	{
+		if (menu != null) menu.setBehindWidthRes(R.dimen.slidingmenu_size);
+		View scroll = findViewById(R.id.storyScrollView);
+		FrameLayout.LayoutParams llp = (FrameLayout.LayoutParams) scroll.getLayoutParams();
+		int marginHor = (int) getResources().getDimension(R.dimen.articleMargHor);
+		llp.leftMargin = marginHor;
+		llp.rightMargin = marginHor;
+		scroll.setLayoutParams(llp);
 	}
 
 	private void setSlidingMenu()
@@ -108,7 +217,7 @@ public class TabletActivity extends Activity
 
 		final ListView lv;
 		lv = (ListView) findViewById(R.id.menu_list);
-		lv.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+//		lv.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
 		lv.setAdapter(new MySimpleArrayAdapter(this,Category.MENU_STRINGS));
 		lv.setOnItemClickListener(new OnItemClickListener()
 		{
@@ -125,10 +234,6 @@ public class TabletActivity extends Activity
 
 	public void startCategory(int position, View view)
 	{
-//		Log.i(this.toString(),"POSITION: " + id);
-
-//		ListView lv = (ListView) findViewById(R.id.menu_list);
-//		View view = lv.getChildAt(position - lv.getFirstVisiblePosition());
 		if (currPos == null || currPos != view) {
 			int heading = Category.menuPositionToCategory(position);
 			String categoryName = Category.getCategoryName(heading,true);
@@ -138,13 +243,18 @@ public class TabletActivity extends Activity
 			setHeadingAndColor(categoryName,colorBar,colorText);
 
 			currentCategory = Category.menuPositionToCategory(position);
-			populateNews();
+			populateNews(true,true);
 
 			if (currPos != null) {
 				currPos.setBackgroundColor(getResources().getColor(R.color.Transparent));
 			}
 			if (view != null) {
-				view.setBackgroundColor(getResources().getColor(R.color.black_05));
+				if (position == 0) {
+//					LinearLayout fml = (LinearLayout) view.findViewById(R.id.menu_item_home_Text);
+//					fml.setBackgroundColor(getResources().getColor(R.color.black_05));
+				} else {
+					view.setBackgroundColor(getResources().getColor(R.color.black_05));
+				}
 				currPos = view;
 			}
 		}
@@ -161,24 +271,18 @@ public class TabletActivity extends Activity
 
 	private void setOnClickListeners()
 	{
-		TextView heading = (TextView) findViewById(R.id.page_heading);
-		heading.setTypeface(Typeface.createFromAsset(getAssets(),"Lato-Regular.ttf"));
-
-		findViewById(R.id.menu_button).setOnClickListener(clickEvent);
-		findViewById(R.id.more_button).setOnClickListener(clickEvent);
 
 		findViewById(R.id.close_button).setOnClickListener(clickEvent);
 		findViewById(R.id.back_dark_underlay).setOnClickListener(clickEvent);
-
 		findViewById(R.id.refresh_button).setOnClickListener(clickEvent);
 		findViewById(R.id.drop_down_contact_us).setOnClickListener(clickEvent);
 		findViewById(R.id.drop_down_settings).setOnClickListener(clickEvent);
 		findViewById(R.id.drop_down_browser).setOnClickListener(clickEvent);
+		findViewById(R.id.more_button).setOnClickListener(clickEvent);
 
 		findViewById(R.id.dummy_actionBar_underlay).setOnTouchListener(new OnTouchListener() {
 			public boolean onTouch(View v, MotionEvent event)
 			{
-//				findViewById(R.id.drop_down).setVisibility(View.GONE);
 				if (findViewById(R.id.drop_down).getVisibility() == View.VISIBLE) {
 					vis(R.id.drop_down,GONE,true);
 				}
@@ -186,6 +290,49 @@ public class TabletActivity extends Activity
 			}
 		});
 
+		ScrollViewExt smartScroll = (ScrollViewExt) findViewById(R.id.scrollView_main);
+		smartScroll.setBottomListener(btmListener);
+
+		if (forSearch) {
+			findViewById(R.id.back_button).setVisibility(View.VISIBLE);
+			findViewById(R.id.back_button).setOnClickListener(clickEvent);
+			TextView title = (TextView) findViewById(R.id.actionbar_title);
+			title.setText("Search");
+
+			findViewById(R.id.menu_button).setVisibility(View.GONE);
+			findViewById(R.id.actionbar_logo).setVisibility(View.INVISIBLE);
+			findViewById(R.id.page_heading).setVisibility(View.GONE);
+
+			findViewById(R.id.drop_down_contact_us).setVisibility(View.GONE);
+			findViewById(R.id.drop_down_settings).setVisibility(View.GONE);
+
+			findViewById(R.id.search_query).setVisibility(View.VISIBLE);
+			final EditText textarea = (EditText) findViewById(R.id.search_area);
+			textarea.setVisibility(View.VISIBLE);
+			textarea.setOnEditorActionListener(new EditText.OnEditorActionListener() {
+
+				@Override
+				public boolean onEditorAction(TextView v, int actionId, KeyEvent event)
+				{
+					query = v.getText().toString();
+					TextView txtQuery = (TextView) findViewById(R.id.search_query);
+					txtQuery.setText("Searching for '" + query + "'");
+					populateNews(true,true);
+
+					InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+					imm.hideSoftInputFromWindow(textarea.getWindowToken(),0);
+
+					return true;
+				}
+			});
+
+		} else {
+			TextView heading = (TextView) findViewById(R.id.page_heading);
+			heading.setTypeface(Typeface.createFromAsset(getAssets(),"Lato-Regular.ttf"));
+
+			findViewById(R.id.menu_button).setOnClickListener(clickEvent);
+
+		}
 	}
 
 	public OnClickListener clickEvent = new OnClickListener() {
@@ -193,6 +340,9 @@ public class TabletActivity extends Activity
 		public void onClick(View v)
 		{
 			switch (v.getId()) {
+			case R.id.back_button:
+				finish();
+				break;
 			case R.id.menu_button:
 				menu.toggle();
 				break;
@@ -210,7 +360,7 @@ public class TabletActivity extends Activity
 				vis(R.id.drop_down,GONE,true);
 //				findViewById(R.id.drop_down).setVisibility(View.GONE);
 				if (articleOpen) closeArticle();
-				populateNews(true);
+				populateNews(true,true);
 				break;
 			case R.id.close_button:
 			case R.id.back_dark_underlay:
@@ -230,7 +380,11 @@ public class TabletActivity extends Activity
 				vis(R.id.drop_down,GONE,true);
 				String url = currentURL;
 				if (!articleOpen) {
-					url = "http://theboar.org/" + Category.getCategoryName(currentCategory,false) + "/";
+					if (forSearch) {
+						url = "http://theboar.org/page/" + pageNum + "/?s=" + query;
+					} else {
+						url = "http://theboar.org/" + Category.getCategoryName(currentCategory,false) + "/";
+					}
 				}
 				Intent i = new Intent(Intent.ACTION_VIEW);
 				i.setData(Uri.parse(url));
@@ -243,12 +397,7 @@ public class TabletActivity extends Activity
 		}
 	};
 
-	private void populateNews()
-	{
-		populateNews(false);
-	}
-
-	private void populateNews(boolean useInternet)
+	private void populateNews(boolean useInternet, boolean loadNew)
 	{
 
 		if (!populating) {
@@ -259,31 +408,39 @@ public class TabletActivity extends Activity
 			l2 = (LinearLayout) findViewById(R.id.tablet_lld2);
 			l3 = (LinearLayout) findViewById(R.id.tablet_lld3);
 
-			l1.removeAllViews();
-			l2.removeAllViews();
-			l3.removeAllViews();
+			if (loadNew) {
+				pageNum = 1;
+				l1.removeAllViews();
+				l2.removeAllViews();
+				l3.removeAllViews();
+			}
 
 			// Decide which layouts are present based on wether this is a phone or tablet
 			// and wether we are in portrait or landscape mode.
 			//			l3.setVisibility(LinearLayout.GONE); l3 is GONE by default
-			boolean isPortrait = CNS.isPortrait(this);
-			boolean isTablet = CNS.isTablet(this);
+			selectColumns();
 
-			Log.d("Print","isPortrait:" + isPortrait);
-			if (!isTablet) {
-				if (isPortrait) l2.setVisibility(LinearLayout.GONE);
-				else if (!isPortrait) l2.setVisibility(LinearLayout.VISIBLE);
-			}
-			else if (isTablet) {
-				l3.setVisibility(LinearLayout.VISIBLE);
-				if (isPortrait) l3.setVisibility(LinearLayout.GONE);
-				else if (!isPortrait) l3.setVisibility(LinearLayout.VISIBLE);
-			}
-
-			HeadlineAsyncTask hat = new HeadlineAsyncTask();
-			hat.execute("home");
+			HeadlineAsyncTask hat = new HeadlineAsyncTask(loadNew);
+			hat.execute("default");
 		}
 
+	}
+
+	private void selectColumns()
+	{
+		l1.setVisibility(View.VISIBLE);
+		boolean isPortrait = CNS.isPortrait(this);
+		boolean isTablet = CNS.isTablet(this);
+
+		if (!isTablet) {
+			if (isPortrait) l2.setVisibility(LinearLayout.GONE);
+			else if (!isPortrait) l2.setVisibility(LinearLayout.VISIBLE);
+		}
+		else if (isTablet) {
+			l3.setVisibility(LinearLayout.VISIBLE);
+			if (isPortrait) l3.setVisibility(LinearLayout.GONE);
+			else if (!isPortrait) l3.setVisibility(LinearLayout.VISIBLE);
+		}
 	}
 
 	public void vis(int id, String visibility, boolean fadeAnim)
@@ -303,30 +460,43 @@ public class TabletActivity extends Activity
 	private class HeadlineAsyncTask extends AsyncTask<String, Object, Void> implements IHeadlineListener
 	{
 
+		int count = 0;
+		private String totalAvailablePages = "0";
+		public boolean loadingNew;
+		private String totalCount = "0";
+
+		public HeadlineAsyncTask(boolean loadingNew) {
+			this.loadingNew = loadingNew;
+		}
+
 		@Override
 		protected void onPreExecute()
 		{
-			// TODO Auto-generated method stub
 			super.onPreExecute();
-			LinearLayout loadingLayout = (LinearLayout) findViewById(R.id.loading_layout);
-			loadingLayout.setVisibility(LinearLayout.VISIBLE);
-			TextView loadingTV = (TextView) findViewById(R.id.loading_text);
-			loadingTV.setText("Loading ");
-			//ScrollView sv = (ScrollView) findViewById(R.id.scrollView1);
-			//sv.setPadding(0, (int)(sv.getPaddingTop()*0.28f), 0, 0);
+			if (loadingNew) {
+				LinearLayout loadingLayout = (LinearLayout) findViewById(R.id.loading_layout);
+				loadingLayout.setVisibility(LinearLayout.VISIBLE);
+				TextView loadingTV = (TextView) findViewById(R.id.loading_text);
+				loadingTV.setText("Loading ");
+			}
 		}
 
 		@Override
 		protected Void doInBackground(String... params)
 		{
-			newsStore.getHeadlinesFromCategory(currentCategory,10,this);
+			if (forSearch) {
+				newsStore.getHeadlinesFromSearch(query,pageNum,lastN,this);
+			}
+			else {
+				newsStore.getHeadlinesFromCategory(currentCategory,pageNum,lastN,this);
+			}
 			return null;
 		}
 
 		@Override
-		public void onHeadlineParsed(IHeadline hl, String loadingMessage)
+		public void onHeadlineParsed(IHeadline hl, String[] msgs)
 		{
-			publishProgress(hl,loadingMessage);
+			publishProgress(hl,msgs);
 		}
 
 		@Override
@@ -334,11 +504,17 @@ public class TabletActivity extends Activity
 		{
 			super.onProgressUpdate(values);
 			Headline hl = (Headline) values[0];
-			String loadingMessage = (String) values[1];
-			// Do stuff on UI thread
 			addHeadlineToView(hl);
-			TextView loadingTV = (TextView) findViewById(R.id.loading_text);
-			loadingTV.setText(loadingMessage);
+
+			String[] msgs = (String[]) values[1];
+			if (loadingNew) {
+				TextView loadingTV = (TextView) findViewById(R.id.loading_text);
+				loadingTV.setText(msgs[0]);
+			}
+			totalAvailablePages = msgs[1];
+			totalCount = msgs[2];
+			Log.d("PRINT","TOTAL COUNT ASYNC: " + msgs[2]);
+			count++;
 		}
 
 		@Override
@@ -348,14 +524,25 @@ public class TabletActivity extends Activity
 			LinearLayout loadingLayout = (LinearLayout) findViewById(R.id.loading_layout);
 			loadingLayout.setVisibility(LinearLayout.GONE);
 			populating = false;
-		}
+			TextView txt = (TextView) findViewById(R.id.search_query);
 
+			findViewById(R.id.progress_bottom).setVisibility(View.GONE);
+			Log.d("PRINT","count current: " + count);
+			Log.d("PRINT","page Num: " + pageNum);
+			if (count == 0 || Integer.parseInt(totalAvailablePages) <= pageNum) {
+				pageNum = 0;
+				txt.setText("'" + query + "' returned no results");
+			} else {
+				pageNum++;
+			}
+			txt.setText(totalCount + " results returned for '" + query + "'");
+		}
 	}
 
-	private int getNextLayoutAdd(int i, boolean largeScreen)
+	private int getNextLayoutAdd(int i)
 	{
 		int L = 1;
-		if (largeScreen == false) {
+		if (CNS.isTablet(this) == false) {
 			if (CNS.isPortrait(this)) {
 				L = 1;
 			}
@@ -386,15 +573,24 @@ public class TabletActivity extends Activity
 		{
 
 			currentURL = hl.getPageUrl();
-			ScrollView sv = (ScrollView) findViewById(R.id.storyScrollView);
+//			ScrollView sv = (ScrollView) findViewById(R.id.storyScrollView);
 //			sv.fullScroll(ScrollView.FOCUS_UP);
 			ImageView iv = (ImageView) findViewById(R.id.story_newsImage);
 			Drawable headlineImage = hl.getImage();
 			if (headlineImage != null) {
 				iv.setImageDrawable(headlineImage);
+			} else {
+				iv.setVisibility(View.GONE);
 			}
 			TextView tv = (TextView) findViewById(R.id.story_headline);
-			tv.setText(hl.getHeadline());
+			CharSequence headlineText = Html.fromHtml(hl.getHeadline());
+			tv.setText(headlineText);
+
+			TextView tvAuthor = (TextView) findViewById(R.id.story_author);
+			tvAuthor.setText("By " + hl.getAuthor());
+
+			TextView tvDate = (TextView) findViewById(R.id.story_date);
+			tvDate.setText(DateFormat.getDateInstance().format(hl.getDatePublished()));
 
 			LinearLayout webViewLL = (LinearLayout) findViewById(R.id.story_ll_root);
 			webViewLL.removeAllViews();
@@ -428,8 +624,8 @@ public class TabletActivity extends Activity
 			String s = "<html><head><meta name=\"viewport\"\"content=\"width=" + width + "\" /></head>";
 			s += "<body>";
 			String sEnd = "</body></html>";
-			String cleanUp = changeHTMLattr(hl.getArticleHTML(),"width",Integer.toString(width));
-			cleanUp = changeHTMLattr(cleanUp,"height","auto");
+			String cleanUp = CNS.changeHTMLattr(hl.getArticleHTML(),"width",Integer.toString(width));
+			cleanUp = CNS.changeHTMLattr(cleanUp,"height","auto");
 
 			webview.loadDataWithBaseURL(null,s + cleanUp + sEnd,"text/html","UTF-8",null);
 
@@ -439,14 +635,6 @@ public class TabletActivity extends Activity
 
 	}
 
-	private String changeHTMLattr(String html, String attr, String value)
-	{
-//		html = html.replaceAll("\\s*(?:width)\\s*=\\s*\"[^\"]*\"\\s*"," max-width=\"100%\" ");
-		html = html.replaceAll("\\s*(?:" + attr + ")\\s*=\\s*\'[^\']*\'\\s*"," " + attr + "=\"" + value + "\" ");
-		html = html.replaceAll("\\s*(?:" + attr + ")\\s*=\\s*\"[^\"]*\"\\s*"," " + attr + "=\"" + value + "\" ");
-		return html;
-	}
-
 	private void startArticle()
 	{
 		View articleView = findViewById(R.id.news_story_frame);
@@ -454,10 +642,14 @@ public class TabletActivity extends Activity
 		articleView.setVisibility(View.VISIBLE);
 		articleView.startAnimation(anim);
 
-		findViewById(R.id.menu_button).setVisibility(FrameLayout.GONE);
+		if (forSearch) {
+			findViewById(R.id.back_button).setVisibility(View.GONE);
+		} else {
+			findViewById(R.id.menu_button).setVisibility(FrameLayout.GONE);
+		}
 		findViewById(R.id.close_button).setVisibility(FrameLayout.VISIBLE);
 
-		menu.setSlidingEnabled(false);
+		if (menu != null) menu.setSlidingEnabled(false);
 		articleOpen = true;
 
 	}
@@ -469,10 +661,14 @@ public class TabletActivity extends Activity
 		articleView.setVisibility(View.GONE);
 //		articleView.startAnimation(CNS.Animate(articleView,CNS.FADE,1,0,400));
 
-		findViewById(R.id.menu_button).setVisibility(FrameLayout.VISIBLE);
+		if (forSearch) {
+			findViewById(R.id.back_button).setVisibility(View.VISIBLE);
+		} else {
+			findViewById(R.id.menu_button).setVisibility(FrameLayout.VISIBLE);
+		}
 		findViewById(R.id.close_button).setVisibility(FrameLayout.GONE);
 
-		menu.setSlidingEnabled(true);
+		if (menu != null) menu.setSlidingEnabled(true);
 		articleOpen = false;
 	}
 
@@ -480,71 +676,103 @@ public class TabletActivity extends Activity
 	{
 		View newsItems = null;
 		ImageView iv = null;
-		LinearLayout categoryColor;
+		LinearLayout categoryBox;
 		TextView authorName = null, newsDate = null, newsName = null;
 
+		Drawable d = hl.getImage();
 		//--------------------calculating the height of content-------------------------
 		//In case of some error--------------------------
-		Drawable d = hl.getImage();
-		if (d != null)
-		{
-			int hMin = CNS.getPXfromDP(150,this);
-			int hMax = CNS.getPXfromDP(700,this);
-			int hReal = d.getMinimumHeight();
-			int hFinal = hMin;
-			if (hReal > hMax)
-				hFinal = hMax;
+		int hMin = CNS.getPXfromDP(150,this);
+//		int hMax = CNS.getPXfromDP(700,this);
+//		int hReal = d.getMinimumHeight();
+		int hFinal = hMin;
+//		if (hReal > hMax)
+//			hFinal = hMax;
 
-			//---------------------------------------------------------
+		//---------------------------------------------------------
 
-			FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(CNS.getFillParent(),hFinal);
-			Log.d("Print",": " + hl.getHeadline());
-			Log.d("Print","hSmallest:" + hMin
-					+ ", hLargest:"
-					+ hMax + ", heightPIX:" + hFinal);
+		FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(CNS.getFillParent(),hFinal);
+		Log.d("Print",": " + hl.getHeadline());
+//		Log.d("Print","hSmallest:" + hMin
+//				+ ", hLargest:"
+//				+ hMax + ", heightPIX:" + hFinal);
 
-			//-----------------------------INFLATE + IMAGE--------------------------------
-			newsItems = getLayoutInflater().inflate(R.layout.content_fragment,null,false);
-			iv = (ImageView) newsItems.findViewById(R.id.content_newsImage);
+		//-----------------------------INFLATE--------------------------------
+		newsItems = getLayoutInflater().inflate(R.layout.content_fragment,null,false);
+		//---------------------------------News Type Colour---------------------------
+
+		categoryBox = (LinearLayout) newsItems.findViewById(R.id.content_typecolor);
+		categoryBox.setBackgroundColor(Category.getCategoryColour(hl.getCategory(),getResources()));
+
+		TextView categoryName = (TextView) newsItems.findViewById(R.id.category_name);
+		categoryName.setText(Category.getCategoryNameShort(hl.getCategory()).toUpperCase());
+		//-----------------------------INFLATE + IMAGE--------------------------------
+		iv = (ImageView) newsItems.findViewById(R.id.content_newsImage);
+		if (d != null) {
 			iv.setImageDrawable(d);
 			iv.setLayoutParams(params);
+		} else {
+			iv.setVisibility(View.GONE);
+			FrameLayout.LayoutParams llp = (FrameLayout.LayoutParams) categoryBox.getLayoutParams();
+			llp.topMargin = 0;
+//			llp.width = FrameLayout.LayoutParams.MATCH_PARENT;
+		}
 
-			//---------------------------------News Type Colour---------------------------
-
-			categoryColor = (LinearLayout) newsItems.findViewById(R.id.content_typecolor);
-			categoryColor.setBackgroundColor(Category.getCategoryColour(hl.getCategory(),getResources()));
-
-			TextView categoryName = (TextView) newsItems.findViewById(R.id.category_name);
-			categoryName.setText(Category.getCategoryNameShort(hl.getCategory()).toUpperCase());
-			//--------------------------------News Title||-----------------------------
-			newsName = (TextView) newsItems.findViewById(R.id.topicname);
-			newsName.setText(hl.getHeadline());
-			//-----------------------------------------News Author------------------------------------
-			authorName = (TextView) newsItems.findViewById(R.id.author_name);
-			authorName.setText(hl.getAuthor());
-			//-------------------------------------------Date----------------------------------------
-			newsDate = (TextView) newsItems.findViewById(R.id.content_date);
-			String dateTimeString = DateFormat.getDateInstance().format(hl.getDatePublished());
+		//--------------------------------News Title||-----------------------------
+		newsName = (TextView) newsItems.findViewById(R.id.topicname);
+		CharSequence headlineText = Html.fromHtml(hl.getHeadline());
+		newsName.setText(headlineText);
+		//-----------------------------------------News Author------------------------------------
+		authorName = (TextView) newsItems.findViewById(R.id.author_name);
+		authorName.setText(hl.getAuthor());
+		//-------------------------------------------Date----------------------------------------
+		newsDate = (TextView) newsItems.findViewById(R.id.content_date);
+		String dateTimeString = DateFormat.getDateInstance().format(hl.getDatePublished());
 //			Log.i(this.toString(),"DATE IS: " + hl.getDatePublished().toString());
-			newsDate.setText(dateTimeString);
-			//-------------------------------Set On touch/Click-----------------------------------------
-			newsItems.setOnClickListener(new ArticleClickListener(hl));
-			CNS.onTouchHighlight(getApplicationContext(),newsItems,((FrameLayout) newsItems).getChildAt(0));
-			//-------------------------------Finally Add View (Old Tablet Code)-----------------------------------------
-			headlinesParsedSoFar++;
-			switch (getNextLayoutAdd(headlinesParsedSoFar,CNS.isTablet(this)))
-			{
-			case 1:
-				l1.addView(newsItems);
-				break;
-			case 2:
-				l2.addView(newsItems);
-				break;
-			case 3:
-				l3.addView(newsItems);
-				break;
+		newsDate.setText(dateTimeString);
+		//-------------------------------Set On touch/Click-----------------------------------------
+		newsItems.setOnClickListener(new ArticleClickListener(hl));
+		CNS.onTouchHighlight(getApplicationContext(),newsItems,((FrameLayout) newsItems).getChildAt(0));
+		//-------------------------------Finally Add View (Old Tablet Code)-----------------------------------------
+		headlinesParsedSoFar++;
+		switch (getNextLayoutAdd(headlinesParsedSoFar))
+		{
+		case 1:
+			l1.addView(newsItems);
+			break;
+		case 2:
+			l2.addView(newsItems);
+			break;
+		case 3:
+			l3.addView(newsItems);
+			break;
+		}
+
+	}
+
+	@Override
+	public void onBottomReached()
+	{
+		if (populating == false) {
+			if (pageNum > 0) {
+				if (CNS.isNetworkConnected(this)) {
+					Log.d("PRINT","Bottom Reached Loading More!");
+					populateNews(true,false);
+					findViewById(R.id.progress_bottom).setVisibility(View.VISIBLE);
+				} else {
+					populating = true;
+					new Handler().postDelayed(new Runnable() {
+						public void run()
+						{
+							populating = false;
+						}
+					},5000);
+
+					Toast.makeText(getApplicationContext(),"Please check your internet connection",Toast.LENGTH_LONG).show();
+				}
 			}
 		}
 
 	}
+
 }

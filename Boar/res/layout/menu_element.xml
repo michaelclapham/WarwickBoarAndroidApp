@@ -7,13 +7,13 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@drawable/clickable"
         android:orientation="vertical" >
 
         <LinearLayout
             android:id="@+id/menu_item"
             android:layout_width="match_parent"
             android:layout_height="50dp"
+            android:background="@drawable/clickable"
             android:orientation="vertical" >
 
             <LinearLayout
@@ -45,31 +45,58 @@
         <LinearLayout
             android:id="@+id/menu_item_home"
             android:layout_width="match_parent"
-            android:layout_height="@dimen/actionBarHeight"
-            android:background="@color/black_50"
-            android:orientation="horizontal"
-            android:padding="10dp"
+            android:layout_height="wrap_content"
+            android:background="#666666"
             android:visibility="visible" >
 
-            <ImageView
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:layout_gravity="center_vertical"
-                android:adjustViewBounds="true"
-                android:cropToPadding="false"
-                android:padding="5dp"
-                android:scaleType="centerInside"
-                android:src="@drawable/home" />
-
-            <TextView
-                android:id="@+id/menu_item_text"
+            <LinearLayout
+                android:id="@+id/menu_item_home_Text"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_marginLeft="10dp"
-                android:text="Home"
-                android:textColor="@color/white"
-                android:textSize="18sp" />
+                android:layout_height="@dimen/actionBarHeight"
+                android:layout_weight="1"
+                android:orientation="horizontal"
+                android:background="@drawable/clickable"
+                android:padding="10dp"
+                android:visibility="visible" >
+
+                <ImageView
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_gravity="center_vertical"
+                    android:adjustViewBounds="true"
+                    android:cropToPadding="false"
+                    android:padding="5dp"
+                    android:scaleType="centerInside"
+                    android:src="@drawable/home" />
+
+                <TextView
+                    android:id="@+id/menu_item_text"
+                    android:layout_width="wrap_content"
+                    
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginLeft="10dp"
+                    android:text="Home"
+                    android:textColor="@color/white"
+                    android:textSize="18sp" />
+            </LinearLayout>
+
+            <FrameLayout
+                android:id="@+id/menu_item_search"
+                android:layout_width="@dimen/actionBarHeight"
+                android:layout_height="match_parent"
+                android:layout_gravity="right"
+                android:background="#5c5c5c"
+                android:clickable="true"
+                android:foreground="@drawable/clickable"
+                android:paddingLeft="2dp" >
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/search_white" />
+
+            </FrameLayout>
         </LinearLayout>
     </LinearLayout>
 

@@ -7,6 +7,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.drawable.ColorDrawable;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.util.TypedValue;
@@ -143,6 +145,24 @@ public class CNS
 				return false;
 			}
 		});
+	}
+
+	public static String changeHTMLattr(String html, String attr, String value)
+	{
+//		html = html.replaceAll("\\s*(?:width)\\s*=\\s*\"[^\"]*\"\\s*"," max-width=\"100%\" ");
+		html = html.replaceAll("\\s*(?:" + attr + ")\\s*=\\s*\'[^\']*\'\\s*"," " + attr + "=\"" + value + "\" ");
+		html = html.replaceAll("\\s*(?:" + attr + ")\\s*=\\s*\"[^\"]*\"\\s*"," " + attr + "=\"" + value + "\" ");
+		return html;
+	}
+
+	public static boolean isNetworkConnected(Context context)
+	{
+		ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo ni = cm.getActiveNetworkInfo();
+		if (ni == null) {
+			// There are no active networks.
+			return false;
+		} else return true;
 	}
 
 }

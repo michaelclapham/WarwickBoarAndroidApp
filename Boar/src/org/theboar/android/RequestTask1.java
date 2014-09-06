@@ -24,55 +24,58 @@ import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.util.Log;
 
-public class RequestTask1 extends AsyncTask<String, String, String>{
-	
+public class RequestTask1 extends AsyncTask<String, String, String>
+{
+
 	private HeadlineList list;
-	
-	public RequestTask1(HeadlineList list){
+
+	public RequestTask1(HeadlineList list) {
 		this.list = list;
 	}
 
-    @Override
-    protected String doInBackground(String... uri) {
-        HttpClient httpclient = new DefaultHttpClient();
-        HttpResponse response;
-        String responseString = null;
-        try {
-            response = httpclient.execute(new HttpGet(uri[0]));
-            StatusLine statusLine = response.getStatusLine();
-            if(statusLine.getStatusCode() == HttpStatus.SC_OK){
-                ByteArrayOutputStream out = new ByteArrayOutputStream();
-                response.getEntity().writeTo(out);
-                out.close();
-                responseString = out.toString();
-            } else{
-                //Closes the connection.
-                response.getEntity().getContent().close();
-                throw new IOException(statusLine.getReasonPhrase());
-            }
-        } catch (ClientProtocolException e) {
-            //TODO Handle problems..
-        } catch (IOException e) {
-            //TODO Handle problems..
-        }
-        return responseString;
-    }
+	@Override
+	protected String doInBackground(String... uri)
+	{
+		HttpClient httpclient = new DefaultHttpClient();
+		HttpResponse response;
+		String responseString = null;
+		try {
+			response = httpclient.execute(new HttpGet(uri[0]));
+			StatusLine statusLine = response.getStatusLine();
+			if (statusLine.getStatusCode() == HttpStatus.SC_OK) {
+				ByteArrayOutputStream out = new ByteArrayOutputStream();
+				response.getEntity().writeTo(out);
+				out.close();
+				responseString = out.toString();
+			} else {
+				//Closes the connection.
+				response.getEntity().getContent().close();
+				throw new IOException(statusLine.getReasonPhrase());
+			}
+		} catch (ClientProtocolException e) {
+			//TODO Handle problems..
+		} catch (IOException e) {
+			//TODO Handle problems..
+		}
+		return responseString;
+	}
 
-    private int printCount = 0;
-    
-    @Override
-    protected void onPostExecute(String result) {
-        super.onPostExecute(result);
-        if(result != null){
-        	//Log.v(this.toString(), result);
-        	printCount++;
-        	Log.v(this.toString(), "Print Count: " + printCount);
-        	
-        	//Create JSON Object
-        	try {
+	private int printCount = 0;
+
+	@Override
+	protected void onPostExecute(String result)
+	{
+		super.onPostExecute(result);
+		if (result != null) {
+			//Log.v(this.toString(), result);
+			printCount++;
+			Log.v(this.toString(),"Print Count: " + printCount);
+
+			//Create JSON Object
+			try {
 				JSONObject jObject = new JSONObject(result);
 				JSONArray jArray = jObject.getJSONArray("posts");
-				for(int i = 0; i < jArray.length(); i++){
+				for (int i = 0; i < jArray.length(); i++) {
 					JSONObject story = jArray.getJSONObject(i);
 					Headline head = new Headline();
 					head.setHeadlineTitle(story.getString("title"));
@@ -80,8 +83,8 @@ public class RequestTask1 extends AsyncTask<String, String, String>{
 					String imageURL = story.getJSONObject("thumbnail_images").getJSONObject("full").getString("url");
 					//String imageURL = "http://theboar.org/wp-content/uploads/2014/02/Dating.jpg";
 					head.setLowResImage(drawableFromUrl(imageURL));
-					Log.v(this.toString(), "STORY: " + story.getString("title"));
-					Log.v(this.toString(), "IMG URL: " + imageURL);
+					Log.v(this.toString(),"STORY: " + story.getString("title"));
+					Log.v(this.toString(),"IMG URL: " + imageURL);
 					list.addHeadline(head);
 				}
 				list.setDoneLoading(true);
@@ -92,17 +95,18 @@ public class RequestTask1 extends AsyncTask<String, String, String>{
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-        }
-    }
-    
-    public static Drawable drawableFromUrl(String url) throws IOException {
-        Bitmap x;
+		}
+	}
 
-        HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
-        connection.connect();
-        InputStream input = connection.getInputStream();
+	public static Drawable drawableFromUrl(String url) throws IOException
+	{
+		Bitmap x;
 
-        x = BitmapFactory.decodeStream(input);
-        return new BitmapDrawable(x);
-    }
+		HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
+		connection.connect();
+		InputStream input = connection.getInputStream();
+
+		x = BitmapFactory.decodeStream(input);
+		return new BitmapDrawable(x);
+	}
 }

@@ -33,6 +33,7 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Environment;
 import android.util.Log;
+import android.widget.Toast;
 
 public class NewsStore implements INewsStore
 {
@@ -55,7 +56,7 @@ public class NewsStore implements INewsStore
 		File file = new File(path + "warwick_boar_latest_json.txt");
 
 		// Check if there is network available
-		if (isNetworkConnected()) {
+		if (CNS.isNetworkConnected(context)) {
 			requestRefresh();
 		}
 		// Load from JSON cache
@@ -153,14 +154,13 @@ public class NewsStore implements INewsStore
 		boolean downloadWorked = false;
 
 		// Check for internet connectivity
-		if (isNetworkConnected()) {
-			// Download JSON
-			DefaultHttpClient httpclient = new DefaultHttpClient(new BasicHttpParams());
-			HttpPost httppost = new HttpPost(requestURL);
-			httppost.setHeader("Content-type","application/json");
-
+		if (CNS.isNetworkConnected(context)) {
 			InputStream inputStream = null;
 			try {
+				DefaultHttpClient httpclient = new DefaultHttpClient(new BasicHttpParams());
+				HttpPost httppost = new HttpPost(requestURL);
+				httppost.setHeader("Content-type","application/json");
+
 				HttpResponse response = httpclient.execute(httppost);
 				HttpEntity entity = response.getEntity();
 
@@ -178,6 +178,12 @@ public class NewsStore implements INewsStore
 				downloadWorked = true;
 			} catch (Exception e) {
 				downloadWorked = false;
+				TabletActivity.activity.runOnUiThread(new Runnable() {
+					public void run()
+					{
+						Toast.makeText(TabletActivity.activity,"An error occurred",Toast.LENGTH_LONG).show();
+					}
+				});
 			} finally {
 				try {
 					if (inputStream != null) inputStream.close();
@@ -220,6 +226,11 @@ public class NewsStore implements INewsStore
 	public IHeadlineList getHeadlines3(int lastN, String requestURL, String cacheFile, IHeadlineListener hl_listener)
 	{
 		HeadlineList list = new HeadlineList(lastN);
+
+		// Check if there is network available
+		if (CNS.isNetworkConnected(context)) {
+			doRefresh(requestURL,cacheFile);
+		}
 		//RequestTask1 rt = new RequestTask1(list);
 		//rt.execute("http://www.theboar.org/?json=1");
 
@@ -229,10 +240,6 @@ public class NewsStore implements INewsStore
 		String path = context.getFilesDir().getAbsolutePath();
 		File file = new File(path + cacheFile);
 
-		// Check if there is network available
-		if (isNetworkConnected()) {
-			doRefresh(requestURL,cacheFile);
-		}
 		// Load from JSON cache
 		int length = (int) file.length();
 
@@ -245,9 +252,7 @@ public class NewsStore implements INewsStore
 			} finally {
 				in.close();
 			}
-		} catch (IOException e3) {
-			//
-		}
+		} catch (IOException e3) {}
 
 		String contents = new String(bytes);
 		result = contents;
@@ -257,37 +262,50 @@ public class NewsStore implements INewsStore
 		if (result != null) {
 			try {
 				JSONObject jObject = new JSONObject(result);
+
+				String pagesTotal = "0";
+				String countTotal = "0";
+				try {
+					pagesTotal = jObject.getString("pages");
+					countTotal = jObject.getString("count_total");
+				} catch (org.json.JSONException e) {
+					Log.d("PRINT","JSON Pages or Count Undefined");
+				}
+
 				JSONArray jArray = jObject.getJSONArray("posts");
 				for (int i = 0; i < jArray.length(); i++) {
+					Log.i("PRINT","JArray i=" + i);
+					JSONObject story = jArray.getJSONObject(i);
+					Headline head = parseHeadlineJSON(story);
 					try {
-						JSONObject story = jArray.getJSONObject(i);
-						Headline head = parseHeadlineJSON(story);
 						list.addHeadline(head);
 						// Create loading string
-						String ls = "Loading: " + (i + 1) + "/" + jArray.length() + " headlines loaded";
-						Log.e(this.toString(),"LOADING STRING: " + ls);
+						String[] ls = new String[3];
+						ls[0] = "Loading: " + (i + 1) + "/" + jArray.length();
+						ls[1] = pagesTotal;
+						ls[2] = countTotal;
 						// Inform listener that new headline was parsed
 						hl_listener.onHeadlineParsed(head,ls);
-					} catch (JSONException e) {
+					} catch (Exception e) {
+						Log.e("PRINT","JSON Exception! i=" + i);
 						//
 					}
 				}
 				list.setDoneLoading(true);
 			} catch (JSONException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (ParseException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
+
 		return list;
 	}
 
-	public IHeadlineList getHeadlines2(int lastN, IHeadlineListener hl_listener)
+	/*public IHeadlineList getHeadlines2(int lastN, IHeadlineListener hl_listener)
 	{
 		return getHeadlines3(10,"http://theboar.org/?json=1","warwick_boar_latest_json.txt",hl_listener);
-	}
+	}*/
 
 	public static Headline parseHeadlineJSON(JSONObject story) throws JSONException, ParseException
 	{
@@ -302,22 +320,30 @@ public class NewsStore implements INewsStore
 		storyTitle = storyTitle.replace("&#8221;","”");
 		storyTitle = storyTitle.replace("&#8222;","„");
 		storyTitle = storyTitle.replace("&#8230;","…");
-		head.setHeadlineTitle(storyTitle);
+
 		//String imageURL = story.getJSONArray("attachments").getJSONObject(0).getJSONObject("images").getJSONObject("full").getString("url");
-		String imageURL = story.getJSONObject("thumbnail_images").getJSONObject("medium").getString("url");
+		String imageURL = "";
+		try {
+			imageURL = story.getJSONObject("thumbnail_images").getJSONObject("medium").getString("url");
+			head.setLowResImage(getSmartDrawableFromUrl(imageURL));
+		} catch (JSONException e) {
+			Log.e("PRINT","NO IMAGE FOUND");
+		}
 
 		// Try to find image on SD card, if not present download it.
-		head.setLowResImage(getSmartDrawableFromUrl(imageURL));
 
 		//String imageURL = "http://theboar.org/wp-content/uploads/2014/02/Dating.jpg";
 		//
+		Log.v("NewsStore","STORY: " + story.getString("title"));
+		Log.v("NewsStore","IMG URL: " + imageURL);
+
 		String dateTimeString = story.getString("date");
 		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		Date datePublished = df.parse(dateTimeString);
+
+		head.setHeadlineTitle(storyTitle);
 		head.setDatePublished(datePublished);
 		head.setAuthor(story.getJSONObject("author").getString("name"));
-		Log.v("NewsStore","STORY: " + story.getString("title"));
-		Log.v("NewsStore","IMG URL: " + imageURL);
 		head.setPageUrl(story.getString("url"));
 		head.storeHTML(story.getString("content"));
 		head.setCategory(Category.parseCategoryID(story));
@@ -341,7 +367,7 @@ public class NewsStore implements INewsStore
 		boolean downloadWorked = false;
 
 		// Check for internet connectivity
-		if (isNetworkConnected()) {
+		if (CNS.isNetworkConnected(context)) {
 			// Load synchronously
 			DefaultHttpClient httpclient = new DefaultHttpClient(new BasicHttpParams());
 			HttpPost httppost = new HttpPost("http://theboar.org/?json=1");
@@ -593,20 +619,20 @@ public class NewsStore implements INewsStore
 
 	}
 
-	private boolean isNetworkConnected()
+	public IHeadlineList getHeadlinesFromCategory(int categoryId, int pageNum, int lastN, IHeadlineListener hl_listener)
 	{
-		ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-		NetworkInfo ni = cm.getActiveNetworkInfo();
-		if (ni == null) {
-			// There are no active networks.
-			return false;
-		} else return true;
+		String categoryRequestURL = Category.getCategoryRequestURL(categoryId,pageNum);
+		Log.d("PRINT","CAtegoryURL:" + categoryRequestURL);
+		return getHeadlines3(lastN,categoryRequestURL,
+				Category.getCacheFileName(categoryId),hl_listener);
 	}
 
-	public IHeadlineList getHeadlinesFromCategory(int categoryId, int lastN, IHeadlineListener hl_listener)
+	public IHeadlineList getHeadlinesFromSearch(String query, int page, int lastN, IHeadlineListener hl_listener)
 	{
-		return getHeadlines3(lastN,Category.getCategoryRequestURL(categoryId),
-				Category.getCacheFileName(categoryId),hl_listener);
+		query = query.replaceAll(" ","%20");
+		if (query.endsWith(" ")) query = query.substring(0,query.length() - 2);
+		return getHeadlines3(lastN,"http://theboar.org/?json=1&s=" + query + "&page=" + page,
+				"warwick_boar_latest_json",hl_listener);
 	}
 
 }

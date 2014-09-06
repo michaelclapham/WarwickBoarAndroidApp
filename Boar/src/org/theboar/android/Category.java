@@ -53,10 +53,11 @@ public class Category
 		else return "Other";
 	}
 
-	public static String getCategoryRequestURL(int categoryId)
+	public static String getCategoryRequestURL(int categoryId, int pageNum)
 	{
-		if (categoryId < 15 && categoryId >= 0) { return "http://theboar.org/category/" + CATEGORY_STRINGS[categoryId].toLowerCase() + "/?json=1"; }
-		return "http://theboar.org/?json=1";
+		if (categoryId < 15 && categoryId >= 0) { return "http://theboar.org/category/" + CATEGORY_STRINGS[categoryId].toLowerCase() + "/?json=1&page="
+				+ pageNum; }
+		return "http://theboar.org/?json=1&page=" + pageNum;
 	}
 
 	public static String getCacheFileName(int categoryId)

@@ -1,6 +1,9 @@
 package org.theboar.android;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,6 +31,18 @@ public class MySimpleArrayAdapter extends ArrayAdapter<String>
 		if (position == 0) {
 			rowView.findViewById(R.id.menu_item_home).setVisibility(View.VISIBLE);
 			rowView.findViewById(R.id.menu_item).setVisibility(View.GONE);
+
+			rowView.findViewById(R.id.menu_item_search).setOnClickListener(new View.OnClickListener() {
+
+				@Override
+				public void onClick(View v)
+				{
+					Log.d("PRINT","Search Started!");
+					Intent i = new Intent(context,TabletActivity.class);
+					i.putExtra("forSearch",true);
+					context.startActivity(i);
+				}
+			});
 		} else {
 			rowView.findViewById(R.id.menu_item_home).setVisibility(View.GONE);
 			TextView tv = (TextView) rowView.findViewById(R.id.menu_item_text);
