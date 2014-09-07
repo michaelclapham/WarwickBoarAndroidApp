@@ -8,6 +8,8 @@
     <color name="blue">#00c8fa</color>
 	<color name="orange">#fac000</color>
 	<color name="news">#c4161c</color>
+	
+	<color name="home_colour">#878787</color>
 	<color name="comment">#ffc20e</color>
 	<color name="features">#8dc63f</color>
 	<color name="lifestyle">#F0F</color>
@@ -22,7 +24,55 @@
 	<color name="tv">#92278f</color>
 	<color name="sport">#00a651</color>
 	<color name="photography">#777777</color>
-	<color name="menu_bg">#242424</color>
-	<color name="home_colour">#7f7f7f</color>
+	
+	<color name="menu_bg">#e6e6e6</color>
+	
+	<color name="main_background">#FFf1f1f1</color>
+	
+	
+	
+	<color name="Transparent">#00000000</color>
+	
+	<color name="black_80">#CC000000</color>
+	<color name="black_50">#99000000</color>
+	<color name="black_45">#73000000</color>
+	<color name="black_30">#4D000000</color>
+	<color name="black_20">#33000000</color>
+	<color name="black_10">#1A000000</color>
+	<color name="black_05">#0D000000</color>
+	
+	<color name="black_op_90">#2f2f2f</color>
+	<color name="white_op_90">#f0f0f0</color>
+	
+	<color name="white_80">#CCFFFFFF</color>
+	<color name="white_50">#99FFFFFF</color>
+	<color name="white_30">#4DFFFFFF</color>
+	<color name="white_20">#33FFFFFF</color>
+	<color name="white_10">#1AFFFFFF</color>
 	
 </resources>
+
+<!--
+E.g. for 80% white, use #CCFFFFFF. FF=fully opaque
+100% — FF
+95% — F2
+90% — E6
+85% — D9
+80% — CC
+75% — BF
+70% — B3
+65% — A6
+60% — 99
+55% — 8C
+50% — 80
+45% — 73
+40% — 66
+35% — 59
+30% — 4D
+25% — 40
+20% — 33
+15% — 26
+10% — 1A
+5% — 0D
+0% — 00
+ -->
