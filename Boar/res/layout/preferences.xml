@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <PreferenceCategory
+        android:key="defaults"
+        android:title="Default" />
+
+    <ListPreference
+        android:dialogTitle="Default Category"
+        android:entries="@array/menu_options_array_actual"
+        android:entryValues="@array/menu_options_array_actual"
+        android:key="default_category"
+        android:summary="Select the Category to show at app launch"
+        android:title="Default Category" />
+
+    <PreferenceCategory
+        android:key="caching"
+        android:title="Caches" />
+
+    <Preference
+        android:key="clear_cache"
+        android:title="Clear Cache" />
+
+    <Preference
+        android:key="max_cache"
+        android:summary="Set the maximum size of cache to be stored on this device"
+        android:title="Maximum Cache" />
+
+    <PreferenceCategory
+        android:key="other"
+        android:title="Other" />
+
+    <Preference
+        android:key="rate"
+        android:summary="Rate the app on Google Play"
+        android:title="Rate The Boar" />
+
+    <Preference
+        android:key="version"
+        android:title="Version" />
+
+    <Preference
+        android:key="credits"
+        android:title="Credits" />
+
+</PreferenceScreen>

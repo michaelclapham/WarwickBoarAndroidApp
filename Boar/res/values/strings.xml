@@ -6,23 +6,46 @@
     <string name="title_section1">Section 1</string>
     <string name="title_section2">Section 2</string>
     <string name="title_section3">Section 3</string>
+    <string name="about_addr">The Boar\nSUHQ, Floor Two\nUniversity of Warwick\nUniversity Road\nCoventry\nCV4 7AL</string>
+    <string name="about_boar">The Boar is the University of Warwick’s editorially independent student newspaper produced entirely by and for students.</string>
+    <string name="about_email">contact@theboar.org</string>
+
+    
     <string-array name="menu_options_array">
         <item>Home</item>
-        <item>News</item>
-        <item>Comment</item>
-        <item>Features</item>
-        <item>Lifestyle</item>
-        <item>Money</item>
         <item>Arts</item>
         <item>Books</item>
+        <item>Comment</item>
+        <item>Features</item>
         <item>Film</item>
         <item>Games</item>
+        <item>Lifestyle</item>
+        <item>Money</item>
         <item>Music</item>
+        <item>News</item>
+        <item>Photography</item>
         <item>Science + Tech</item>
+        <item>Sport</item>
         <item>Travel</item>
         <item>TV</item>
+    </string-array>
+    
+    <string-array name="menu_options_array_actual">
+        <item>Home</item>
+        <item>Arts</item>
+        <item>Books</item>
+        <item>Comment</item>
+        <item>Features</item>
+        <item>Film</item>
+        <item>Games</item>
+        <item>Lifestyle</item>
+        <item>Money</item>
+        <item>Music</item>
+        <item>News</item>
+        <item>Science-Tech</item>
         <item>Sport</item>
-        <item>Photography</item>
+        <item>Travel</item>
+        <item>TV</item>
     </string-array>
 
 </resources>
