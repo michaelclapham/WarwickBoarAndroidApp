@@ -1,5 +1,7 @@
 package org.theboar.android;
 
+import java.util.Date;
+
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -11,6 +13,8 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
 import android.preference.PreferenceManager;
+import android.text.format.DateUtils;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.View;
@@ -163,6 +167,40 @@ public class CNS
 			// There are no active networks.
 			return false;
 		} else return true;
+	}
+
+	public static String timeElapsed(Date date)
+	{
+		long epoch = date.getTime();
+		String timePassedString = (String) DateUtils.getRelativeTimeSpanString
+				(epoch,System.currentTimeMillis(),DateUtils.SECOND_IN_MILLIS);
+		return timePassedString;
+	}
+
+	public static String correctYouTube(String str)
+	{
+		if (str.contains("<span class='embed-youtube' ")) {
+			int indexOfYoutubeSpan = str.indexOf("<span class='embed-youtube' ");
+			int indexOfCloseTag1 = str.indexOf(">",indexOfYoutubeSpan) + 1;
+			int indexOfsrc = str.indexOf("src='http://www.youtube",indexOfCloseTag1);
+			int indexOfCloseTagSpan = str.indexOf("</span>",indexOfCloseTag1);
+
+			if (indexOfsrc > indexOfCloseTag1  && indexOfsrc < indexOfCloseTagSpan) {
+				int indexOfYouTubeLink = str.indexOf("?",indexOfsrc);
+				if (indexOfYouTubeLink < indexOfCloseTagSpan) {
+					String url = str.substring(indexOfsrc + 5,indexOfYouTubeLink);
+					String a = "<a href=\"" + url + "\">Youtube Link</a>";
+
+					StringBuilder strB = new StringBuilder(str);
+					strB.delete(indexOfCloseTag1,indexOfCloseTagSpan);
+					strB.insert(indexOfCloseTag1,a);
+
+					str = strB.toString();
+				}
+			}
+			Log.d("PRINT","" + str.substring(indexOfYoutubeSpan));
+		}
+		return str;
 	}
 
 }

@@ -37,7 +37,6 @@ public class MySimpleArrayAdapter extends ArrayAdapter<String>
 				@Override
 				public void onClick(View v)
 				{
-					Log.d("PRINT","Search Started!");
 					Intent i = new Intent(context,TabletActivity.class);
 					i.putExtra("forSearch",true);
 					context.startActivity(i);

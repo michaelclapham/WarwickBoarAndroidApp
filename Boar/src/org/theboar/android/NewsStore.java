@@ -3,7 +3,6 @@ package org.theboar.android;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,21 +23,16 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.net.Uri;
 import android.os.Environment;
+import android.text.Html;
 import android.util.Log;
 import android.widget.Toast;
 
 public class NewsStore implements INewsStore
 {
 
-	private Context context;
+	public static final String boarJSON = "http://theboar.org/?json=1";
+	private static Context context;
 
 	public NewsStore(Context ctx) {
 		context = ctx;
@@ -94,51 +88,10 @@ public class NewsStore implements INewsStore
 		return jArray;
 	}
 
-	public HeadlineList getStubHeadlines()
-	{
-		File DataStorage = new File(
-				Environment.getExternalStorageDirectory(),"Boar News");
-		if (!DataStorage.exists()) {
-			if (!DataStorage.mkdirs())
-				Log.d("Print","failed to create directory");
-		} else Log.d("Print","Directory Exists");
-
-		File[] files = DataStorage.listFiles();
-
-//		for (int i = 0; i < files.length; i++) Log.d("Print","" + files[i].getName());
-		//-------------------------Start Searching and adding image files----------------------------
-		//-------------------------MAKE decoding ASYNCTASK----------------------------
-
-		HeadlineList headlines = new HeadlineList(files.length);
-
-		for (int i = 0; i < files.length; i++) {
-			// Load image
-			String fileName = files[i].getName();
-			Drawable d = null;
-			try {
-				FileInputStream fis = new FileInputStream(DataStorage
-						+ File.separator + fileName);
-				if (fileName.endsWith(".jpg")) {
-					d = Drawable.createFromStream(fis,"news");
-				}
-			} catch (Exception e) {
-				Log.d("Print","ERROR ERROR");
-			}
-			// Create new headline
-			Headline headline = new Headline();
-			headline.setHeadlineTitle(files[i].getName());
-			headline.setLowResImage(d);
-			// Add headline to list
-			headlines.addHeadline(headline);
-		}
-		return headlines;
-
-	}
-
 	@Override
 	public int requestRefresh()
 	{
-		return doRefresh("http://theboar.org/?json=1","warwick_boar_latest_json.txt");
+		return doRefresh(boarJSON,"warwick_boar_latest_json.txt");
 	}
 
 	public int doRefresh(String requestURL, String cacheString)
@@ -209,21 +162,7 @@ public class NewsStore implements INewsStore
 		return 0;
 	}
 
-	@Override
-	public boolean storeHeadline(IHeadline newHeadline)
-	{
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public IHeadlineList getHeadlines(Date dateFrom, Date dateTo)
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public IHeadlineList getHeadlines3(int lastN, String requestURL, String cacheFile, IHeadlineListener hl_listener)
+	public IHeadlineList fetchHeadlines(int lastN, String requestURL, String cacheFile, IHeadlineListener hl_listener)
 	{
 		HeadlineList list = new HeadlineList(lastN);
 
@@ -274,7 +213,7 @@ public class NewsStore implements INewsStore
 
 				JSONArray jArray = jObject.getJSONArray("posts");
 				for (int i = 0; i < jArray.length(); i++) {
-					Log.i("PRINT","JArray i=" + i);
+//					Log.i("PRINT","JArray i=" + i);
 					JSONObject story = jArray.getJSONObject(i);
 					Headline head = parseHeadlineJSON(story);
 					try {
@@ -302,46 +241,17 @@ public class NewsStore implements INewsStore
 		return list;
 	}
 
-	/*public IHeadlineList getHeadlines2(int lastN, IHeadlineListener hl_listener)
-	{
-		return getHeadlines3(10,"http://theboar.org/?json=1","warwick_boar_latest_json.txt",hl_listener);
-	}*/
-
 	public static Headline parseHeadlineJSON(JSONObject story) throws JSONException, ParseException
 	{
 		Headline head = new Headline();
 		String storyTitle = story.getString("title");
-		// Replace HTML codes with correct characters
-		// TODO: More comprehensive code to do this
-		storyTitle = storyTitle.replace("&#8217;","’");
-		storyTitle = storyTitle.replace("&#8216;","‘");
-		storyTitle = storyTitle.replace("&#8218;","‚");
-		storyTitle = storyTitle.replace("&#8220;","“");
-		storyTitle = storyTitle.replace("&#8221;","”");
-		storyTitle = storyTitle.replace("&#8222;","„");
-		storyTitle = storyTitle.replace("&#8230;","…");
 
-		//String imageURL = story.getJSONArray("attachments").getJSONObject(0).getJSONObject("images").getJSONObject("full").getString("url");
-		String imageURL = "";
-		try {
-			imageURL = story.getJSONObject("thumbnail_images").getJSONObject("medium").getString("url");
-			head.setLowResImage(getSmartDrawableFromUrl(imageURL));
-		} catch (JSONException e) {
-			Log.e("PRINT","NO IMAGE FOUND");
-		}
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		Date datePublished = sdf.parse(story.getString("date"));
+		String imageURL = story.getJSONObject("thumbnail_images").getJSONObject("medium").getString("url");
 
-		// Try to find image on SD card, if not present download it.
-
-		//String imageURL = "http://theboar.org/wp-content/uploads/2014/02/Dating.jpg";
-		//
-		Log.v("NewsStore","STORY: " + story.getString("title"));
-		Log.v("NewsStore","IMG URL: " + imageURL);
-
-		String dateTimeString = story.getString("date");
-		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		Date datePublished = df.parse(dateTimeString);
-
-		head.setHeadlineTitle(storyTitle);
+		head.setHeadlineTitle((Html.fromHtml(storyTitle)).toString());
+		head.setImageUrl(imageURL);
 		head.setDatePublished(datePublished);
 		head.setAuthor(story.getJSONObject("author").getString("name"));
 		head.setPageUrl(story.getString("url"));
@@ -353,13 +263,9 @@ public class NewsStore implements INewsStore
 	@Override
 	public IHeadlineList getHeadlines(int lastN)
 	{
-
 		HeadlineList list = new HeadlineList(lastN);
-		//RequestTask1 rt = new RequestTask1(list);
-		//rt.execute("http://www.theboar.org/?json=1");
 
 		String result = null;
-
 		// File for local cache of JSON
 		String path = context.getFilesDir().getAbsolutePath();
 		File file = new File(path + "warwick_boar_latest_json.txt");
@@ -370,7 +276,7 @@ public class NewsStore implements INewsStore
 		if (CNS.isNetworkConnected(context)) {
 			// Load synchronously
 			DefaultHttpClient httpclient = new DefaultHttpClient(new BasicHttpParams());
-			HttpPost httppost = new HttpPost("http://theboar.org/?json=1");
+			HttpPost httppost = new HttpPost(boarJSON);
 			// Depends on your web service
 			httppost.setHeader("Content-type","application/json");
 
@@ -443,50 +349,31 @@ public class NewsStore implements INewsStore
 				for (int i = 0; i < jArray.length(); i++) {
 					JSONObject story = jArray.getJSONObject(i);
 					Headline head = new Headline();
-					String storyTitle = story.getString("title");
-					// Replace HTML codes with correct characters
-					// @TODO: More comprehensive code to do this
-					storyTitle = storyTitle.replace("&#8217;","’");
-					storyTitle = storyTitle.replace("&#8216;","‘");
-					storyTitle = storyTitle.replace("&#8218;","‚");
-					storyTitle = storyTitle.replace("&#8220;","“");
-					storyTitle = storyTitle.replace("&#8221;","”");
-					storyTitle = storyTitle.replace("&#8222;","„");
-					head.setHeadlineTitle(storyTitle);
-					//String imageURL = story.getJSONArray("attachments").getJSONObject(0).getJSONObject("images").getJSONObject("full").getString("url");
-					try {
-						String imageURL = story.getJSONObject("thumbnail_images").getJSONObject("medium").getString("url");
-						Log.v(this.toString(),"IMG URL: " + imageURL);
-						head.setLowResImage(getSmartDrawableFromUrl(imageURL));
-					} catch (JSONException je) {
-						Log.w(this.toString(),"No image");
-					}
 
-					//String imageURL = "http://theboar.org/wp-content/uploads/2014/02/Dating.jpg";
-					//
+					String storyTitle = story.getString("title");
+					String imageURL = story.getJSONObject("thumbnail_images").getJSONObject("medium").getString("url");
 					String dateTimeString = story.getString("date");
 					SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 					Date datePublished = df.parse(dateTimeString);
+
+					head.setHeadlineTitle((Html.fromHtml(storyTitle)).toString());
+					head.setImageUrl(imageURL);
 					head.setDatePublished(datePublished);
 					head.setAuthor(story.getJSONObject("author").getString("name"));
-					Log.v(this.toString(),"STORY: " + story.getString("title"));
-
+					head.storeHTML(story.getString("content"));
 					head.setPageUrl(story.getString("url"));
 					head.setCategory(Category.parseCategoryID(story));
 					list.addHeadline(head);
 				}
 				list.setDoneLoading(true);
 			} catch (JSONException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (ParseException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
 
 		return list;
-		//return list;
 	}
 
 	@Override
@@ -496,99 +383,22 @@ public class NewsStore implements INewsStore
 		return null;
 	}
 
-	@Override
-	public IHeadlineList getNew(int lastN)
+	public IHeadlineList getHeadlinesFromCategory(int categoryId, int pageNum, int lastN, IHeadlineListener hl_listener)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		String categoryRequestURL = Category.getCategoryRequestURL(categoryId,pageNum);
+		return fetchHeadlines(lastN,categoryRequestURL,
+				Category.getCacheFileName(categoryId),hl_listener);
 	}
 
-	@Override
-	public IHeadlineList getHeadlines(String category, int lastN)
+	public IHeadlineList getHeadlinesFromSearch(String query, int page, int lastN, IHeadlineListener hl_listener)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		query = query.replaceAll(" ","%20");
+		if (query.endsWith(" ")) query = query.substring(0,query.length() - 2);
+		return fetchHeadlines(lastN,boarJSON + "&s=" + query + "&page=" + page,
+				"warwick_boar_latest_json",hl_listener);
 	}
 
-	@Override
-	public IHeadlineList basicSearch(String query, int lastN)
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public static Drawable drawableFromUrl(String url) throws IOException
-	{
-		Bitmap x;
-
-		HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
-		connection.connect();
-		InputStream input = connection.getInputStream();
-
-		x = BitmapFactory.decodeStream(input);
-		return new BitmapDrawable(x);
-	}
-
-	public static Bitmap bitmapFromUrl(String url) throws IOException
-	{
-		Bitmap x;
-
-		HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
-		connection.connect();
-		InputStream input = connection.getInputStream();
-
-		x = BitmapFactory.decodeStream(input);
-		return x;
-	}
-
-	public static Drawable getSmartDrawableFromUrl(String url)
-	{
-		Drawable dr = null;
-		String sdState = Environment.getExternalStorageState();
-		if (sdState.equalsIgnoreCase(Environment.MEDIA_MOUNTED)) {
-			// Now check local storage for pre-cached images
-			File DataStorage = new File(
-					Environment.getExternalStorageDirectory(),"WarwickBoar/images/url-cache");
-			if (!DataStorage.exists()) {
-				if (!DataStorage.mkdirs())
-					Log.d("Print","failed to create directory");
-			} else Log.d("Print","Directory Exists");
-
-			String fileName = Uri.parse(url).getLastPathSegment();
-			Log.v("NewsStore","FILE NAME:: " + fileName);
-			File[] files = DataStorage.listFiles();
-
-			for (int i = 0; i < files.length; i++) {
-				// Image is not in SD card cache
-				if (fileName.equalsIgnoreCase(files[i].getName())) {
-					// Now use the image that was cached or just downloaded to create a drawable
-					FileInputStream fis;
-					try {
-						Log.i("NewsStore","LOADING " + fileName + "FROM FILE...");
-						fis = new FileInputStream(DataStorage
-								+ File.separator + files[i].getName());
-						dr = Drawable.createFromStream(fis,"news2");
-						return dr;
-					} catch (FileNotFoundException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}
-
-			}
-			// Then download the image
-			downloadFile(url,fileName,"/WarwickBoar/images/url-cache/");
-		}
-
-		// Use old method in case of pathetic failure or SD card being unavailable
-		try {
-			dr = drawableFromUrl(url);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return dr;
-	}
+	//----------------------------------------------UNUSED----------------------------------------------------
 
 	public static void downloadFile(String fileURL, String fileName, String directory)
 	{
@@ -619,20 +429,18 @@ public class NewsStore implements INewsStore
 
 	}
 
-	public IHeadlineList getHeadlinesFromCategory(int categoryId, int pageNum, int lastN, IHeadlineListener hl_listener)
+	@Override
+	public IHeadlineList getHeadlines(Date dateFrom, Date dateTo)
 	{
-		String categoryRequestURL = Category.getCategoryRequestURL(categoryId,pageNum);
-		Log.d("PRINT","CAtegoryURL:" + categoryRequestURL);
-		return getHeadlines3(lastN,categoryRequestURL,
-				Category.getCacheFileName(categoryId),hl_listener);
+		// TODO Auto-generated method stub
+		return null;
 	}
 
-	public IHeadlineList getHeadlinesFromSearch(String query, int page, int lastN, IHeadlineListener hl_listener)
+	@Override
+	public boolean storeHeadline(IHeadline newHeadline)
 	{
-		query = query.replaceAll(" ","%20");
-		if (query.endsWith(" ")) query = query.substring(0,query.length() - 2);
-		return getHeadlines3(lastN,"http://theboar.org/?json=1&s=" + query + "&page=" + page,
-				"warwick_boar_latest_json",hl_listener);
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 }

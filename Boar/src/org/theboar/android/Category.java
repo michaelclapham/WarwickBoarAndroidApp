@@ -57,7 +57,7 @@ public class Category
 	{
 		if (categoryId < 15 && categoryId >= 0) { return "http://theboar.org/category/" + CATEGORY_STRINGS[categoryId].toLowerCase() + "/?json=1&page="
 				+ pageNum; }
-		return "http://theboar.org/?json=1&page=" + pageNum;
+		return NewsStore.boarJSON + "&page=" + pageNum;
 	}
 
 	public static String getCacheFileName(int categoryId)
@@ -126,43 +126,6 @@ public class Category
 		return res.getColor(R.color.black_20);
 	}
 
-	public static int getCategoryColour(int catagoryId)
-	{
-		switch (catagoryId) {
-		case NEWS:
-			return 0xffc4161c;
-		case COMMENT:
-			return 0xffffc20e;
-		case FEATURES:
-			return 0xff8dc63f;
-		case LIFESTYLE:
-			return 0xffff00ff;
-		case MONEY:
-			return 0xfff26522;
-		case ARTS:
-			return 0xffF26522;
-		case BOOKS:
-			return 0xff008fd5;
-		case FILM:
-			return 0xff790020;
-		case GAMES:
-			return 0xff0096a6;
-		case MUSIC:
-			return 0xffed1c24;
-		case SCI_TECH:
-			return 0xff00abbd;
-		case TRAVEL:
-			return 0xff1e196a;
-		case TV:
-			return 0xff92278f;
-		case SPORT:
-			return 0xff00a651;
-		case PHOTOGRAPHY:
-			return 0xff777777;
-		}
-		return 0xff000000;
-	}
-
 	/* Takes a JSON Object for an article and returns the category ID */
 	public static int parseCategoryID(JSONObject story)
 	{
@@ -170,10 +133,10 @@ public class Category
 			JSONArray cats = story.getJSONArray("categories");
 			for (int i = 0; i < cats.length(); i++) {
 				String catSlug = cats.getJSONObject(i).getString("slug");
-				Log.d("Category","Category: " + catSlug);
+//				Log.d("Category","Category: " + catSlug);
 				for (int j = 0; j < CATEGORY_STRINGS.length; j++) {
 					if (catSlug.equalsIgnoreCase(CATEGORY_STRINGS[j])) {
-						Log.d("Category","Category ID: " + j);
+//						Log.d("Category","Category ID: " + j);
 						return j;
 					}
 				}

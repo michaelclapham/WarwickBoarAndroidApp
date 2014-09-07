@@ -19,7 +19,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="top"
-        android:layout_marginBottom="@dimen/articleMarg"
         android:layout_marginLeft="@dimen/articleMargHor"
         android:layout_marginRight="@dimen/articleMargHor"
         android:background="@color/white" >

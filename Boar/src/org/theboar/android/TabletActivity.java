@@ -1,6 +1,7 @@
 package org.theboar.android;
 
-import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -9,7 +10,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Typeface;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -21,11 +21,12 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
-import android.view.ViewGroup;
 import android.view.Window;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
+import android.webkit.WebChromeClient;
+import android.webkit.WebSettings.PluginState;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.AdapterView;
@@ -39,6 +40,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.androidquery.AQuery;
+import com.androidquery.util.AQUtility;
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 
 public class TabletActivity extends Activity implements BottomReachedListener
@@ -69,6 +72,7 @@ public class TabletActivity extends Activity implements BottomReachedListener
 	public int pageNum;
 	int lastN = 10;
 	public BottomReachedListener btmListener;
+	private AQuery aq;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -80,6 +84,8 @@ public class TabletActivity extends Activity implements BottomReachedListener
 		activity = this;
 		btmListener = this;
 		pageNum = 1;
+		aq = new AQuery(this);
+		AQUtility.setCacheDir(getCacheDir());
 
 		Bundle bundle = getIntent().getExtras();
 		forSearch = false;
@@ -131,23 +137,26 @@ public class TabletActivity extends Activity implements BottomReachedListener
 		for (int i = 0; i < mostChildCount; i++) {
 			if (i < childCountL1) {
 				newsItem = l1.getChildAt(i);
-				int nextLayoutAdd = getNextLayoutAdd(totalItems);
-				if (nextLayoutAdd == 1) l1List.add(newsItem);
-				else if (nextLayoutAdd == 2) l2List.add(newsItem);
+				int next = getNextLayoutAdd(totalItems);
+				if (next == 1) l1List.add(newsItem);
+				else if (next == 2) l2List.add(newsItem);
+				else if (next == 3) l3List.add(newsItem);
 				totalItems++;
 			}
 			if (i < childCountL2) {
 				newsItem = l2.getChildAt(i);
-				int nextLayoutAdd = getNextLayoutAdd(totalItems);
-				if (nextLayoutAdd == 1) l1List.add(newsItem);
-				else if (nextLayoutAdd == 2) l2List.add(newsItem);
+				int next = getNextLayoutAdd(totalItems);
+				if (next == 1) l1List.add(newsItem);
+				else if (next == 2) l2List.add(newsItem);
+				else if (next == 3) l3List.add(newsItem);
 				totalItems++;
 			}
 			if (i < childCountL3) {
 				newsItem = l3.getChildAt(i);
-				int nextLayoutAdd = getNextLayoutAdd(totalItems);
-				if (nextLayoutAdd == 1) l1List.add(newsItem);
-				else if (nextLayoutAdd == 2) l2List.add(newsItem);
+				int next = getNextLayoutAdd(totalItems);
+				if (next == 1) l1List.add(newsItem);
+				else if (next == 2) l2List.add(newsItem);
+				else if (next == 3) l3List.add(newsItem);
 				totalItems++;
 			}
 		}
@@ -158,30 +167,9 @@ public class TabletActivity extends Activity implements BottomReachedListener
 
 		selectColumns();
 
-		for (final View view : l1List) {
-			new Handler().postDelayed(new Runnable() {
-				public void run()
-				{
-					l1.addView(view);
-				}
-			},500);
-		}
-		for (final View view : l2List) {
-			new Handler().postDelayed(new Runnable() {
-				public void run()
-				{
-					l2.addView(view);
-				}
-			},500);
-		}
-		for (final View view : l3List) {
-			new Handler().postDelayed(new Runnable() {
-				public void run()
-				{
-					l3.addView(view);
-				}
-			},500);
-		}
+		addViewsToLay(l1List,l1,500);
+		addViewsToLay(l2List,l2,500);
+		addViewsToLay(l3List,l3,500);
 
 		new Handler().postDelayed(new Runnable() {
 			public void run()
@@ -189,6 +177,18 @@ public class TabletActivity extends Activity implements BottomReachedListener
 				populating = false;
 			}
 		},l1List.size() * 500);
+	}
+
+	private void addViewsToLay(List<View> list, final LinearLayout lay, int delay)
+	{
+		for (final View view : list) {
+			new Handler().postDelayed(new Runnable() {
+				public void run()
+				{
+					lay.addView(view);
+				}
+			},delay);
+		}
 	}
 
 	private void refreshOrientationUX()
@@ -238,7 +238,7 @@ public class TabletActivity extends Activity implements BottomReachedListener
 			int heading = Category.menuPositionToCategory(position);
 			String categoryName = Category.getCategoryName(heading,true);
 			int colorBar = Category.menuPositionToTopColour(position,getResources());
-			int colorText = Category.getCategoryColour(heading);
+			int colorText = Category.getCategoryColour(heading,getResources());
 
 			setHeadingAndColor(categoryName,colorBar,colorText);
 
@@ -413,11 +413,9 @@ public class TabletActivity extends Activity implements BottomReachedListener
 				l1.removeAllViews();
 				l2.removeAllViews();
 				l3.removeAllViews();
+				headlinesParsedSoFar = 0;
 			}
 
-			// Decide which layouts are present based on wether this is a phone or tablet
-			// and wether we are in portrait or landscape mode.
-			//			l3.setVisibility(LinearLayout.GONE); l3 is GONE by default
 			selectColumns();
 
 			HeadlineAsyncTask hat = new HeadlineAsyncTask(loadNew);
@@ -542,21 +540,29 @@ public class TabletActivity extends Activity implements BottomReachedListener
 	private int getNextLayoutAdd(int i)
 	{
 		int L = 1;
-		if (CNS.isTablet(this) == false) {
-			if (CNS.isPortrait(this)) {
+		if (!CNS.isTablet(this)) { // isPhone
+			if (CNS.isPortrait(this)) { //isPortrait
 				L = 1;
 			}
-			else {
+			else {	//isLandscape
 				int k2 = i % 2;
 				L = k2 == 0 ? 1 : 2;
 			}
 		}
-		else {//Have 3 ||| Layouts
-			int k3 = i % 3;
-			if (k3 == 0) L = 1;
-			else if (k3 == 1) L = 2;
-			else L = 3;
+		else { //isTablet
+			if (CNS.isPortrait(this)) { //isPortrait
+				int k2 = i % 2;
+				L = k2 == 0 ? 1 : 2;
+			}
+			else { //isLandscape
+				int k3 = i % 3;
+				if (k3 == 0) L = 1;
+				else if (k3 == 1) L = 2;
+				else L = 3;
+			}
+
 		}
+		Log.d("PRINT","L: " + L);
 		return L;
 	}
 
@@ -575,22 +581,25 @@ public class TabletActivity extends Activity implements BottomReachedListener
 			currentURL = hl.getPageUrl();
 //			ScrollView sv = (ScrollView) findViewById(R.id.storyScrollView);
 //			sv.fullScroll(ScrollView.FOCUS_UP);
+
 			ImageView iv = (ImageView) findViewById(R.id.story_newsImage);
-			Drawable headlineImage = hl.getImage();
-			if (headlineImage != null) {
-				iv.setImageDrawable(headlineImage);
+			String imageURL = hl.getImageUrl();
+			if (imageURL != null) {
+				iv.setVisibility(View.VISIBLE);
+				aq.id(iv).image(imageURL);
 			} else {
 				iv.setVisibility(View.GONE);
 			}
 			TextView tv = (TextView) findViewById(R.id.story_headline);
-			CharSequence headlineText = Html.fromHtml(hl.getHeadline());
-			tv.setText(headlineText);
+			tv.setText(hl.getHeadline());
 
 			TextView tvAuthor = (TextView) findViewById(R.id.story_author);
 			tvAuthor.setText("By " + hl.getAuthor());
 
 			TextView tvDate = (TextView) findViewById(R.id.story_date);
-			tvDate.setText(DateFormat.getDateInstance().format(hl.getDatePublished()));
+			Date datePublished = hl.getDatePublished();
+			String date = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm").format(datePublished);
+			tvDate.setText(date);
 
 			LinearLayout webViewLL = (LinearLayout) findViewById(R.id.story_ll_root);
 			webViewLL.removeAllViews();
@@ -616,6 +625,10 @@ public class TabletActivity extends Activity implements BottomReachedListener
 				}
 
 			});
+//			webview.setWebChromeClient(new WebChromeClient());
+			webview.getSettings().setPluginState(PluginState.ON);
+//			webview.getSettings().setJavaScriptEnabled(true);
+			webview.getSettings().setAllowFileAccess(true);
 
 			startArticle();
 
@@ -626,7 +639,7 @@ public class TabletActivity extends Activity implements BottomReachedListener
 			String sEnd = "</body></html>";
 			String cleanUp = CNS.changeHTMLattr(hl.getArticleHTML(),"width",Integer.toString(width));
 			cleanUp = CNS.changeHTMLattr(cleanUp,"height","auto");
-
+			cleanUp = CNS.correctYouTube(cleanUp);
 			webview.loadDataWithBaseURL(null,s + cleanUp + sEnd,"text/html","UTF-8",null);
 
 			webViewLL.addView(webview);
@@ -679,43 +692,30 @@ public class TabletActivity extends Activity implements BottomReachedListener
 		LinearLayout categoryBox;
 		TextView authorName = null, newsDate = null, newsName = null;
 
-		Drawable d = hl.getImage();
-		//--------------------calculating the height of content-------------------------
-		//In case of some error--------------------------
-		int hMin = CNS.getPXfromDP(150,this);
-//		int hMax = CNS.getPXfromDP(700,this);
-//		int hReal = d.getMinimumHeight();
-		int hFinal = hMin;
-//		if (hReal > hMax)
-//			hFinal = hMax;
-
 		//---------------------------------------------------------
-
-		FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(CNS.getFillParent(),hFinal);
-		Log.d("Print",": " + hl.getHeadline());
-//		Log.d("Print","hSmallest:" + hMin
-//				+ ", hLargest:"
-//				+ hMax + ", heightPIX:" + hFinal);
-
-		//-----------------------------INFLATE--------------------------------
+		int imageHeight = CNS.getPXfromDP(150,this);
+		FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(CNS.getFillParent(),imageHeight);
 		newsItems = getLayoutInflater().inflate(R.layout.content_fragment,null,false);
-		//---------------------------------News Type Colour---------------------------
 
+		//---------------------------------News Type Colour---------------------------
 		categoryBox = (LinearLayout) newsItems.findViewById(R.id.content_typecolor);
 		categoryBox.setBackgroundColor(Category.getCategoryColour(hl.getCategory(),getResources()));
 
 		TextView categoryName = (TextView) newsItems.findViewById(R.id.category_name);
 		categoryName.setText(Category.getCategoryNameShort(hl.getCategory()).toUpperCase());
-		//-----------------------------INFLATE + IMAGE--------------------------------
+
+		//------------------------------------ IMAGE--------------------------------
 		iv = (ImageView) newsItems.findViewById(R.id.content_newsImage);
-		if (d != null) {
-			iv.setImageDrawable(d);
+
+		String imageURL = hl.getImageUrl();
+		if (imageURL != null) {
+			iv.setVisibility(View.VISIBLE);
+			aq.id(iv).image(imageURL);
 			iv.setLayoutParams(params);
 		} else {
 			iv.setVisibility(View.GONE);
 			FrameLayout.LayoutParams llp = (FrameLayout.LayoutParams) categoryBox.getLayoutParams();
 			llp.topMargin = 0;
-//			llp.width = FrameLayout.LayoutParams.MATCH_PARENT;
 		}
 
 		//--------------------------------News Title||-----------------------------
@@ -727,14 +727,13 @@ public class TabletActivity extends Activity implements BottomReachedListener
 		authorName.setText(hl.getAuthor());
 		//-------------------------------------------Date----------------------------------------
 		newsDate = (TextView) newsItems.findViewById(R.id.content_date);
-		String dateTimeString = DateFormat.getDateInstance().format(hl.getDatePublished());
-//			Log.i(this.toString(),"DATE IS: " + hl.getDatePublished().toString());
+//		String dateTimeString = DateFormat.getDateInstance().format(hl.getDatePublished());
+		String dateTimeString = CNS.timeElapsed(hl.getDatePublished());
 		newsDate.setText(dateTimeString);
 		//-------------------------------Set On touch/Click-----------------------------------------
 		newsItems.setOnClickListener(new ArticleClickListener(hl));
 		CNS.onTouchHighlight(getApplicationContext(),newsItems,((FrameLayout) newsItems).getChildAt(0));
 		//-------------------------------Finally Add View (Old Tablet Code)-----------------------------------------
-		headlinesParsedSoFar++;
 		switch (getNextLayoutAdd(headlinesParsedSoFar))
 		{
 		case 1:
@@ -747,6 +746,7 @@ public class TabletActivity extends Activity implements BottomReachedListener
 			l3.addView(newsItems);
 			break;
 		}
+		headlinesParsedSoFar++;
 
 	}
 
