@@ -1,7 +1,8 @@
 package org.theboar.android;
 
-public interface IHeadlineListener {
-	
-	public void onHeadlineParsed(IHeadline hl, String loadingMessage);
+public interface IHeadlineListener
+{
+
+	public void onHeadlineParsed(IHeadline hl, String[] msgs);
 
 }
