@@ -17,18 +17,28 @@
             android:orientation="vertical" >
 
             <LinearLayout
+                android:id="@+id/menu_divider"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:visibility="gone"
+                android:background="@color/black_10"
+                android:orientation="vertical" >
+
+            </LinearLayout>
+
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="horizontal"
                 android:padding="10dp" >
 
-                <LinearLayout
+                <FrameLayout
                     android:id="@+id/menu_item_colour"
                     android:layout_width="3dp"
                     android:layout_height="30dp"
                     android:background="#FF0000"
-                    android:orientation="horizontal" >
-                </LinearLayout>
+                    >
+                </FrameLayout>
 
                 <TextView
                     android:id="@+id/menu_item_text"
@@ -40,6 +50,7 @@
                     android:textColor="@color/black_50"
                     android:textSize="18sp" />
             </LinearLayout>
+
         </LinearLayout>
 
         <LinearLayout

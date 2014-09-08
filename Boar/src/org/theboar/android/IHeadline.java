@@ -4,6 +4,7 @@
  */
 package org.theboar.android;
 
+import android.content.Context;
 import android.graphics.drawable.Drawable;
 import java.util.Date;
 
@@ -31,14 +32,14 @@ public interface IHeadline
 
 	public int getCategory();
 
-	public boolean isFavourite();
+	public boolean isFavourite(Context context);
 
 	public boolean isNew();
 
 	/* Returns the value of isFavourite after the change.
 		fav - true if we want this article to be favourited
 			- false if we want this article to be unfavourited */
-	public boolean setFavourite(boolean fav);
+//	public boolean setFavourite(boolean fav);
 
 	/* Returns the value of isNew after the change.
 		fav - true if the article is now not new (could be like setting
@@ -59,5 +60,7 @@ public interface IHeadline
 
 	/* Get URL to page of article */
 	public String getImageUrl();
+
+	boolean setFavourite(boolean fav, Context context);
 
 }

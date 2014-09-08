@@ -17,6 +17,7 @@ import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.ListPreference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceCategory;
+import android.text.Html;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
@@ -208,7 +209,20 @@ public class Preferences extends PreferenceActivity
 			{
 				AlertDialog.Builder alertDialog = new AlertDialog.Builder(Preferences.this);
 				alertDialog.setTitle("Credits");
-				alertDialog.setMessage("Snehil, Michael, George, Kate");
+//				alertDialog.setMessage("Snehil Bhushan, Michael, George, Kate");
+				LinearLayout linear = new LinearLayout(Preferences.this);
+				linear.setOrientation(1);
+				linear.setPadding(10,10,10,10);
+
+				String html = "<b>Developers:</b><br/>Snehil Bhushan<br/>Michael Clapham<br/><br/><b>Thanks to The Boar Team</b>";
+
+				final TextView text = new TextView(Preferences.this);
+				text.setPadding(10,10,10,10);
+				text.setText(Html.fromHtml(html));
+				text.setTextSize(18);
+
+				linear.addView(text);
+				alertDialog.setView(linear);
 				alertDialog.setPositiveButton("OK",null);
 				alertDialog.show();
 				return true;

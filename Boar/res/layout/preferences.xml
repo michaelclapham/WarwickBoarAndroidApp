@@ -19,7 +19,7 @@
 
     <Preference
         android:key="clear_cache"
-        android:title="Clear Cache" />
+        android:title="Clear Image Cache" />
 
     <Preference
         android:key="max_cache"

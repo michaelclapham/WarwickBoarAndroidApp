@@ -32,6 +32,7 @@
     
     <string-array name="menu_options_array_actual">
         <item>Home</item>
+        <item>Favourites</item>
         <item>Arts</item>
         <item>Books</item>
         <item>Comment</item>

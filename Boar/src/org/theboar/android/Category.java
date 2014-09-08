@@ -2,7 +2,6 @@ package org.theboar.android;
 
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import android.content.res.Resources;
 import android.util.Log;
@@ -10,87 +9,76 @@ import android.util.Log;
 public class Category
 {
 
-	public static final int HOMEPAGE = 30;
-
-	public static final int NEWS = 0;
-	public static final int COMMENT = 1;
-	public static final int FEATURES = 2;
-	public static final int LIFESTYLE = 3;
-	public static final int MONEY = 4;
-	public static final int ARTS = 5;
-	public static final int BOOKS = 6;
-	public static final int FILM = 7;
-	public static final int GAMES = 8;
-	public static final int MUSIC = 9;
-	public static final int SCI_TECH = 10;
-	public static final int TRAVEL = 11;
-	public static final int TV = 12;
-	public static final int SPORT = 13;
-	public static final int PHOTOGRAPHY = 14;
-
-	private static final String[] CATEGORY_STRINGS = { "News", "Comment", "Features", "Lifestyle", "Money",
-			"Arts", "Books", "Film", "Games", "Music", "Science-Tech", "Travel", "TV", "Sport", "Photography" };
-
 	public static final String[] MENU_STRINGS = { "Home", "News", "Comment", "Features", "Lifestyle", "Money",
-			"Arts", "Books", "Film", "Games", "Music", "Science-Tech", "Travel", "TV", "Sport" };
+			"Arts", "Books", "Film", "Games", "Music", "Science-Tech", "Travel", "TV", "Sport", "Favourites" };
 
-	public static final int SOCIAL = 40;
+	public static final int HOME = 0
+			, NEWS
+			= 1
+			, COMMENT
+			= 2
+			, FEATURES
+			= 3
+			, LIFESTYLE
+			= 4
+			, MONEY
+			= 5
+			, ARTS
+			= 6
+			, BOOKS
+			= 7
+			, FILM
+			= 8
+			, GAMES
+			= 9
+			, MUSIC
+			= 10
+			, SCI_TECH
+			= 11
+			, TRAVEL
+			= 12
+			, TV
+			= 13
+			, SPORT
+			= 14
+			, FAVOURITES
+			= 15
+			;
 
 	public static final int OTHER = 80;
 
-	public static String getCategoryName(int categoryId, boolean fullName)
+	public static String getCategoryName(int index, boolean fullName)
 	{
-		if (categoryId == HOMEPAGE) return "Home";
-		if (categoryId == SCI_TECH && fullName == true) return "Science and Technology";
+		if (index == SCI_TECH && fullName == true) return "Science and Technology";
 		try {
-			return CATEGORY_STRINGS[categoryId];
+			return MENU_STRINGS[index];
 		}
 		catch (Exception e) {
 			return null;
 		}
-
-	}
-	public static String getCategoryNameShort(int categoryId)
-	{
-		if (categoryId == SCI_TECH) { return "Sci+Tech"; }
-		if (categoryId >= 0 && categoryId <= 14) {
-			return CATEGORY_STRINGS[categoryId];
-		}
-		else return "Other";
 	}
 
 	public static String getCategoryRequestURL(int categoryId, int pageNum)
 	{
-		if (categoryId < 15 && categoryId >= 0) { return "http://theboar.org/category/" + CATEGORY_STRINGS[categoryId].toLowerCase() + "/?json=1&page="
-				+ pageNum; }
-		return NewsStore.boarJSON + "&page=" + pageNum;
-	}
-
-	public static int menuPositionToCategory(int pos)
-	{
-		if (pos == 0) { return HOMEPAGE; }
-		if (pos < 15) { return pos - 1; }
-		return OTHER;
-	}
-
-	public static int categoryToMenuPosition(int category)
-	{
-		if (category == HOMEPAGE) {
-			return 0;
+		if (categoryId != HOME) {
+			return "http://theboar.org/category/" + MENU_STRINGS[categoryId].toLowerCase() + "/?json=1&page=" + pageNum;
 		}
-		else return category + 1;
+		else {
+			return NewsStore.boarJSON + "&page=" + pageNum;
+		}
 	}
 
-	public static int menuPositionToTopColour(int pos, Resources res)
+	public static int getCategoryColourText(int categoryId, Resources res)
 	{
-		if (pos == 0) { return res.getColor(R.color.white); }
-		return getCategoryColour(pos - 1,res);
+		if (categoryId == HOME) return res.getColor(R.color.black_60);
+		else if (categoryId == FAVOURITES) return res.getColor(R.color.black_60);
+		else return getCategoryColourBar(categoryId,res);
 	}
 
-	public static int getCategoryColour(int categoryId, Resources res)
+	public static int getCategoryColourBar(int categoryId, Resources res)
 	{
 		switch (categoryId) {
-		case HOMEPAGE:
+		case HOME:
 			return res.getColor(R.color.home_colour);
 		case NEWS:
 			return res.getColor(R.color.news);
@@ -120,41 +108,39 @@ public class Category
 			return res.getColor(R.color.tv);
 		case SPORT:
 			return res.getColor(R.color.sport);
-		case PHOTOGRAPHY:
-			return res.getColor(R.color.photography);
+		case FAVOURITES:
+			return res.getColor(R.color.favourites_white);
+//		case PHOTOGRAPHY:
+//			return res.getColor(R.color.photography);
 		}
 		return res.getColor(R.color.black_20);
 	}
 
-	/* Takes a JSON Object for an article and returns the category ID */
-	public static int parseCategoryID(JSONObject story)
+	public static int getCategoryIDFromName(String name)
 	{
-		try {
-			JSONArray cats = story.getJSONArray("categories");
-			for (int i = 0; i < cats.length(); i++) {
-				String catSlug = cats.getJSONObject(i).getString("slug");
-//				Log.d("Category","Category: " + catSlug);
-				for (int j = 0; j < CATEGORY_STRINGS.length; j++) {
-					if (catSlug.equalsIgnoreCase(CATEGORY_STRINGS[j])) {
-//						Log.d("Category","Category ID: " + j);
-						return j;
-					}
-				}
-			}
-		}
-		catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		for (int i = 0; i < MENU_STRINGS.length; i++) {
+			if (MENU_STRINGS[i].equalsIgnoreCase(name)) { return i; }
 		}
 		return OTHER;
 	}
 
-	public static int getCategoryIDFromString(String name)
+	/** 
+	 * Takes a JSON Object for an article and returns the category ID 
+	 * **/
+	public static int parseCategoryID(JSONArray cats)
 	{
-		for (int i = 0; i < CATEGORY_STRINGS.length; i++) {
-			if (CATEGORY_STRINGS[i].equalsIgnoreCase(name)) { return i; }
+		try {
+			for (int i = 0; i < cats.length(); i++) {
+				String catSlug = cats.getJSONObject(i).getString("slug");
+				for (int j = 0; j < MENU_STRINGS.length; j++) {
+					if (catSlug.equalsIgnoreCase(MENU_STRINGS[j])) { return j; }
+				}
+			}
 		}
-		if (name.equalsIgnoreCase("Home")) { return HOMEPAGE; }
+		catch (JSONException e) {}
 		return OTHER;
 	}
+
+	//-------------------------------------------------------------------------------------------------------------------
+
 }

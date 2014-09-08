@@ -26,28 +26,55 @@ public class NewsStore implements INewsStore
 	public static final String boarJSON = "http://theboar.org/?json=1";
 	private static Context context;
 	private int pageNum;
+	private IHeadlineListener hl_listener;
 
 	public NewsStore(Context ctx) {
 		context = ctx;
 	}
 
-	public IHeadlineList getHeadlinesFromCategory(int categoryId, int pageNum, int lastN, IHeadlineListener hl_listener)
+	@Override
+	public IHeadlineList headlinesFromCategory(int categoryId, int pageNum, int count, IHeadlineListener hl_listener)
 	{
 		this.pageNum = pageNum;
+		this.hl_listener = hl_listener;
 		String categoryRequestURL = Category.getCategoryRequestURL(categoryId,pageNum);
-		return fetchHeadlines(lastN,categoryRequestURL,hl_listener,categoryId);
+		return generateHeadlines(count,categoryRequestURL,categoryId);
 	}
 
-	public IHeadlineList getHeadlinesFromSearch(String query, int page, int lastN, IHeadlineListener hl_listener)
+	@Override
+	public IHeadlineList headlinesFromFavourites(IHeadlineListener hl_listener)
+	{
+
+		this.hl_listener = hl_listener;
+		String path = context.getCacheDir().getAbsolutePath();
+		File favFile = new File(path + "favourites" + ".json");
+		JSONObject favJSON = getJSONFromFile(favFile);
+
+		if (favJSON != null) {//retrieve from cache
+			int numPosts = 0;
+			try {
+				numPosts = Integer.parseInt(favJSON.getString("count_total"));
+			}
+			catch (NumberFormatException e) {}
+			catch (JSONException e) {}
+			IHeadlineList hList = parseJSONtoHeadlineList(numPosts,favJSON);
+			return hList;
+		}
+		return null;
+	}
+	@Override
+	public IHeadlineList headlinesFromSearch(String query, int page, int count, IHeadlineListener hl_listener)
 	{
 		this.pageNum = page;
+		this.hl_listener = hl_listener;
 		query = query.replaceAll(" ","%20");
 		if (query.endsWith(" ")) query = query.substring(0,query.length() - 2);
-		return fetchHeadlines(lastN,boarJSON + "&s=" + query + "&page=" + page,hl_listener,-1);
+		return generateHeadlines(count,boarJSON + "&s=" + query + "&page=" + page,-1);
 	}
 
 	//----------------------------------------JSON--------------------------------
 
+	@Override
 	public JSONObject downloadJSON(String requestURL, int categoryId)
 	{
 		if (CNS.isNetworkConnected(context) == false) {
@@ -59,25 +86,26 @@ public class NewsStore implements INewsStore
 			});
 			return null;
 		}
-		JSONObject joNEIL = null;
+		JSONObject jsonObj = null;
 		try {
-			joNEIL = (JSONObject) new JSONTokener(IOUtils.toString(new URL(requestURL))).nextValue();
+			jsonObj = (JSONObject) new JSONTokener(IOUtils.toString(new URL(requestURL))).nextValue();
 			String categoryName = Category.getCategoryName(categoryId,false);
 			if (categoryName != null && pageNum == 1) { //only add 1st page to cache
-				addJSONtoCache(joNEIL,categoryName);
+				String path = context.getCacheDir().getAbsolutePath();
+				File cacheFile = new File(path + categoryName + ".json");
+				writeJSONtoFile(jsonObj,cacheFile);
 			}
 		}
 		catch (Exception e) {
 			Log.e(CNS.LOGPRINT,"An Error Occurred retrieving JSON.");
 		}
-		return joNEIL;
+		return jsonObj;
 	}
 
-	private JSONObject getJSONFromCache(String categoryName)
+	public static JSONObject getJSONFromFile(File cacheFile)
 	{
 		JSONObject jObject = null;
-		String path = context.getCacheDir().getAbsolutePath();
-		File cacheFile = new File(path + categoryName + ".json");
+
 		if (cacheFile.exists()) {
 			int length = (int) cacheFile.length();
 			byte[] bytes = new byte[length];
@@ -103,19 +131,14 @@ public class NewsStore implements INewsStore
 
 	}
 
-	private void addJSONtoCache(final JSONObject json, final String category)
+	public static void writeJSONtoFile(final JSONObject json, final File cacheFile)
 	{
 		Runnable r = new Runnable() {
 			public void run()
 			{
 				try {
-					String path = context.getCacheDir().getAbsolutePath();
-					File cacheFile = new File(path + category + ".json");
 					if (!cacheFile.exists()) cacheFile.createNewFile();
-
 					FileUtils.writeStringToFile(cacheFile,json.toString());
-//					JSONParser jsonParser = new JSONParser();
-//					JSONArray a = (JSONArray) jsonParser.parse(new FileReader("c:\\exer4-courses.json"));
 				}
 				catch (IOException e) {}
 			}
@@ -126,11 +149,11 @@ public class NewsStore implements INewsStore
 
 	//----------------------------------------ARTICLES--------------------------------
 
-	private IHeadlineList parseJSONtoHeadlineList(int lastN, IHeadlineListener hl_listener, JSONObject jObject)
+	public IHeadlineList parseJSONtoHeadlineList(int count, JSONObject jObject)
 	{
 		if (jObject == null) { return null; }
 
-		HeadlineList list = new HeadlineList(lastN);
+		HeadlineList list = new HeadlineList(count);
 		String pagesTotal = "0";
 		String countTotal = "0";
 		try {
@@ -138,7 +161,7 @@ public class NewsStore implements INewsStore
 			countTotal = jObject.getString("count_total");
 		}
 		catch (org.json.JSONException e) {
-			Log.e(CNS.LOGPRINT,"JSON Pages or Count Undefined");
+//			Log.e(CNS.LOGPRINT,"JSON Pages or Count Undefined");
 		}
 
 		JSONArray jArray = null;
@@ -151,14 +174,15 @@ public class NewsStore implements INewsStore
 				try {
 					JSONObject story;
 					story = jArray.getJSONObject(i);
-					list.addHeadline(parseHeadlineJSON(story));
+					list.addHeadline(parseJSONtoHeadline(story));
 
 					String[] ls = new String[3];
 					ls[0] = "Loading: " + (i + 1) + "/" + jArray.length();
 					ls[1] = pagesTotal;
 					ls[2] = countTotal;
 
-					hl_listener.onHeadlineParsed(parseHeadlineJSON(story),ls);
+					Headline hl = parseJSONtoHeadline(story);
+					hl_listener.onHeadlineParsed(hl,ls);
 				}
 				catch (JSONException e) {}
 			}
@@ -167,7 +191,7 @@ public class NewsStore implements INewsStore
 		return list;
 	}
 
-	public Headline parseHeadlineJSON(JSONObject story)
+	private Headline parseJSONtoHeadline(JSONObject story)
 	{
 		try {
 			Headline head = new Headline();
@@ -188,7 +212,9 @@ public class NewsStore implements INewsStore
 			head.setAuthor(story.getJSONObject("author").getString("name"));
 			head.setPageUrl(story.getString("url"));
 			head.storeHTML(story.getString("content"));
-			head.setCategory(Category.parseCategoryID(story));
+			head.setCategory(Category.parseCategoryID(story.getJSONArray("categories")));
+			head.setJSONStory(story);
+			head.setUniqueId(story.getString("id"));
 			return head;
 		}
 		catch (JSONException e) {}
@@ -196,17 +222,19 @@ public class NewsStore implements INewsStore
 		return null;
 	}
 
-	private IHeadlineList fetchHeadlines(int lastN, String categoryRequestURL, IHeadlineListener hl_listener, int categoryId)
+	private IHeadlineList generateHeadlines(int count, String categoryRequestURL, int categoryId)
 	{
 		JSONObject downloadedJSON = downloadJSON(categoryRequestURL,categoryId);
 
 		if (downloadedJSON == null) {//retrieve from cache
 			String categoryName = Category.getCategoryName(categoryId,false);
 			if (categoryName != null) { //eg. query
-				downloadedJSON = getJSONFromCache(categoryName);
+				String path = context.getCacheDir().getAbsolutePath();
+				File cacheFile = new File(path + categoryName + ".json");
+				downloadedJSON = getJSONFromFile(cacheFile);
 			}
 		}
-		IHeadlineList hList = parseJSONtoHeadlineList(lastN,hl_listener,downloadedJSON);
+		IHeadlineList hList = parseJSONtoHeadlineList(count,downloadedJSON);
 		return hList;
 	}
 

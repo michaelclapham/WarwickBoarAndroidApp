@@ -1,13 +1,20 @@
 package org.theboar.android;
 
+import java.io.File;
 import java.util.Date;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.util.Log;
 
 public class Headline implements IHeadline
 {
 
-	private int uniqueId = -1;
+	private String uniqueId;
 	private String headlineTitle;
 	private boolean favourite = false;
 	private boolean isNew = false;
@@ -20,6 +27,7 @@ public class Headline implements IHeadline
 	private String internalHTML;
 	private String pageUrl;
 	private String imageUrl;
+	private JSONObject jsonStory;
 
 	public Headline() {
 		//
@@ -91,9 +99,61 @@ public class Headline implements IHeadline
 	}
 
 	@Override
-	public boolean isFavourite()
+	public boolean isFavourite(Context context)
 	{
-		return favourite;
+		if (favourite == true) return true;
+		String path = context.getCacheDir().getAbsolutePath();
+		File favFile = new File(path + "favourites" + ".json");
+		JSONObject jsonObj = NewsStore.getJSONFromFile(favFile);
+		if (jsonObj == null) {
+			return false;
+		} else {
+			try {
+				JSONArray jArray = jsonObj.getJSONArray("posts");
+				checkFavourite(jArray,false);
+				return favourite;
+			}
+			catch (JSONException e) {}
+		}
+		return false;
+	}
+
+	private JSONArray checkFavourite(JSONArray jArray, boolean remove)
+	{
+		if (jArray != null) {
+			for (int i = 0; i < jArray.length(); i++) {
+				try {
+					JSONObject story = jArray.getJSONObject(i);
+					if (story.getString("id").equals(uniqueId)) {
+						favourite = true;
+						if (remove) {
+							jArray = removeJSONArray(jArray,uniqueId);
+							favourite = false;
+						}
+					}
+				}
+				catch (JSONException e) {}
+			}
+		}
+		return jArray;
+	}
+
+	public static JSONArray removeJSONArray(JSONArray jArray, String id)
+	{
+
+		JSONArray newJarray = new JSONArray();
+		try {
+			for (int i = 0; i < jArray.length(); i++) {
+				JSONObject story = jArray.getJSONObject(i);
+				if (!story.getString("id").equals(id)) {
+					newJarray.put(jArray.get(i));
+				}
+			}
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+		return newJarray;
 	}
 
 	@Override
@@ -103,12 +163,30 @@ public class Headline implements IHeadline
 	}
 
 	@Override
-	public boolean setFavourite(boolean fav)
+	public boolean setFavourite(boolean fav, Context context)
 	{
 		favourite = fav;
+		String path = context.getCacheDir().getAbsolutePath();
+		File favFile = new File(path + "favourites" + ".json");
+		JSONObject jsonObj = NewsStore.getJSONFromFile(favFile);
+		JSONArray jsArr = new JSONArray();
+		if (jsonObj == null) {
+			jsonObj = new JSONObject();
+		}
+		try {
+			jsArr = jsonObj.getJSONArray("posts");
+			if (fav) {
+				jsArr.put(jsonStory);
+			} else {
+				jsArr = checkFavourite(jsArr,true);
+			}
+			jsonObj.put("count",jsArr.length());
+			jsonObj.put("posts",jsArr);
+			NewsStore.writeJSONtoFile(jsonObj,favFile);
+		}
+		catch (JSONException e) {}
 		return true;
 	}
-
 	@Override
 	public boolean setNew(boolean isNew)
 	{
@@ -144,9 +222,13 @@ public class Headline implements IHeadline
 		return internalHTML;
 	}
 
-	public int getUniqueId()
+	public String getUniqueId()
 	{
 		return uniqueId;
+	}
+	public void setUniqueId(String id)
+	{
+		this.uniqueId = id;
 	}
 
 	public String getPageUrl()
@@ -167,6 +249,17 @@ public class Headline implements IHeadline
 	public String getImageUrl()
 	{
 		return imageUrl;
+	}
+
+	public void setJSONStory(JSONObject story)
+	{
+		this.jsonStory = story;
+
+	}
+
+	public JSONObject getJSONStory()
+	{
+		return jsonStory;
 	}
 
 }
