@@ -44,7 +44,7 @@ import com.androidquery.AQuery;
 import com.androidquery.util.AQUtility;
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 
-public class WarwickBoarActivity extends Activity implements BottomReachedListener
+public class BoarActivity extends Activity implements BottomReachedListener
 {
 
 	public static Activity activity;
@@ -80,7 +80,7 @@ public class WarwickBoarActivity extends Activity implements BottomReachedListen
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 
-		setContentView(R.layout.activity_tablet);
+		setContentView(R.layout.activity_main);
 		activity = this;
 		btmListener = this;
 		pageNum = 1;
@@ -115,7 +115,7 @@ public class WarwickBoarActivity extends Activity implements BottomReachedListen
 	{
 		super.onConfigurationChanged(newConfig);
 
-		Log.d("PRINT","CONFIFURATION CHANGED!");
+		Log.d(CNS.LOGPRINT,"CONFIFURATION CHANGED!");
 		populating = true;
 		refreshOrientationUX();
 
@@ -176,7 +176,7 @@ public class WarwickBoarActivity extends Activity implements BottomReachedListen
 			{
 				populating = false;
 			}
-		},l1List.size() * 500);
+		},l1List.size() * 250);
 	}
 
 	private void addViewsToLay(List<View> list, final LinearLayout lay, int delay)
@@ -368,12 +368,12 @@ public class WarwickBoarActivity extends Activity implements BottomReachedListen
 				break;
 			case R.id.drop_down_contact_us:
 				vis(R.id.drop_down,GONE,true);
-				Intent intent1 = new Intent(WarwickBoarActivity.this,ContactActivity.class);
+				Intent intent1 = new Intent(BoarActivity.this,ContactActivity.class);
 				startActivity(intent1);
 				break;
 			case R.id.drop_down_settings:
 				vis(R.id.drop_down,GONE,true);
-				Intent intent2 = new Intent(WarwickBoarActivity.this,Preferences.class);
+				Intent intent2 = new Intent(BoarActivity.this,Preferences.class);
 				startActivity(intent2);
 				break;
 			case R.id.drop_down_browser:
@@ -482,6 +482,7 @@ public class WarwickBoarActivity extends Activity implements BottomReachedListen
 		@Override
 		protected Void doInBackground(String... params)
 		{
+			Log.i(CNS.LOGPRINT,"SENT!");
 			if (forSearch) {
 				newsStore.getHeadlinesFromSearch(query,pageNum,lastN,this);
 			}
@@ -511,7 +512,7 @@ public class WarwickBoarActivity extends Activity implements BottomReachedListen
 			}
 			totalAvailablePages = msgs[1];
 			totalCount = msgs[2];
-			Log.d("PRINT","TOTAL COUNT ASYNC: " + msgs[2]);
+//			Log.d(CNS.LOGPRINT,"TOTAL COUNT ASYNC: " + msgs[2]);
 			count++;
 		}
 
@@ -525,8 +526,8 @@ public class WarwickBoarActivity extends Activity implements BottomReachedListen
 			TextView txt = (TextView) findViewById(R.id.search_query);
 
 			findViewById(R.id.progress_bottom).setVisibility(View.GONE);
-			Log.d("PRINT","count current: " + count);
-			Log.d("PRINT","page Num: " + pageNum);
+//			Log.d(CNS.LOGPRINT,"count current: " + count);
+//			Log.d(CNS.LOGPRINT,"page Num: " + pageNum);
 			if (count == 0 || Integer.parseInt(totalAvailablePages) <= pageNum) {
 				pageNum = 0;
 				txt.setText("'" + query + "' returned no results");
@@ -562,7 +563,6 @@ public class WarwickBoarActivity extends Activity implements BottomReachedListen
 			}
 
 		}
-		Log.d("PRINT","L: " + L);
 		return L;
 	}
 
@@ -687,65 +687,68 @@ public class WarwickBoarActivity extends Activity implements BottomReachedListen
 
 	private void addHeadlineToView(IHeadline hl)
 	{
-		View newsItems = null;
-		ImageView iv = null;
-		LinearLayout categoryBox;
-		TextView authorName = null, newsDate = null, newsName = null;
+		try {
+			View newsItems = null;
+			ImageView iv = null;
+			LinearLayout categoryBox;
+			TextView authorName = null, newsDate = null, newsName = null;
 
-		//---------------------------------------------------------
-		int imageHeight = CNS.getPXfromDP(150,this);
-		FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(CNS.getFillParent(),imageHeight);
-		newsItems = getLayoutInflater().inflate(R.layout.content_fragment,null,false);
+			//---------------------------------------------------------
+			int imageHeight = CNS.getPXfromDP(150,this);
+			FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(CNS.getFillParent(),imageHeight);
+			newsItems = getLayoutInflater().inflate(R.layout.content_fragment,null,false);
 
-		//---------------------------------News Type Colour---------------------------
-		categoryBox = (LinearLayout) newsItems.findViewById(R.id.content_typecolor);
-		categoryBox.setBackgroundColor(Category.getCategoryColour(hl.getCategory(),getResources()));
+			//---------------------------------News Type Colour---------------------------
+			categoryBox = (LinearLayout) newsItems.findViewById(R.id.content_typecolor);
+			categoryBox.setBackgroundColor(Category.getCategoryColour(hl.getCategory(),getResources()));
 
-		TextView categoryName = (TextView) newsItems.findViewById(R.id.category_name);
-		categoryName.setText(Category.getCategoryNameShort(hl.getCategory()).toUpperCase());
+			TextView categoryName = (TextView) newsItems.findViewById(R.id.category_name);
+			categoryName.setText(Category.getCategoryNameShort(hl.getCategory()).toUpperCase());
 
-		//------------------------------------ IMAGE--------------------------------
-		iv = (ImageView) newsItems.findViewById(R.id.content_newsImage);
+			//------------------------------------ IMAGE--------------------------------
+			iv = (ImageView) newsItems.findViewById(R.id.content_newsImage);
 
-		String imageURL = hl.getImageUrl();
-		if (imageURL != null) {
-			iv.setVisibility(View.VISIBLE);
-			aq.id(iv).image(imageURL);
-			iv.setLayoutParams(params);
-		} else {
-			iv.setVisibility(View.GONE);
-			FrameLayout.LayoutParams llp = (FrameLayout.LayoutParams) categoryBox.getLayoutParams();
-			llp.topMargin = 0;
-		}
+			String imageURL = hl.getImageUrl();
+			if (imageURL != null) {
+				iv.setVisibility(View.VISIBLE);
+				aq.id(iv).image(imageURL);
+				iv.setLayoutParams(params);
+			} else {
+				iv.setVisibility(View.GONE);
+				FrameLayout.LayoutParams llp = (FrameLayout.LayoutParams) categoryBox.getLayoutParams();
+				llp.topMargin = 0;
+			}
 
-		//--------------------------------News Title||-----------------------------
-		newsName = (TextView) newsItems.findViewById(R.id.topicname);
-		CharSequence headlineText = Html.fromHtml(hl.getHeadline());
-		newsName.setText(headlineText);
-		//-----------------------------------------News Author------------------------------------
-		authorName = (TextView) newsItems.findViewById(R.id.author_name);
-		authorName.setText(hl.getAuthor());
-		//-------------------------------------------Date----------------------------------------
-		newsDate = (TextView) newsItems.findViewById(R.id.content_date);
+			//--------------------------------News Title||-----------------------------
+			newsName = (TextView) newsItems.findViewById(R.id.topicname);
+			CharSequence headlineText = Html.fromHtml(hl.getHeadline());
+			newsName.setText(headlineText);
+			//-----------------------------------------News Author------------------------------------
+			authorName = (TextView) newsItems.findViewById(R.id.author_name);
+			authorName.setText(hl.getAuthor());
+			//-------------------------------------------Date----------------------------------------
+			newsDate = (TextView) newsItems.findViewById(R.id.content_date);
 //		String dateTimeString = DateFormat.getDateInstance().format(hl.getDatePublished());
-		String dateTimeString = CNS.timeElapsed(hl.getDatePublished());
-		newsDate.setText(dateTimeString);
-		//-------------------------------Set On touch/Click-----------------------------------------
-		newsItems.setOnClickListener(new ArticleClickListener(hl));
-		CNS.onTouchHighlight(getApplicationContext(),newsItems,((FrameLayout) newsItems).getChildAt(0));
-		//-------------------------------Finally Add View (Old Tablet Code)-----------------------------------------
-		switch (getNextLayoutAdd(headlinesParsedSoFar))
-		{
-		case 1:
-			l1.addView(newsItems);
-			break;
-		case 2:
-			l2.addView(newsItems);
-			break;
-		case 3:
-			l3.addView(newsItems);
-			break;
+			String dateTimeString = CNS.timeElapsed(hl.getDatePublished());
+			newsDate.setText(dateTimeString);
+			//-------------------------------Set On touch/Click-----------------------------------------
+			newsItems.setOnClickListener(new ArticleClickListener(hl));
+			CNS.onTouchHighlight(getApplicationContext(),newsItems,((FrameLayout) newsItems).getChildAt(0));
+			//-------------------------------Finally Add View (Old Tablet Code)-----------------------------------------
+			switch (getNextLayoutAdd(headlinesParsedSoFar))
+			{
+			case 1:
+				l1.addView(newsItems);
+				break;
+			case 2:
+				l2.addView(newsItems);
+				break;
+			case 3:
+				l3.addView(newsItems);
+				break;
+			}
 		}
+		catch (Exception e) {}
 		headlinesParsedSoFar++;
 
 	}
@@ -756,7 +759,7 @@ public class WarwickBoarActivity extends Activity implements BottomReachedListen
 		if (populating == false) {
 			if (pageNum > 0) {
 				if (CNS.isNetworkConnected(this)) {
-					Log.d("PRINT","Bottom Reached Loading More!");
+					Log.d(CNS.LOGPRINT,"Bottom Reached Loading More!");
 					populateNews(true,false);
 					findViewById(R.id.progress_bottom).setVisibility(View.VISIBLE);
 				} else {

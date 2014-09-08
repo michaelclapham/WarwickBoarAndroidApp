@@ -19,24 +19,24 @@ public interface INewsStore
 	 * Returns the number of new articles or -1 if the 
 	 * refresh failed.
 	 */
-	public int requestRefresh();
+//	public int requestRefresh();
 
 	/* Use this to store headlines and articles pulled from the
 	 * website
 	 */
-	public boolean storeHeadline(IHeadline newHeadline);
+//	public boolean storeHeadline(IHeadline newHeadline);
 
 	/* Gets headlines between certain dates 
 	 * If dateFrom is null it gets all stories 
 	 */
-	public IHeadlineList getHeadlines(Date dateFrom, Date dateTo);
+//	public IHeadlineList getHeadlines(Date dateFrom, Date dateTo);
 
 	/* All of these get the last n (some number) of headlines.
 	 * If n is negative, it gets all applicable headlines.
 	 */
-	public IHeadlineList getHeadlines(int lastN);
+//	public IHeadlineList getHeadlines(int lastN);
 
-	public IHeadlineList getFavourites(int lastN);
+//	public IHeadlineList getFavourites(int lastN);
 
 //	public IHeadlineList getNew(int lastN);
 

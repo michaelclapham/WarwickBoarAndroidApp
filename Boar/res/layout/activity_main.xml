@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:layout_gravity="center_horizontal"
     android:background="@color/main_background"
-    tools:context=".WarwickBoarActivity" >
+    tools:context=".TabletActivity" >
 
     <LinearLayout
         android:id="@+id/main_container"
@@ -27,7 +27,7 @@
                     android:layout_width="fill_parent"
                     android:layout_height="match_parent"
                     android:orientation="vertical"
-                    android:paddingBottom="40dp" >
+                    android:paddingBottom="50dp" >
 
                     <TextView
                         android:id="@+id/page_heading"

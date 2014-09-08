@@ -1,5 +1,9 @@
 package org.theboar.android;
 
+import java.io.File;
+
+import com.androidquery.util.AQUtility;
+
 import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
@@ -68,7 +72,8 @@ public class Preferences extends PreferenceActivity
 		try {
 			version = getPackageManager().getPackageInfo(getPackageName(),0).versionName;
 			findPreference("version").setTitle("Version " + version);
-		} catch (NameNotFoundException e) {
+		}
+		catch (NameNotFoundException e) {
 			e.printStackTrace();
 		}
 
@@ -94,7 +99,8 @@ public class Preferences extends PreferenceActivity
 				goToMarket.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 				try {
 					getApplicationContext().startActivity(goToMarket);
-				} catch (ActivityNotFoundException e) {
+				}
+				catch (ActivityNotFoundException e) {
 					Toast.makeText(getApplicationContext(),"Cant launch Market",Toast.LENGTH_LONG).show();
 				}
 				return true;
@@ -106,7 +112,7 @@ public class Preferences extends PreferenceActivity
 			@Override
 			public boolean onPreferenceClick(Preference arg0)
 			{
-				//TODO
+				AQUtility.cleanCacheAsync(BoarActivity.activity,0,0);
 				Toast.makeText(getApplicationContext(),"Cache Cleared!",Toast.LENGTH_LONG).show();
 				return true;
 			}
@@ -130,7 +136,7 @@ public class Preferences extends PreferenceActivity
 				LinearLayout linear = new LinearLayout(Preferences.this);
 				linear.setOrientation(1);
 
-				int preSize = settings.getInt("max_cache",20);
+				int preSize = settings.getInt("max_cache",10);
 
 				final TextView text = new TextView(Preferences.this);
 				text.setPadding(10,10,10,10);
@@ -142,13 +148,13 @@ public class Preferences extends PreferenceActivity
 //				seek.setPadding(10,10,10,10);
 				seek.setMax(10);
 				Log.d("PRINT","Size:" + preSize);
-				seek.setProgress(preSize / 20);
+				seek.setProgress(preSize / 10);
 				seek.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
 					int size;
 
 					public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser)
 					{
-						size = progress * 20;
+						size = progress * 10;
 						text.setText(Integer.toString(size) + " MB");
 					}
 
@@ -173,9 +179,13 @@ public class Preferences extends PreferenceActivity
 				{
 					public void onClick(DialogInterface dialog, int id)
 					{
-						int maxCacheSize = settings.getInt("max_cache",20);
-						//TODO change max cache from here. maxCacheSize
-						Toast.makeText(getApplicationContext(),"Max Cache Set",Toast.LENGTH_LONG).show();
+						int maxCacheSize = settings.getInt("max_cache",10);
+
+						long triggerSize = maxCacheSize * 1000000; //starts cleaning when cache size is larger than 3M
+						long targetSize = 2000000;      //remove the least recently used files until cache size is less than 2M
+						AQUtility.cleanCacheAsync(BoarActivity.activity,triggerSize,triggerSize);
+
+						Toast.makeText(getApplicationContext(),"Max Cache Set to " + maxCacheSize + "MB",Toast.LENGTH_LONG).show();
 					}
 				});
 
@@ -205,6 +215,19 @@ public class Preferences extends PreferenceActivity
 			}
 		});
 
+	}
+
+	public static boolean deleteDir(File dir)
+	{
+		if (dir != null && dir.isDirectory()) {
+			String[] children = dir.list();
+			for (int i = 0; i < children.length; i++) {
+				boolean success = deleteDir(new File(dir,children[i]));
+				if (!success) { return false; }
+			}
+		}
+		// The directory is now empty so delete it
+		return dir.delete();
 	}
 
 }

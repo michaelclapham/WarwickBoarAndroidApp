@@ -29,6 +29,7 @@ public class CNS
 {
 
 	public static final String FADE = "fd", ROTATE = "rt", SCALE = "sc";
+	public static final String LOGPRINT = "Boar";
 
 	public static SharedPreferences getSharedPreferences(Context cntxt)
 	{
@@ -179,26 +180,37 @@ public class CNS
 
 	public static String correctYouTube(String str)
 	{
-		if (str.contains("<span class='embed-youtube' ")) {
-			int indexOfYoutubeSpan = str.indexOf("<span class='embed-youtube' ");
-			int indexOfCloseTag1 = str.indexOf(">",indexOfYoutubeSpan) + 1;
-			int indexOfsrc = str.indexOf("src='http://www.youtube",indexOfCloseTag1);
-			int indexOfCloseTagSpan = str.indexOf("</span>",indexOfCloseTag1);
+		String spanEmbed = "<span class='embed-youtube' ";
+		int ioYoutubeSpan = str.indexOf(spanEmbed);
+		while (ioYoutubeSpan >= 0) {
 
-			if (indexOfsrc > indexOfCloseTag1  && indexOfsrc < indexOfCloseTagSpan) {
-				int indexOfYouTubeLink = str.indexOf("?",indexOfsrc);
-				if (indexOfYouTubeLink < indexOfCloseTagSpan) {
-					String url = str.substring(indexOfsrc + 5,indexOfYouTubeLink);
-					String a = "<a href=\"" + url + "\">Youtube Link</a>";
+			int ioCloseTag1 = str.indexOf(">",ioYoutubeSpan) + 1;
+			int ioSRC = str.indexOf("src='http://www.youtube",ioCloseTag1);
+			int ioCloseTagSpan = str.indexOf("</span>",ioCloseTag1);
+
+			if (ioSRC > ioCloseTag1 && ioSRC < ioCloseTagSpan) {
+				int ioYouTubeLink = str.indexOf("?",ioSRC);
+				if (ioYouTubeLink < ioCloseTagSpan) {
+					String url = str.substring(ioSRC + 5,ioYouTubeLink);
+					String playButtonUrl = "https://www.youtube.com/yt/advertise/medias/images/yt-advertise-whyitworks-playbutton.png";
+					String videoID = url.substring(url.indexOf("/embed/") + 7,url.length());
+					String imgUrl = "http://img.youtube.com/vi/" + videoID + "/0.jpg";
+					String div = "<div style='position:relative'>" +
+							"<img style='position: absolute;left: 0;right: 0;margin: auto;bottom: 0;width: 80px;top: 0;' src='" +
+							playButtonUrl + "'/>" +
+							"<a href='" + url + "'>" +
+							"<img src='" + imgUrl + "' style='width:100%'/>" +
+							"</a></div>";
 
 					StringBuilder strB = new StringBuilder(str);
-					strB.delete(indexOfCloseTag1,indexOfCloseTagSpan);
-					strB.insert(indexOfCloseTag1,a);
+					strB.delete(ioCloseTag1,ioCloseTagSpan);
+					strB.insert(ioCloseTag1,div);
 
 					str = strB.toString();
 				}
 			}
-			Log.d("PRINT","" + str.substring(indexOfYoutubeSpan));
+			ioYoutubeSpan = str.indexOf(spanEmbed,ioYoutubeSpan + 1);
+//			Log.d("PRINT","" + str.substring(ioYoutubeSpan));
 		}
 		return str;
 	}

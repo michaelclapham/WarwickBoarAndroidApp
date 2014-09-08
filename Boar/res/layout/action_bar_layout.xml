@@ -135,6 +135,7 @@
         android:layout_marginRight="10dp"
         android:layout_marginTop="@dimen/actionBarHeight"
         android:background="@color/white"
+        android:foreground="@drawable/dropdown_border"
         android:visibility="gone" >
 
         <LinearLayout

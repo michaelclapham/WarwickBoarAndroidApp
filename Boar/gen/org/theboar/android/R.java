@@ -178,10 +178,6 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
     public static final class dimen {
         public static final int actionBarHeight=0x7f070008;
         /**  Default screen margins, per the Android Design guidelines. 
-
-         Customize dimensions originally defined in res/values/dimens.xml (such as
-         screen margins) for sw720dp devices (e.g. 10" tablets) in landscape here.
-    
          */
         public static final int activity_horizontal_margin=0x7f070000;
         public static final int activity_vertical_margin=0x7f070001;
@@ -238,7 +234,7 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int contact_address_value=0x7f050015;
         public static final int contact_email=0x7f050016;
         public static final int contact_email_value=0x7f050017;
-        public static final int container=0x7f05001f;
+        public static final int container=0x7f050018;
         public static final int content_date=0x7f050033;
         public static final int content_newsImage=0x7f05002d;
         public static final int content_picture=0x7f05002c;
@@ -250,9 +246,9 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int dummy_actionBar_underlay=0x7f05000d;
         public static final int fullscreen=0x7f050003;
         public static final int left=0x7f050000;
-        public static final int loading_layout=0x7f050023;
-        public static final int loading_text=0x7f050025;
-        public static final int main_container=0x7f050020;
+        public static final int loading_layout=0x7f05001d;
+        public static final int loading_text=0x7f05001f;
+        public static final int main_container=0x7f050019;
         public static final int margin=0x7f050002;
         public static final int menu_button=0x7f050007;
         public static final int menu_item=0x7f050036;
@@ -265,20 +261,20 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int more_button=0x7f05000c;
         public static final int news_story_frame=0x7f05003c;
         public static final int none=0x7f050004;
-        public static final int page_heading=0x7f050022;
-        public static final int progressBar1=0x7f050024;
-        public static final int progress_bottom=0x7f05002b;
+        public static final int page_heading=0x7f05001b;
+        public static final int progressBar1=0x7f05001e;
+        public static final int progress_bottom=0x7f050025;
         public static final int refresh_button=0x7f05000f;
         public static final int right=0x7f050001;
-        public static final int scrollView_main=0x7f050021;
-        public static final int search_area=0x7f050018;
-        public static final int search_expl_progress1=0x7f05001b;
-        public static final int search_expl_user_temptext=0x7f05001c;
-        public static final int search_l=0x7f05001d;
-        public static final int search_progress_upload=0x7f05001e;
-        public static final int search_query=0x7f050026;
-        public static final int search_rootview=0x7f050019;
-        public static final int search_scroll_view=0x7f05001a;
+        public static final int scrollView_main=0x7f05001a;
+        public static final int search_area=0x7f05001c;
+        public static final int search_expl_progress1=0x7f050028;
+        public static final int search_expl_user_temptext=0x7f050029;
+        public static final int search_l=0x7f05002a;
+        public static final int search_progress_upload=0x7f05002b;
+        public static final int search_query=0x7f050020;
+        public static final int search_rootview=0x7f050026;
+        public static final int search_scroll_view=0x7f050027;
         public static final int section_label=0x7f050034;
         public static final int selected_view=0x7f050005;
         public static final int slidingmenumain=0x7f050045;
@@ -288,11 +284,11 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int story_headline=0x7f050041;
         public static final int story_layout=0x7f05003f;
         public static final int story_ll_root=0x7f050044;
-        public static final int story_lll=0x7f050027;
+        public static final int story_lll=0x7f050021;
         public static final int story_newsImage=0x7f050040;
-        public static final int tablet_lld1=0x7f050028;
-        public static final int tablet_lld2=0x7f050029;
-        public static final int tablet_lld3=0x7f05002a;
+        public static final int tablet_lld1=0x7f050022;
+        public static final int tablet_lld2=0x7f050023;
+        public static final int tablet_lld3=0x7f050024;
         public static final int top_bar_layout=0x7f050006;
         public static final int top_bar_shadow=0x7f050046;
         public static final int topicname=0x7f050030;
@@ -300,9 +296,9 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
     public static final class layout {
         public static final int action_bar_layout=0x7f030000;
         public static final int activity_contact=0x7f030001;
-        public static final int activity_preferences=0x7f030002;
-        public static final int activity_search=0x7f030003;
-        public static final int activity_tablet=0x7f030004;
+        public static final int activity_main=0x7f030002;
+        public static final int activity_preferences=0x7f030003;
+        public static final int activity_search=0x7f030004;
         public static final int content_fragment=0x7f030005;
         public static final int fragment_tablet_dummy=0x7f030006;
         public static final int menu=0x7f030007;
@@ -330,12 +326,6 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         AppBaseTheme from res/values/styles.xml on API 11+ devices.
     
  API 11 theme customizations can go here. 
-
-        Base application theme for API 14+. This theme completely replaces
-        AppBaseTheme from BOTH res/values/styles.xml and
-        res/values-v11/styles.xml on API 14+ devices.
-    
- API 14 theme customizations can go here. 
          */
         public static final int AppBaseTheme=0x7f0a0002;
         /**   <style name="AppTheme" parent="@android:style/Theme.Light.NoTitleBar"></style> 

@@ -42,7 +42,13 @@ public class Category
 	{
 		if (categoryId == HOMEPAGE) return "Home";
 		if (categoryId == SCI_TECH && fullName == true) return "Science and Technology";
-		return CATEGORY_STRINGS[categoryId];
+		try {
+			return CATEGORY_STRINGS[categoryId];
+		}
+		catch (Exception e) {
+			return null;
+		}
+
 	}
 	public static String getCategoryNameShort(int categoryId)
 	{
@@ -58,12 +64,6 @@ public class Category
 		if (categoryId < 15 && categoryId >= 0) { return "http://theboar.org/category/" + CATEGORY_STRINGS[categoryId].toLowerCase() + "/?json=1&page="
 				+ pageNum; }
 		return NewsStore.boarJSON + "&page=" + pageNum;
-	}
-
-	public static String getCacheFileName(int categoryId)
-	{
-		if (categoryId < 15 && categoryId >= 0) { return "warwick_boar_latest_" + CATEGORY_STRINGS[categoryId] + "_json.txt"; }
-		return "warwick_boar_latest_json";
 	}
 
 	public static int menuPositionToCategory(int pos)
@@ -141,7 +141,8 @@ public class Category
 					}
 				}
 			}
-		} catch (JSONException e) {
+		}
+		catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

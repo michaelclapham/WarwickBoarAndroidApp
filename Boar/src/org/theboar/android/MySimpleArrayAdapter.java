@@ -37,7 +37,7 @@ public class MySimpleArrayAdapter extends ArrayAdapter<String>
 				@Override
 				public void onClick(View v)
 				{
-					Intent i = new Intent(context,WarwickBoarActivity.class);
+					Intent i = new Intent(context,BoarActivity.class);
 					i.putExtra("forSearch",true);
 					context.startActivity(i);
 				}
