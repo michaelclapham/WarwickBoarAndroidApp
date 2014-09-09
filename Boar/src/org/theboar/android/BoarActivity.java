@@ -63,6 +63,7 @@ public class BoarActivity extends Activity implements BottomReachedListener
 	protected boolean articleOpen = false;
 	// Increases everytime we parse and add a headline to the view
 	private int headlinesParsedSoFar = 0;
+	private HeadlineAsyncTask hat;
 
 	protected View currPos;
 	public static final String VISIBLE = "vis", GONE = "gone", INVISIBLE = "inv";
@@ -481,7 +482,7 @@ public class BoarActivity extends Activity implements BottomReachedListener
 					if (forSearch) {
 						url = "http://theboar.org/page/" + pageNum + "/?s=" + query;
 					} else {
-						url = "http://theboar.org/" + Category.getCategoryName(currentCategory,false) + "/";
+						url = "http://theboar.org/" + Category.getCategoryName(currentCategory,false,false) + "/";
 					}
 				}
 				Intent i = new Intent(Intent.ACTION_VIEW);
@@ -494,7 +495,6 @@ public class BoarActivity extends Activity implements BottomReachedListener
 			}
 		}
 	};
-	private HeadlineAsyncTask hat;
 
 	private class ArticleClickListener implements OnClickListener
 	{
@@ -676,7 +676,6 @@ public class BoarActivity extends Activity implements BottomReachedListener
 			super.onPostExecute(result);
 			populating = false;
 
-			((ScrollViewExt) findViewById(R.id.scrollView_main)).fullScroll(ScrollView.FOCUS_UP);
 			findViewById(R.id.progress_bottom).setVisibility(View.GONE);
 			findViewById(R.id.loading_layout).setVisibility(LinearLayout.GONE);
 
@@ -706,7 +705,7 @@ public class BoarActivity extends Activity implements BottomReachedListener
 	public void startCategory(int position, View view)
 	{
 		if (currPos == null || currPos != view) {
-			String categoryName = Category.getCategoryName(position,true);
+			String categoryName = Category.getCategoryName(position,true,false);
 			int colorBar = Category.getCategoryColourBar(position,getResources());
 			int colorText = Category.getCategoryColourText(position,getResources());
 
@@ -747,7 +746,7 @@ public class BoarActivity extends Activity implements BottomReachedListener
 			categoryBox.setBackgroundColor(Category.getCategoryColourText(hl.getCategory(),getResources()));
 
 			TextView categoryName = (TextView) newsItems.findViewById(R.id.category_name);
-			categoryName.setText(Category.getCategoryName(hl.getCategory(),false).toUpperCase());
+			categoryName.setText(Category.getCategoryName(hl.getCategory(),false,true).toUpperCase());
 
 			//------------------------------------ IMAGE--------------------------------
 			iv = (ImageView) newsItems.findViewById(R.id.content_newsImage);

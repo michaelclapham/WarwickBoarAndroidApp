@@ -89,7 +89,7 @@ public class NewsStore implements INewsStore
 		JSONObject jsonObj = null;
 		try {
 			jsonObj = (JSONObject) new JSONTokener(IOUtils.toString(new URL(requestURL))).nextValue();
-			String categoryName = Category.getCategoryName(categoryId,false);
+			String categoryName = Category.getCategoryName(categoryId,false,false);
 			if (categoryName != null && pageNum == 1) { //only add 1st page to cache
 				String path = context.getCacheDir().getAbsolutePath();
 				File cacheFile = new File(path + categoryName + ".json");
@@ -227,7 +227,7 @@ public class NewsStore implements INewsStore
 		JSONObject downloadedJSON = downloadJSON(categoryRequestURL,categoryId);
 
 		if (downloadedJSON == null) {//retrieve from cache
-			String categoryName = Category.getCategoryName(categoryId,false);
+			String categoryName = Category.getCategoryName(categoryId,false,false);
 			if (categoryName != null) { //eg. query
 				String path = context.getCacheDir().getAbsolutePath();
 				File cacheFile = new File(path + categoryName + ".json");

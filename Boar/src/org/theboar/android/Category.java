@@ -47,9 +47,10 @@ public class Category
 
 	public static final int OTHER = 80;
 
-	public static String getCategoryName(int index, boolean fullName)
+	public static String getCategoryName(int index, boolean fullName, boolean shortName)
 	{
 		if (index == SCI_TECH && fullName == true) return "Science and Technology";
+		else if (index == SCI_TECH && shortName == true) return "Sci - Tech";
 		try {
 			return MENU_STRINGS[index];
 		}

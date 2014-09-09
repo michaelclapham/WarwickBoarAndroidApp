@@ -170,11 +170,12 @@ public class Headline implements IHeadline
 		File favFile = new File(path + "favourites" + ".json");
 		JSONObject jsonObj = NewsStore.getJSONFromFile(favFile);
 		JSONArray jsArr = new JSONArray();
-		if (jsonObj == null) {
-			jsonObj = new JSONObject();
-		}
 		try {
-			jsArr = jsonObj.getJSONArray("posts");
+			if (jsonObj == null) {
+				jsonObj = new JSONObject();
+			} else {
+				jsArr = jsonObj.getJSONArray("posts");
+			}
 			if (fav) {
 				jsArr.put(jsonStory);
 			} else {
