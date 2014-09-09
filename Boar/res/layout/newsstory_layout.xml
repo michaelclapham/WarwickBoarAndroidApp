@@ -4,10 +4,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:animateLayoutChanges="true"
-    android:background="#AA000000"
     android:visibility="gone" >
 
     <FrameLayout
+        android:background="@color/black_30"
         android:id="@+id/back_dark_underlay"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

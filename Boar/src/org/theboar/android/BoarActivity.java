@@ -348,6 +348,10 @@ public class BoarActivity extends Activity implements BottomReachedListener
 	private void setOnClickListeners()
 	{
 
+		l1 = (LinearLayout) findViewById(R.id.tablet_lld1);
+		l2 = (LinearLayout) findViewById(R.id.tablet_lld2);
+		l3 = (LinearLayout) findViewById(R.id.tablet_lld3);
+
 		findViewById(R.id.close_button).setOnClickListener(clickEvent);
 		findViewById(R.id.back_dark_underlay).setOnClickListener(clickEvent);
 		findViewById(R.id.refresh_button).setOnClickListener(clickEvent);
@@ -658,6 +662,7 @@ public class BoarActivity extends Activity implements BottomReachedListener
 		{
 			super.onProgressUpdate(values);
 			Headline hl = (Headline) values[0];
+//			if (!missPatina(hl))  //hack to stop showing THAT post from february
 			addHeadlineToView(hl);
 
 			String[] msgs = (String[]) values[1];
@@ -668,6 +673,13 @@ public class BoarActivity extends Activity implements BottomReachedListener
 			totalAvailablePages = msgs[1];
 			totalCount = msgs[2];
 			count++;
+		}
+
+		private boolean missPatina(Headline hl)
+		{
+
+			if (hl.getUniqueId().equals("37314") && count == 0 && pageNum == 1 && currentCategory == Category.HOME) { return true; }
+			return false;
 		}
 
 		@Override
