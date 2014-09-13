@@ -4,99 +4,133 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:animateLayoutChanges="true"
-    android:visibility="gone" >
+    android:visibility="visible" >
 
     <FrameLayout
-        android:background="@color/black_30"
         android:id="@+id/back_dark_underlay"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="@color/black_30"
         android:clickable="true" >
     </FrameLayout>
 
-    <ScrollView
-        android:id="@+id/storyScrollView"
+    <FrameLayout
+        android:id="@+id/story_root"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_gravity="top"
+        android:layout_height="wrap_content"
         android:layout_marginLeft="@dimen/articleMargHor"
-        android:layout_marginRight="@dimen/articleMargHor"
-        android:background="@color/white" >
+        android:layout_marginRight="@dimen/articleMargHor" >
 
-        <LinearLayout
-            android:layout_width="match_parent"
+        <ImageView
+            android:id="@+id/story_newsImage"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical" >
+            android:layout_marginTop="@dimen/actionBarHeight"
+            android:adjustViewBounds="true"
+            android:cropToPadding="false"
+            android:scaleType="fitCenter" />
+
+        <FrameLayout
+            android:id="@+id/story_root"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+        </FrameLayout>
+
+        <org.theboar.android.StickyScrollView
+            android:id="@+id/storyScrollView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:parallax_factor="1.9"
+            android:layout_gravity="top" >
 
             <LinearLayout
                 android:id="@+id/story_layout"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical" >
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:paddingTop="@dimen/actionBarHeight" >
 
-                <ImageView
-                    android:id="@+id/story_newsImage"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:adjustViewBounds="true"
-                    android:baselineAlignBottom="false"
-                    android:cropToPadding="false"
-                    android:scaleType="centerCrop"
-                    android:src="@drawable/category_stub_news" />
-
-                <TextView
-                    android:id="@+id/story_headline"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:gravity="left"
-                    android:padding="10dp"
-                    android:text="BREAKING NEWS!: Boar mobile app now available for Android!"
-                    android:textColor="#000000"
-                    android:textSize="24sp" />
+                <FrameLayout
+                    android:id="@+id/story_newsImage_dummy"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" >
+                </FrameLayout>
 
                 <LinearLayout
+                    android:id="@+id/story_headline_group"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:paddingBottom="10dp"
-                    android:paddingLeft="10dp"
-                    android:paddingRight="10dp" >
-
-                    <TextView
-                        android:id="@+id/story_author"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:gravity="left"
-                        android:text="By John Doe"
-                        android:textColor="@color/black_50"
-                        android:textSize="15sp" />
-
-                    <TextView
-                        android:id="@+id/story_date"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="right"
-                        android:text="September 16, 1992"
-                        android:textColor="@color/black_50"
-                        android:textSize="15sp" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/story_ll_root"
-                    android:layout_width="fill_parent"
-                    android:layout_height="match_parent"
-                    android:layout_margin="10dp"
+                    android:background="@color/money"
                     android:orientation="vertical" >
 
-                    <!--
+                    <LinearLayout
+                        android:id="@+id/story_headline_group_headline"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:tag="sticky" >
+
+                        <TextView
+                            android:id="@+id/story_headline"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:gravity="left"
+                            android:paddingBottom="10dp"
+                            android:paddingLeft="10dp"
+                            android:paddingRight="10dp"
+                            android:paddingTop="10dp"
+                            android:textColor="@color/black_80"
+                            android:textSize="18sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingBottom="10dp"
+                        android:paddingLeft="10dp"
+                        android:paddingRight="10dp" >
+
+                        <TextView
+                            android:id="@+id/story_author"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:gravity="left"
+                            android:textColor="@color/black_50"
+                            android:textSize="15sp" />
+
+                        <TextView
+                            android:id="@+id/story_date"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="right"
+                            android:textColor="@color/black_50"
+                            android:textSize="15sp" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/white" >
+
+                    <LinearLayout
+                        android:id="@+id/story_ll_root"
+                        android:layout_width="fill_parent"
+                        android:layout_height="match_parent"
+                        android:layout_margin="10dp"
+                        android:orientation="vertical" >
+
+                        <!--
                          <WebView
                         android:id="@+id/story_web_view"
                         android:layout_width="fill_parent"
                         android:layout_height="wrap_content"/>
-                    -->
+                        -->
 
-                </LinearLayout>
+                    </LinearLayout>
+                </FrameLayout>
             </LinearLayout>
-        </LinearLayout>
-    </ScrollView>
+        </org.theboar.android.StickyScrollView>
+    </FrameLayout>
 
 </FrameLayout>
