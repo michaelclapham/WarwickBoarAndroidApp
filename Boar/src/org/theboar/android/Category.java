@@ -9,8 +9,10 @@ import android.util.Log;
 public class Category
 {
 
-	public static final String[] MENU_STRINGS = { "Home", "News", "Comment", "Features", "Lifestyle", "Money",
-			"Arts", "Books", "Film", "Games", "Music", "Science-Tech", "Travel", "TV", "Sport", "Favourites" };
+	public static final String[] MENU_STRINGS = { "Home", "News", "Comment", "Features",
+			"Lifestyle", "Money",
+			"Arts", "Books", "Film", "Games", "Music", "Science-Tech", "Travel", "TV", "Sport",
+			"Favourites" };
 
 	public static final int HOME = 0
 			, NEWS
@@ -51,6 +53,7 @@ public class Category
 	{
 		if (index == SCI_TECH && fullName == true) return "Science and Technology";
 		else if (index == SCI_TECH && shortName == true) return "Sci - Tech";
+		else if (index == OTHER) return "Other";
 		try {
 			return MENU_STRINGS[index];
 		}
@@ -59,10 +62,11 @@ public class Category
 		}
 	}
 
-	public static String getCategoryRequestURL(int categoryId, int pageNum)
+	public static String getCategoryRequestURL(int categoryId, int pageNum, int count)
 	{
 		if (categoryId != HOME) {
-			return "http://theboar.org/category/" + MENU_STRINGS[categoryId].toLowerCase() + "/?json=1&page=" + pageNum;
+			return "http://theboar.org/category/" + MENU_STRINGS[categoryId].toLowerCase()
+					+ "/?json=1&page=" + pageNum + "&count=" + count;
 		}
 		else {
 			return NewsStore.boarJSON + "&page=" + pageNum;
@@ -109,12 +113,14 @@ public class Category
 			return res.getColor(R.color.tv);
 		case SPORT:
 			return res.getColor(R.color.sport);
+		case OTHER:
+			return res.getColor(R.color.black);
 		case FAVOURITES:
 			return res.getColor(R.color.favourites_white);
 //		case PHOTOGRAPHY:
 //			return res.getColor(R.color.photography);
 		}
-		return res.getColor(R.color.black_20);
+		return res.getColor(R.color.white);
 	}
 
 	public static int getCategoryIDFromName(String name)
@@ -140,6 +146,12 @@ public class Category
 		}
 		catch (JSONException e) {}
 		return OTHER;
+	}
+
+	public static boolean isCategoryColorDark(int catID)
+	{
+		if (catID == TV || catID == TRAVEL || catID == FILM) return true;
+		return false;
 	}
 
 	//-------------------------------------------------------------------------------------------------------------------

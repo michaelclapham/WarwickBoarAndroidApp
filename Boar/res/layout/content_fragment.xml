@@ -5,13 +5,15 @@
     android:layout_height="wrap_content"
     tools:context=".TabletActivity"
     tools:ignore="MergeRootFrame" >
-		 <!-- android:foreground="@drawable/article_border" -->   
+
+    <!-- android:foreground="@drawable/article_border" -->
 
     <FrameLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
         android:layout_marginBottom="@dimen/tabMar"
-        >
+        android:background="@drawable/box_outline_straight" >
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -33,31 +35,32 @@
                     android:baselineAlignBottom="false"
                     android:cropToPadding="false"
                     android:scaleType="centerCrop"
-                    android:src="@drawable/e25757514989c1eb5ec15o" />
+                    />
 
-                <LinearLayout
+                <FrameLayout
                     android:id="@+id/content_typecolor"
-                    android:layout_width="90dp"
+                    android:layout_width="80dp"
                     android:layout_height="20dp"
                     android:layout_gravity="top|left"
-                    android:layout_marginTop="10dp"
-                    android:background="@android:color/black"
-                    android:orientation="vertical" >
+                    android:layout_marginTop="16dp"
+                    android:background="@android:color/black" >
 
                     <TextView
                         android:id="@+id/category_name"
                         android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
                         android:gravity="center"
-                        android:text="CATEGORY"
+                        android:text="LIFESTYLE"
                         android:textColor="@color/white"
-                        android:textSize="14sp" />
-                </LinearLayout>
+                        android:textSize="13sp" />
+
+                </FrameLayout>
             </FrameLayout>
 
             <RelativeLayout
                 android:layout_width="fill_parent"
-                android:layout_height="80dp"
+                android:layout_height="wrap_content"
                 android:background="@color/white"
                 android:paddingLeft="10dp"
                 android:paddingRight="10dp"
@@ -67,55 +70,56 @@
                     android:id="@+id/topicname"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="0.1"
+                    android:layout_marginBottom="5dp"
                     android:maxLines="2"
-                    android:text="Tom Daley&apos;s Video IS a Big Deal"
+                    android:minLines="2"
+                    android:text="Tom Daley&apos;s Video IS a Big Deal. "
                     android:textColor="@color/black"
-                    android:textSize="18sp" />
+                    android:textSize="17sp" />
 
                 <TextView
                     android:id="@+id/author_by"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentBottom="true"
                     android:layout_alignParentLeft="true"
-                    android:layout_marginBottom="5dp"
+                    android:layout_below="@id/topicname"
+                    android:paddingBottom="5dp"
                     android:text="by"
-                    android:textColor="@color/grey"
+                    android:textColor="@color/black_20"
                     android:textSize="15sp" />
 
                 <TextView
                     android:id="@+id/author_name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentBottom="true"
                     android:layout_alignParentLeft="false"
-                    android:layout_marginBottom="5dp"
+                    android:layout_below="@id/topicname"
+                    android:paddingBottom="5dp"
                     android:layout_marginLeft="5dp"
                     android:layout_toRightOf="@id/author_by"
-                    android:text="Forgot Name"
-                    android:textColor="@color/grey"
+                    android:text="Unknown"
+                    android:textColor="@color/black_20"
                     android:textSize="15sp" />
 
                 <TextView
                     android:id="@+id/content_date"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentBottom="true"
                     android:layout_alignParentRight="true"
-                    android:layout_marginBottom="5dp"
-                    android:text="23/08/2014"
-                    android:textColor="@color/grey"
+                    android:layout_below="@id/topicname"
+                    android:paddingBottom="5dp"
+                    android:text="5 hours ago"
+                    android:textColor="@color/black_20"
                     android:textSize="15sp" />
+
             </RelativeLayout>
 
             <FrameLayout
                 android:layout_width="match_parent"
+                android:visibility="gone"
                 android:layout_height="2dp"
                 android:background="@color/black_10" >
-
             </FrameLayout>
-
         </LinearLayout>
     </FrameLayout>
 

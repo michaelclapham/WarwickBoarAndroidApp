@@ -11,162 +11,154 @@
         android:layout_height="wrap_content"
         layout="@layout/action_bar_layout" />
 
-    <LinearLayout
+    <RelativeLayout
+        android:id="@+id/about_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_marginLeft="@dimen/articleMargHor"
         android:layout_marginRight="@dimen/articleMargHor"
-        android:orientation="vertical" >
+        android:orientation="vertical"
+        android:padding="@dimen/tabMar"
+        android:visibility="visible" >
 
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="10dp"
-            android:adjustViewBounds="true"
-            android:src="@drawable/the_boar_logo" />
-
-        <TextView
-            android:id="@+id/contact_about_link"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="5dp"
-            android:gravity="center_horizontal"
-            android:text="theboar.org/about"
-            android:textColor="@color/black_30"
-            android:textSize="15sp"
-            android:textStyle="bold" />
-
-        <RelativeLayout
-            android:id="@+id/about_layout"
+        <ScrollView
+            android:id="@+id/scrollView1"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/tabMar"
-            android:orientation="vertical"
-            android:visibility="visible" >
+            android:layout_height="match_parent" >
 
-            <ScrollView
-                android:id="@+id/scrollView1"
+            <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" >
+                android:layout_height="wrap_content" >
 
-                <RelativeLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent" >
+                <ImageView
+                    android:id="@+id/contact_boar_logo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentTop="true"
+                    android:layout_centerHorizontal="true"
+                    android:adjustViewBounds="true"
+                    android:src="@drawable/the_boar_logo" />
+
+                <TextView
+                    android:id="@+id/contact_about_link"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/contact_boar_logo"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginBottom="20dp"
+                    android:gravity="center_horizontal"
+                    android:text="theboar.org/about"
+                    android:textColor="@color/black_30"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/contact_address"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/contact_about_link"
+                    android:layout_marginRight="30dp"
+                    android:text="Address"
+                    android:textColor="@color/black_30" />
+
+                <TextView
+                    android:id="@+id/contact_address_value"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentTop="false"
+                    android:layout_alignTop="@id/contact_address"
+                    android:layout_marginBottom="5dp"
+                    android:layout_toRightOf="@+id/contact_address"
+                    android:text="@string/about_addr"
+                    android:textColor="@color/black_50"
+                    android:textIsSelectable="true" />
+
+                <TextView
+                    android:id="@+id/contact_email"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/contact_address_value"
+                    android:layout_marginRight="30dp"
+                    android:text="Email"
+                    android:textColor="@color/black_30" />
+
+                <TextView
+                    android:id="@+id/contact_email_value"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/contact_address_value"
+                    android:layout_marginBottom="5dp"
+                    android:layout_toRightOf="@+id/contact_address"
+                    android:text="@string/about_email"
+                    android:textColor="@color/black_50"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/contact_social"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/contact_email_value"
+                    android:layout_marginRight="30dp"
+                    android:text="Social"
+                    android:textColor="@color/black_30" />
+
+                <LinearLayout
+                    android:id="@+id/contact_social_value"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/contact_email_value"
+                    android:layout_toRightOf="@+id/contact_address"
+                    android:orientation="vertical" >
 
                     <TextView
-                        android:id="@+id/contact_address"
+                        android:id="@+id/contact_social_fb"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginRight="30dp"
-                        android:text="Address"
-                        android:textColor="@color/black_30" />
-
-                    <TextView
-                        android:id="@+id/contact_address_value"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentTop="true"
-                        android:layout_marginBottom="5dp"
-                        android:layout_toRightOf="@+id/contact_address"
-                        android:textIsSelectable="true"
-                        android:text="@string/about_addr"
-                        android:textColor="@color/black_50" />
-
-                    <TextView
-                        android:id="@+id/contact_email"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_below="@id/contact_address_value"
-                        android:layout_marginRight="30dp"
-                        android:text="Email"
-                        android:textColor="@color/black_30" />
-
-                    <TextView
-                        android:id="@+id/contact_email_value"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_below="@id/contact_address_value"
-                        android:layout_marginBottom="5dp"
-                        android:layout_toRightOf="@+id/contact_address"
-                        android:text="@string/about_email"
-                        android:textColor="@color/black_50"
+                        android:text="facebook.com/warwickboar"
+                        android:textColor="#4965A0"
                         android:textStyle="bold" />
 
                     <TextView
-                        android:id="@+id/contact_social"
+                        android:id="@+id/contact_social_twit"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_below="@id/contact_email_value"
-                        android:layout_marginRight="30dp"
-                        android:text="Social"
-                        android:textColor="@color/black_30" />
+                        android:layout_marginBottom="5dp"
+                        android:text="twitter.com/warwickboar"
+                        android:textColor="#51A5E4"
+                        android:textStyle="bold" />
+                </LinearLayout>
+            </RelativeLayout>
+        </ScrollView>
 
-                    <LinearLayout
-                        android:id="@+id/contact_social_value"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_below="@id/contact_email_value"
-                        android:layout_toRightOf="@+id/contact_address"
-                        android:orientation="vertical" >
+        <LinearLayout
+            android:id="@+id/contact_boris_bottom"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentEnd="true"
+            android:orientation="vertical" >
 
-                        <TextView
-                            android:id="@+id/contact_social_fb"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_below="@id/contact_address_value"
-                            android:layout_toRightOf="@+id/contact_address"
-                            android:text="facebook.com/warwickboar"
-                            android:textColor="#4965A0"
-                            android:textStyle="bold" />
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="50dp"
+                android:layout_gravity="center_horizontal|bottom"
+                android:adjustViewBounds="true"
+                android:baselineAlignBottom="true"
+                android:cropToPadding="false"
+                android:src="@drawable/boris_crest" />
 
-                        <TextView
-                            android:id="@+id/contact_social_twit"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_below="@id/contact_address_value"
-                            android:layout_marginBottom="5dp"
-                            android:layout_toRightOf="@+id/contact_address"
-                            android:text="twitter.com/warwickboar"
-                            android:textColor="#51A5E4"
-                            android:textStyle="bold" />
-                    </LinearLayout>
-                </RelativeLayout>
-
-            </ScrollView>
-
-            <LinearLayout
-                android:id="@+id/contact_boris_bottom"
-                android:layout_width="match_parent"
+            <TextView
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true"
-                android:layout_alignParentEnd="true"
-                android:orientation="vertical" >
-
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="50dp"
-                    android:layout_gravity="center_horizontal|bottom"
-                    android:adjustViewBounds="true"
-                    android:baselineAlignBottom="true"
-                    android:cropToPadding="false"
-                    android:src="@drawable/boris_crest" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="5dp"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginRight="10dp"
-                    android:layout_marginTop="5dp"
-                    android:gravity="center_horizontal"
-                    android:text="@string/about_boar"
-                    android:textColor="@color/black_20"
-                    android:textSize="12sp" />
-            </LinearLayout>
-        </RelativeLayout>
-
-    </LinearLayout>
+                android:layout_marginBottom="5dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginTop="5dp"
+                android:gravity="center_horizontal"
+                android:text="@string/about_boar"
+                android:textColor="@color/black_20"
+                android:textSize="12sp" />
+        </LinearLayout>
+    </RelativeLayout>
 
 </LinearLayout>

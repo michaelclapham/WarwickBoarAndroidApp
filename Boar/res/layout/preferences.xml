@@ -13,10 +13,22 @@
         android:summary="Select the Category to show at app launch"
         android:title="Default Category" />
 
+    <CheckBoxPreference
+        android:defaultValue="false"
+        android:key="stick_heading"
+        android:summary="Tick to enable full screen article reading."
+        android:title="Full screen reading" />
+    
     <PreferenceCategory
         android:key="caching"
         android:title="Caches" />
 
+    <CheckBoxPreference
+        android:defaultValue="true"
+        android:key="image_quality"
+        android:summary="Untick to download lower resolution images to save internet data."
+        android:title="Fetch high quality images" />
+    
     <Preference
         android:key="clear_cache"
         android:title="Clear Image Cache" />
@@ -37,7 +49,8 @@
 
     <Preference
         android:key="version"
-        android:title="Version" />
+        android:summary="Version: "
+        android:title="Build Version" />
 
     <Preference
         android:key="credits"

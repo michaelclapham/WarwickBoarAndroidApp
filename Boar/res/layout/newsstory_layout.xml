@@ -17,30 +17,15 @@
     <FrameLayout
         android:id="@+id/story_root"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_marginLeft="@dimen/articleMargHor"
-        android:layout_marginRight="@dimen/articleMargHor" >
-
-        <ImageView
-            android:id="@+id/story_newsImage"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/actionBarHeight"
-            android:adjustViewBounds="true"
-            android:cropToPadding="false"
-            android:scaleType="fitCenter" />
-
-        <FrameLayout
-            android:id="@+id/story_root"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
-        </FrameLayout>
+        android:layout_marginRight="@dimen/articleMargHor"
+        android:background="@color/white" >
 
         <org.theboar.android.StickyScrollView
             android:id="@+id/storyScrollView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:parallax_factor="1.9"
             android:layout_gravity="top" >
 
             <LinearLayout
@@ -51,9 +36,16 @@
                 android:paddingTop="@dimen/actionBarHeight" >
 
                 <FrameLayout
-                    android:id="@+id/story_newsImage_dummy"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" >
+
+                    <ImageView
+                        android:id="@+id/story_newsImage"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:adjustViewBounds="true"
+                        android:cropToPadding="false"
+                        android:scaleType="fitCenter" />
                 </FrameLayout>
 
                 <LinearLayout
@@ -113,6 +105,13 @@
                     android:layout_height="wrap_content"
                     android:background="@color/white" >
 
+                    <ProgressBar
+                        android:id="@+id/story_ll_progress"
+                        android:layout_width="wrap_content"
+                        android:layout_height="30dp"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_margin="10dp" />
+                    
                     <LinearLayout
                         android:id="@+id/story_ll_root"
                         android:layout_width="fill_parent"

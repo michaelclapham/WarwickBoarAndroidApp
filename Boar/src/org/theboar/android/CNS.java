@@ -1,17 +1,31 @@
 package org.theboar.android;
 
+import java.io.File;
 import java.util.Date;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.DataNode;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+
+import android.animation.ArgbEvaluator;
+import android.animation.ValueAnimator;
+import android.animation.ValueAnimator.AnimatorUpdateListener;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
+import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.text.format.DateUtils;
 import android.util.Log;
@@ -30,10 +44,35 @@ public class CNS
 
 	public static final String FADE = "fd", ROTATE = "rt", SCALE = "sc";
 	public static final String LOGPRINT = "Boar";
+	public static final int TRANSPARENT = 0x00000000;
 
 	public static SharedPreferences getSharedPreferences(Context cntxt)
 	{
 		return PreferenceManager.getDefaultSharedPreferences(cntxt);
+	}
+
+	public static File getExternalDir()
+	{
+		File externalDir = new File(Environment.getExternalStorageDirectory(),"Boar");
+
+		if (!externalDir.exists()) {
+			if (!externalDir.mkdirs()) {
+				Log.e(CNS.LOGPRINT,"Failed to create directory");
+				return null;
+			}
+		}
+		return externalDir;
+	}
+
+	public static File getFavouriteFile()
+	{
+		return new File(getExternalDir().getAbsoluteFile() + File.separator + "favourite.json");
+	}
+	public static File getCategoryCacheFile(Context context, String categoryName)
+	{
+//		String categoryName = Category.getCategoryName(categoryId,false,false);
+		String path = context.getCacheDir().getAbsolutePath();
+		return new File(path + categoryName + ".json");
 	}
 
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
@@ -86,19 +125,20 @@ public class CNS
 	 * @param duration
 	 * 	Duration Ideally 400 for Fade and 1000 for rotate**/
 	public static Animation Animate(View view, String type, float from, float to,
-			int duration)
+			int duration, boolean fillAfter)
 	{
 		Animation anim = null;
 		if (type == FADE)
 		{
 			anim = new AlphaAnimation(from,to);
-			if (to == 1) view.setVisibility(View.VISIBLE);
-			else if (to == 0) view.setVisibility(View.GONE);
-			else anim.setFillAfter(true);
+			if (fillAfter) {
+				if (to == 1) view.setVisibility(View.VISIBLE);
+				else if (to == 0) view.setVisibility(View.GONE);
+				else anim.setFillAfter(true);
+			}
 		}
 		else if (type == ROTATE)
 		{
-
 			anim = new RotateAnimation(from,to,Animation.RELATIVE_TO_SELF,
 					0.5f,Animation.RELATIVE_TO_SELF,0.5f);
 
@@ -113,6 +153,7 @@ public class CNS
 			return null;
 		}
 		anim.setDuration(duration);
+//		if (fillAfter) anim.setFillAfter(true);
 		return anim;
 	}
 
@@ -131,7 +172,8 @@ public class CNS
 				case MotionEvent.ACTION_UP:
 				{
 					if (animView instanceof FrameLayout) {
-						ColorDrawable trans = new ColorDrawable(ctx.getResources().getColor(R.color.Transparent));
+						ColorDrawable trans = new ColorDrawable(
+								ctx.getResources().getColor(R.color.Transparent));
 						((FrameLayout) animView).setForeground(trans);
 					}
 					break;
@@ -139,8 +181,9 @@ public class CNS
 				case MotionEvent.ACTION_DOWN:
 				{
 					if (animView instanceof FrameLayout) {
-//						ColorDrawable whiteTrans = new ColorDrawable(ctx.getResources().getColor(R.color.white_20));
-						((FrameLayout) animView).setForeground(ctx.getResources().getDrawable(R.drawable.article_border));
+						ColorDrawable highlight = new ColorDrawable(
+								ctx.getResources().getColor(R.color.black_10));
+						((FrameLayout) animView).setForeground(highlight);
 					}
 					break;
 				}
@@ -150,14 +193,6 @@ public class CNS
 				return false;
 			}
 		});
-	}
-
-	public static String changeHTMLattr(String html, String attr, String value)
-	{
-//		html = html.replaceAll("\\s*(?:width)\\s*=\\s*\"[^\"]*\"\\s*"," max-width=\"100%\" ");
-		html = html.replaceAll("\\s*(?:" + attr + ")\\s*=\\s*\'[^\']*\'\\s*"," " + attr + "=\"" + value + "\" ");
-		html = html.replaceAll("\\s*(?:" + attr + ")\\s*=\\s*\"[^\"]*\"\\s*"," " + attr + "=\"" + value + "\" ");
-		return html;
 	}
 
 	public static boolean isNetworkConnected(Context context)
@@ -178,41 +213,82 @@ public class CNS
 		return timePassedString;
 	}
 
-	public static String correctYouTube(String str)
+	public static String generateBetterHTML(int maxWidth, String articleHTML, Context context)
 	{
-		String spanEmbed = "<span class='embed-youtube' ";
-		int ioYoutubeSpan = str.indexOf(spanEmbed);
-		while (ioYoutubeSpan >= 0) {
+		int width = maxWidth / 2 - CNS.getDPfromPX(10,context);
+		String s = "<html><head><meta name=\"viewport\"\"content=\"width=" + width + "\" /></head>";
+		s += "<body style='width=" + width + "'>";
+		String sEnd = "</body></html>";
+		String str = articleHTML;
+		str = correctBoarHTML(str,width);
+		String data = s + str + sEnd;
+		return data;
+	}
 
-			int ioCloseTag1 = str.indexOf(">",ioYoutubeSpan) + 1;
-			int ioSRC = str.indexOf("src='http://www.youtube",ioCloseTag1);
-			int ioCloseTagSpan = str.indexOf("</span>",ioCloseTag1);
+	public static String correctBoarHTML(String html, int parentWidth)
+	{
+		Document doc = Jsoup.parse(html);
 
-			if (ioSRC > ioCloseTag1 && ioSRC < ioCloseTagSpan) {
-				int ioYouTubeLink = str.indexOf("?",ioSRC);
-				if (ioYouTubeLink < ioCloseTagSpan) {
-					String url = str.substring(ioSRC + 5,ioYouTubeLink);
+		//-----------------------for img tags---------------------------------
+		if (html.contains("<img")) {
+			Elements links = doc.getElementsByTag("img");
+			for (Element link : links) {
+				try {
+					String classes = link.attr("class");
+
+					if (matchesPattern(classes,"alignright|alignleft")) {
+						if (classes.contains("alignright")) {
+							link.attr("style","float:right");
+						}
+						String width = link.attr("width");
+						if (Integer.parseInt(width) > parentWidth / 3) {
+							link.attr("height","auto");
+							link.attr("width","100%");
+						}
+					} else {
+						link.attr("height","auto");
+						link.attr("width","100%");
+					}
+				}
+				catch (Exception e) {}
+			}
+			Elements caption = doc.getElementsByAttributeValueContaining("class","wp-caption");
+			for (Element div : caption) {
+				div.attr("style","width:100%");
+			}
+		}
+		//-----------------------for iFrame tags---------------------------------
+		if (html.contains("<iframe")) {
+			Elements linkYouT = doc.getElementsByTag("iframe");
+			for (Element link : linkYouT) {
+				try {
+					String url = link.attr("src");
+					if (url.contains("?")) {
+						url = url.substring(0,url.indexOf("?"));
+					}
 					String playButtonUrl = "https://www.youtube.com/yt/advertise/medias/images/yt-advertise-whyitworks-playbutton.png";
 					String videoID = url.substring(url.indexOf("/embed/") + 7,url.length());
 					String imgUrl = "http://img.youtube.com/vi/" + videoID + "/0.jpg";
-					String div = "<div style='position:relative'>" +
-							"<img style='position: absolute;left: 0;right: 0;margin: auto;bottom: 0;width: 80px;top: 0;' src='" +
-							playButtonUrl + "'/>" +
-							"<a href='" + url + "'>" +
-							"<img src='" + imgUrl + "' style='width:100%'/>" +
-							"</a></div>";
+					String div = "<div style='position:relative'>"
+							+ "<img style='position: absolute;left: 0;right: 0;margin: auto;bottom: 0;width: 60px;top: 0;' src='"
+							+ playButtonUrl + "'/>" + "<a href='" + url + "'>" +
+							"<img src='" + imgUrl + "' style='width:100%'/>" + "</a></div>";
 
-					StringBuilder strB = new StringBuilder(str);
-					strB.delete(ioCloseTag1,ioCloseTagSpan);
-					strB.insert(ioCloseTag1,div);
-
-					str = strB.toString();
+					link.replaceWith(new DataNode(div,""));
 				}
+				catch (Exception e) {}
 			}
-			ioYoutubeSpan = str.indexOf(spanEmbed,ioYoutubeSpan + 1);
-//			Log.d("PRINT","" + str.substring(ioYoutubeSpan));
 		}
-		return str;
+//		link.replaceWith(new DataNode("<div></div>",width));
+		return doc.toString();
+	}
+
+	public static boolean matchesPattern(String str, String pattern)
+	{
+		Pattern p = Pattern.compile(pattern);
+		Matcher m = p.matcher(str);
+		if (m.find()) { return true; }
+		return false;
 	}
 
 }

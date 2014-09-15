@@ -16,6 +16,7 @@
 
         <LinearLayout
             android:layout_width="match_parent"
+            android:baselineAligned="false"
             android:layout_height="49dp" >
 
             <FrameLayout
@@ -26,6 +27,7 @@
                 android:clickable="true" >
 
                 <ImageView
+                    android:id="@+id/menu_button_img"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_gravity="center_vertical"
@@ -43,6 +45,7 @@
                 android:visibility="gone" >
 
                 <ImageView
+                    android:id="@+id/close_button_img"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_gravity="center_vertical"
@@ -61,6 +64,7 @@
                 android:visibility="gone" >
 
                 <ImageView
+                    android:id="@+id/back_button_img"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_gravity="center_vertical"
@@ -74,11 +78,9 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:paddingEnd="8dp"
-                    android:paddingRight="8dp"
-                    android:paddingStart="8dp"
                     android:text="About"
                     android:textColor="@color/black_op_90"
-                    android:textSize="25sp" />
+                    android:textSize="22sp" />
             </LinearLayout>
 
             <FrameLayout
@@ -89,11 +91,12 @@
                 android:background="@drawable/clickable" >
 
                 <ImageView
+                    android:id="@+id/actionbar_logo_img"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_gravity="center_horizontal"
-                    android:padding="8dp"
-                    android:src="@drawable/the_boar_logo" />
+                    android:padding="11dp"
+                    android:src="@drawable/the_boar_logo_black" />
             </FrameLayout>
 
             <FrameLayout
@@ -103,16 +106,18 @@
                 android:background="@drawable/clickable" >
 
                 <ImageView
+                    android:id="@+id/more_button_img"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:adjustViewBounds="true"
                     android:padding="8dp"
-                    android:src="@drawable/more" />
+                    android:src="@drawable/more_black" />
             </FrameLayout>
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/actionBar_shadow"
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:layout_gravity="bottom"
@@ -122,6 +127,7 @@
     </LinearLayout>
 
     <FrameLayout
+        
         android:id="@+id/dummy_actionBar_underlay"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -158,19 +164,15 @@
                     android:layout_height="45dp"
                     android:layout_weight="0.5"
                     android:background="@drawable/clickable"
-                    android:orientation="vertical" >
+                    android:orientation="vertical"
+                    android:padding="10dp" >
 
                     <ImageView
+                        android:id="@+id/refresh_button_img"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
-                        android:padding="10dp"
                         android:src="@drawable/refresh_black" />
-
-                    <FrameLayout
-                        android:layout_width="1dp"
-                        android:layout_height="match_parent" >
-                    </FrameLayout>
                 </FrameLayout>
 
                 <FrameLayout
@@ -206,7 +208,7 @@
             </LinearLayout>
 
             <FrameLayout
-                android:id="@+id/drop_down_settings"
+                android:id="@+id/drop_down_share"
                 android:layout_width="match_parent"
                 android:layout_height="45dp"
                 android:background="@drawable/clickable"
@@ -217,7 +219,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
-                    android:text="Settings"
+                    android:text="Share"
                     android:textColor="@color/black_80"
                     android:textSize="15sp" />
             </FrameLayout>
@@ -239,6 +241,23 @@
                     android:textSize="15sp" />
             </FrameLayout>
 
+            <FrameLayout
+                android:id="@+id/drop_down_settings"
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:background="@drawable/clickable"
+                android:orientation="vertical"
+                android:padding="10dp" >
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:text="Settings"
+                    android:textColor="@color/black_80"
+                    android:textSize="15sp" />
+            </FrameLayout>
+            
             <FrameLayout
                 android:id="@+id/drop_down_browser"
                 android:layout_width="match_parent"

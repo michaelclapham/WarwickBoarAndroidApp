@@ -23,6 +23,8 @@ import android.widget.Toast;
 public class NewsStore implements INewsStore
 {
 
+	public static final String NO_NEW = "no_new";
+	public static final String HAS_NEW = "has_new";
 	public static final String boarJSON = "http://theboar.org/?json=1";
 	private static Context context;
 	private int pageNum;
@@ -32,13 +34,21 @@ public class NewsStore implements INewsStore
 		context = ctx;
 	}
 
-	@Override
-	public IHeadlineList headlinesFromCategory(int categoryId, int pageNum, int count, IHeadlineListener hl_listener)
+	public IHeadlineList headlinesFromCategory(int categoryId, int pageNum, int count, IHeadlineListener hl_listener, boolean checkAgain)
 	{
 		this.pageNum = pageNum;
 		this.hl_listener = hl_listener;
-		String categoryRequestURL = Category.getCategoryRequestURL(categoryId,pageNum);
-		return generateHeadlines(count,categoryRequestURL,categoryId);
+		String categoryRequestURL = Category.getCategoryRequestURL(categoryId,pageNum,count);
+		return generateHeadlines(count,categoryRequestURL,categoryId,checkAgain);
+	}
+
+	public boolean checkIfNewHeadlines(int categoryId)
+	{
+		String categoryRequestURL = Category.getCategoryRequestURL(categoryId,pageNum,1);
+		JSONObject downloaded = downloadJSON(categoryRequestURL,categoryId);
+		JSONObject cached = getJSONFromFile(CNS.getCategoryCacheFile(context,Category.getCategoryName(categoryId,false,false)));
+
+		return !checkJSONPostsSame(downloaded,cached);
 	}
 
 	@Override
@@ -46,8 +56,7 @@ public class NewsStore implements INewsStore
 	{
 
 		this.hl_listener = hl_listener;
-		String path = context.getCacheDir().getAbsolutePath();
-		File favFile = new File(path + "favourites" + ".json");
+		File favFile = CNS.getFavouriteFile();
 		JSONObject favJSON = getJSONFromFile(favFile);
 
 		if (favJSON != null) {//retrieve from cache
@@ -62,14 +71,14 @@ public class NewsStore implements INewsStore
 		}
 		return null;
 	}
-	@Override
+
 	public IHeadlineList headlinesFromSearch(String query, int page, int count, IHeadlineListener hl_listener)
 	{
 		this.pageNum = page;
 		this.hl_listener = hl_listener;
 		query = query.replaceAll(" ","%20");
 		if (query.endsWith(" ")) query = query.substring(0,query.length() - 2);
-		return generateHeadlines(count,boarJSON + "&s=" + query + "&page=" + page,-1);
+		return generateHeadlines(count,boarJSON + "&s=" + query + "&page=" + page,-1,true);
 	}
 
 	//----------------------------------------JSON--------------------------------
@@ -89,17 +98,28 @@ public class NewsStore implements INewsStore
 		JSONObject jsonObj = null;
 		try {
 			jsonObj = (JSONObject) new JSONTokener(IOUtils.toString(new URL(requestURL))).nextValue();
-			String categoryName = Category.getCategoryName(categoryId,false,false);
-			if (categoryName != null && pageNum == 1) { //only add 1st page to cache
-				String path = context.getCacheDir().getAbsolutePath();
-				File cacheFile = new File(path + categoryName + ".json");
-				writeJSONtoFile(jsonObj,cacheFile);
-			}
+
 		}
 		catch (Exception e) {
 			Log.e(CNS.LOGPRINT,"An Error Occurred retrieving JSON.");
 		}
 		return jsonObj;
+	}
+
+	private boolean checkJSONPostsSame(JSONObject json1, JSONObject json2)
+	{
+		try {
+
+			JSONArray jArray1 = json1.getJSONArray("posts");
+			String id1 = jArray1.getJSONObject(0).getString("id");
+
+			JSONArray jArray2 = json2.getJSONArray("posts");
+			String id2 = jArray2.getJSONObject(0).getString("id");
+
+			if (id1.equals(id2)) return true;
+		}
+		catch (Exception e1) {}
+		return false;
 	}
 
 	public static JSONObject getJSONFromFile(File cacheFile)
@@ -131,14 +151,14 @@ public class NewsStore implements INewsStore
 
 	}
 
-	public static void writeJSONtoFile(final JSONObject json, final File cacheFile)
+	public static void writeJSONtoFile(final JSONObject json, final File file)
 	{
 		Runnable r = new Runnable() {
 			public void run()
 			{
 				try {
-					if (!cacheFile.exists()) cacheFile.createNewFile();
-					FileUtils.writeStringToFile(cacheFile,json.toString());
+					if (!file.exists()) file.createNewFile();
+					FileUtils.writeStringToFile(file,json.toString());
 				}
 				catch (IOException e) {}
 			}
@@ -177,7 +197,8 @@ public class NewsStore implements INewsStore
 					list.addHeadline(parseJSONtoHeadline(story));
 
 					String[] ls = new String[3];
-					ls[0] = "Loading: " + (i + 1) + "/" + jArray.length();
+//					ls[0] = "Loading: " + (i + 1) + "/" + jArray.length();
+					ls[0] = HAS_NEW;
 					ls[1] = pagesTotal;
 					ls[2] = countTotal;
 
@@ -202,7 +223,10 @@ public class NewsStore implements INewsStore
 
 			String imageURL = null;
 			try {
-				imageURL = story.getJSONObject("thumbnail_images").getJSONObject("medium").getString("url");
+				boolean imgRes = CNS.getSharedPreferences(context).getBoolean("image_quality",true);
+
+				imageURL = story.getJSONObject("thumbnail_images").getJSONObject(imgRes ? "large"
+						: "medium").getString("url");
 			}
 			catch (Exception e) {}
 
@@ -217,23 +241,38 @@ public class NewsStore implements INewsStore
 			head.setUniqueId(story.getString("id"));
 			return head;
 		}
-		catch (JSONException e) {}
-		catch (ParseException e1) {}
+		catch (JSONException e) {
+			Log.e(CNS.LOGPRINT,"JSON Exception");
+		}
+		catch (ParseException e1) {
+			Log.e(CNS.LOGPRINT,"Parsing Exception");
+		}
 		return null;
 	}
 
-	private IHeadlineList generateHeadlines(int count, String categoryRequestURL, int categoryId)
+	private IHeadlineList generateHeadlines(int count, String categoryRequestURL, int categoryId, boolean checkAgain)
 	{
-		JSONObject downloadedJSON = downloadJSON(categoryRequestURL,categoryId);
+		JSONObject downloadedJSON = null;
+		if (checkAgain) { //only download from url when requested
+			downloadedJSON = downloadJSON(categoryRequestURL,categoryId);
+		}
 
-		if (downloadedJSON == null) {//retrieve from cache
+		if (downloadedJSON == null || !checkAgain) {//retrieve from cache
 			String categoryName = Category.getCategoryName(categoryId,false,false);
 			if (categoryName != null) { //eg. query
-				String path = context.getCacheDir().getAbsolutePath();
-				File cacheFile = new File(path + categoryName + ".json");
+				File cacheFile = CNS.getCategoryCacheFile(context,categoryName);
 				downloadedJSON = getJSONFromFile(cacheFile);
+				if (downloadedJSON == null) //if not cache then download from url
+					downloadedJSON = downloadJSON(categoryRequestURL,categoryId);
 			}
 		}
+
+		String categoryName = Category.getCategoryName(categoryId,false,false);
+		if (categoryName != null && pageNum == 1) { //only add 1st page to cache
+			File cacheFile = CNS.getCategoryCacheFile(context,categoryName);
+			writeJSONtoFile(downloadedJSON,cacheFile);
+		}
+
 		IHeadlineList hList = parseJSONtoHeadlineList(count,downloadedJSON);
 		return hList;
 	}

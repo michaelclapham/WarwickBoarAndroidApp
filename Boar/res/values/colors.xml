@@ -10,24 +10,39 @@
 	<color name="yellow">#fff600</color>
 	
 	<color name="home_colour">#ffffff</color>
-	<color name="news">#c4161c</color>
-	<color name="comment">#ffc20e</color>
-	<color name="features">#8dc63f</color>
-	<color name="lifestyle">#F0F</color>
-	<color name="money">#F26522</color>
-	<color name="arts">#F26522</color>
-	<color name="books">#008fd5</color>
-	<color name="film">#790020</color>
-	<color name="games">#0096a6</color>
-	<color name="music">#ed1c24</color>
-	<color name="science_tech">#00abbd</color>
-	<color name="travel">#1e196a</color>
-	<color name="tv">#92278f</color>
+<!-- 	<color name="news">#c4161c</color> -->
+<!-- 	<color name="comment">#ffc20e</color> -->
+<!-- 	<color name="features">#8dc63f</color> -->
+<!-- 	<color name="lifestyle">#f71bb5</color> -->
+<!-- 	<color name="arts">#F26522</color> -->
+	<!-- <color name="books">#008fd5</color> -->
+<!-- 	<color name="games">#0096a6</color> -->
+<!-- 	<color name="music">#ed1c24</color> -->
+<!-- 	<color name="science_tech">#00abbd</color> -->
+<!-- 	<color name="travel">#1e196a</color> -->
+ 	<color name="tv">#92278f</color> 
+ 	
 	<color name="sport">#00a651</color>
 	<color name="photography">#777777</color>
+	
 	<color name="favourites_yellow">#ffbb00</color>
 	<color name="favourites_white">#ffffff</color>
 	<color name="other">#FFFFFF</color>
+	
+	
+	<color name="news">#e51c23</color>
+	<color name="books">#039be5</color>
+	<color name="comment">#ffc107</color>
+	<color name="features">#8bc34a</color>
+	<color name="lifestyle">#f22689</color>
+	<color name="money">#F26522</color>
+	<color name="arts">#f57c00</color>
+	<color name="games">#03a9f4</color>
+	<color name="film">#8e0021</color>
+	<color name="music">#e00032</color>
+	<color name="science_tech">#00bfc9</color>
+	<color name="travel">#212e84</color>
+	
 	
 	<color name="menu_bg">#e6e6e6</color>
 	
@@ -49,11 +64,15 @@
 	<color name="black_op_90">#2f2f2f</color>
 	<color name="white_op_90">#f0f0f0</color>
 	
+	<color name="white_90">#E6FFFFFF</color>
 	<color name="white_80">#CCFFFFFF</color>
-	<color name="white_50">#99FFFFFF</color>
+	<color name="white_70">#B3FFFFFF</color>
+	<color name="white_60">#99FFFFFF</color>
 	<color name="white_30">#4DFFFFFF</color>
 	<color name="white_20">#33FFFFFF</color>
 	<color name="white_10">#1AFFFFFF</color>
+	
+	<color name="toast">#F26d6d6d</color>
 	
 </resources>
 

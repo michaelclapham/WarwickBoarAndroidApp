@@ -11,8 +11,7 @@
         android:id="@+id/main_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:paddingTop="@dimen/actionBarHeight" >
+        android:orientation="vertical" >
 
         <FrameLayout
             android:layout_width="match_parent"
@@ -27,8 +26,9 @@
                     android:layout_width="fill_parent"
                     android:layout_height="match_parent"
                     android:orientation="vertical"
-                     >
-<!--                     android:paddingBottom="50dp" -->
+                    android:paddingTop="@dimen/actionBarHeight" >
+
+                    <!-- android:paddingBottom="50dp" -->
 
                     <TextView
                         android:id="@+id/page_heading"
@@ -84,7 +84,7 @@
                             android:layout_height="wrap_content"
                             android:layout_margin="8dp"
                             android:gravity="center"
-                            android:text="Loading"
+                            android:text="Fetching news list"
                             android:textColor="@color/black_20"
                             android:textSize="18sp" />
                     </LinearLayout>
@@ -102,10 +102,9 @@
                         android:visibility="gone" />
 
                     <LinearLayout
-                        android:id="@+id/story_lll"
+                        android:id="@+id/tablet_l_root"
                         android:layout_width="fill_parent"
                         android:layout_height="fill_parent"
-                        android:layout_weight="33"
                         android:animateLayoutChanges="true"
                         android:orientation="horizontal" >
 
@@ -151,23 +150,51 @@
                 android:id="@+id/progress_bottom"
                 style="?android:attr/progressBarStyle"
                 android:layout_width="35dp"
-                android:visibility="gone"
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom|center_horizontal"
-                android:layout_margin="10dp" />
-
+                android:layout_margin="10dp"
+                android:visibility="gone" />
         </FrameLayout>
     </LinearLayout>
 
-    <include
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="@dimen/actionBarHeight"
-        layout="@layout/newsstory_layout" />
+    <FrameLayout
+        android:id="@+id/main_toast_root"
+        android:layout_width="wrap_content"
+        android:layout_height="50dp"
+        android:layout_gravity="bottom|center"
+        android:layout_marginBottom="30dp"
+        android:background="@color/toast"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:visibility="visible" >
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="New Posts! Touch to see them."
+            android:textColor="@color/white_80"
+            android:textSize="18sp"
+            />
+
+    </FrameLayout>
+    
     <include
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        layout="@layout/action_bar_layout" />
+        layout="@layout/newsstory_layout"
+        android:visibility="gone" />
+
+    <FrameLayout
+        android:id="@+id/action_bar_main"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center_horizontal" >
+
+        <include
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            layout="@layout/action_bar_layout" />
+    </FrameLayout>
 
 </FrameLayout>

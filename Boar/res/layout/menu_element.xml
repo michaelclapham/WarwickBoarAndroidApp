@@ -81,7 +81,7 @@
                     android:src="@drawable/home" />
 
                 <TextView
-                    android:id="@+id/menu_item_text"
+                    android:id="@+id/menu_item_text_home"
                     android:layout_width="wrap_content"
                     
                     android:layout_height="wrap_content"

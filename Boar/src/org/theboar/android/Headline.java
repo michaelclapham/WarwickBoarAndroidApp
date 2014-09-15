@@ -102,8 +102,7 @@ public class Headline implements IHeadline
 	public boolean isFavourite(Context context)
 	{
 		if (favourite == true) return true;
-		String path = context.getCacheDir().getAbsolutePath();
-		File favFile = new File(path + "favourites" + ".json");
+		File favFile = CNS.getFavouriteFile();
 		JSONObject jsonObj = NewsStore.getJSONFromFile(favFile);
 		if (jsonObj == null) {
 			return false;
@@ -166,8 +165,7 @@ public class Headline implements IHeadline
 	public boolean setFavourite(boolean fav, Context context)
 	{
 		favourite = fav;
-		String path = context.getCacheDir().getAbsolutePath();
-		File favFile = new File(path + "favourites" + ".json");
+		File favFile = CNS.getFavouriteFile();
 		JSONObject jsonObj = NewsStore.getJSONFromFile(favFile);
 		JSONArray jsArr = new JSONArray();
 		try {

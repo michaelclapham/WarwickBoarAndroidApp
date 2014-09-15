@@ -72,7 +72,7 @@ public class Preferences extends PreferenceActivity
 		String version;
 		try {
 			version = getPackageManager().getPackageInfo(getPackageName(),0).versionName;
-			findPreference("version").setTitle("Version " + version);
+			findPreference("version").setSummary("Version: " + version);
 		}
 		catch (NameNotFoundException e) {
 			e.printStackTrace();
@@ -180,11 +180,12 @@ public class Preferences extends PreferenceActivity
 				{
 					public void onClick(DialogInterface dialog, int id)
 					{
-						int maxCacheSize = settings.getInt("max_cache",10);
 
-						long triggerSize = maxCacheSize * 1000000; //starts cleaning when cache size is larger than 3M
-						long targetSize = 2000000;      //remove the least recently used files until cache size is less than 2M
+						int maxCacheSize = settings.getInt("max_cache",10);
+						long triggerSize = maxCacheSize * 1000000;
 						AQUtility.cleanCacheAsync(BoarActivity.activity,triggerSize,triggerSize);
+						//starts cleaning when cache size is larger than 3M
+//						long targetSize = 2000000;      //remove the least recently used files until cache size is less than 2M
 
 						Toast.makeText(getApplicationContext(),"Max Cache Set to " + maxCacheSize + "MB",Toast.LENGTH_LONG).show();
 					}
