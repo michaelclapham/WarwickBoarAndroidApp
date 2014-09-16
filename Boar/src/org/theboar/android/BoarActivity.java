@@ -908,6 +908,8 @@ public class BoarActivity extends Activity implements BottomReachedListener
 				newsStore.headlinesFromSearch(query,pageNum,numCount,this);
 			}
 			else {
+				useInternet = currentCategory == Category.HOME ? true : useInternet;
+				//FIXME home always returns tru becuase miss patina is always on the top. has to be fixed from boar website. 
 				newsStore.headlinesFromCategory(currentCategory,pageNum,numCount,this,useInternet);
 			}
 			return null;
@@ -971,7 +973,8 @@ public class BoarActivity extends Activity implements BottomReachedListener
 			}
 
 			Log.d(CNS.LOGPRINT,"fL" + (currentCategory != Category.FAVOURITES && !forSearch));
-			if (currentCategory != Category.FAVOURITES && !forSearch) {
+			if (currentCategory != Category.FAVOURITES && currentCategory != Category.HOME
+					&& !forSearch) {
 				if (!useInternet && beenReloaded[currentCategory] == false
 						&& CNS.isNetworkConnected(context)) {
 					//if current category hasnt been checked already
@@ -984,10 +987,10 @@ public class BoarActivity extends Activity implements BottomReachedListener
 								{
 									if (newAvailable) {
 										vis(VISIBLE,R.id.main_toast_root,true);
-										Log.d(CNS.LOGPRINT,"New Posts available");
+										Log.d(CNS.LOGPRINT,"New Posts available" + currentCategory);
 									} else {
 										beenReloaded[currentCategory] = true;
-										Log.d(CNS.LOGPRINT,"No new Posts available");
+										Log.d(CNS.LOGPRINT,"No new Posts available " + currentCategory);
 									}
 								}
 							});
