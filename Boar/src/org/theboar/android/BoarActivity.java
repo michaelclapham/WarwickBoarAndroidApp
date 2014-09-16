@@ -970,7 +970,8 @@ public class BoarActivity extends Activity implements BottomReachedListener
 				}
 			}
 
-			if (currentCategory != Category.FAVOURITES && forSearch) {
+			Log.d(CNS.LOGPRINT,"fL" + (currentCategory != Category.FAVOURITES && !forSearch));
+			if (currentCategory != Category.FAVOURITES && !forSearch) {
 				if (!useInternet && beenReloaded[currentCategory] == false
 						&& CNS.isNetworkConnected(context)) {
 					//if current category hasnt been checked already
@@ -1005,13 +1006,6 @@ public class BoarActivity extends Activity implements BottomReachedListener
 			ImageView iv = null;
 			FrameLayout categoryBox;
 			TextView authorName = null, newsDate = null, newsName = null;
-
-			try {
-				Log.d(CNS.LOGPRINT,"" + hl.getPageUrl());
-			}
-			catch (Exception e) {
-				Log.e(CNS.LOGPRINT,"Error in " + hl.getHeadline());
-			}
 
 			//---------------------------------------------------------
 			int imageHeight = CNS.getPXfromDP(150,context);
@@ -1111,6 +1105,7 @@ public class BoarActivity extends Activity implements BottomReachedListener
 		if (hat != null && hat.getStatus().equals(AsyncTask.Status.RUNNING)) {
 			hat.cancel(true);
 		}
+		vis(GONE,R.id.main_toast_root,true);
 
 		populating = true;
 		newsStore = new NewsStore(context);
@@ -1123,7 +1118,6 @@ public class BoarActivity extends Activity implements BottomReachedListener
 			ScrollView sv = (ScrollView) findViewById(R.id.scrollView_main);
 			sv.fullScroll(ScrollView.FOCUS_UP);
 
-			vis(GONE,R.id.main_toast_root,true);
 			vis(GONE,R.id.progress_bottom,true);
 			pageNum = 1;
 			l1.removeAllViews();
