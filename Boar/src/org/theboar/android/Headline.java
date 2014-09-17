@@ -93,6 +93,13 @@ public class Headline implements IHeadline
 	}
 
 	@Override
+	public void setTags(String[] tags)
+	{
+		this.tags = tags;
+
+	}
+
+	@Override
 	public int getCategory()
 	{
 		return category;

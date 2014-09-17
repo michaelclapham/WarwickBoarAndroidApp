@@ -30,6 +30,7 @@ import android.preference.PreferenceManager;
 import android.text.format.DateUtils;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
@@ -38,6 +39,9 @@ import android.view.animation.DecelerateInterpolator;
 import android.view.animation.RotateAnimation;
 import android.view.animation.ScaleAnimation;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.LinearLayout.LayoutParams;
 
 public class CNS
 {
@@ -114,6 +118,27 @@ public class CNS
 	{
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) { return FrameLayout.LayoutParams.MATCH_PARENT; }
 		return FrameLayout.LayoutParams.FILL_PARENT;
+	}
+
+	public static FrameLayout getTagBox(String tag, Context context)
+	{
+		FrameLayout fmTemp = new FrameLayout(context);
+		int dpS = CNS.getDPfromPX(3,context);
+		int dpL = CNS.getDPfromPX(8,context);
+		fmTemp.setPadding(dpL,dpS,dpL,dpS);
+		LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+				LayoutParams.WRAP_CONTENT,
+				LayoutParams.WRAP_CONTENT,Gravity.CENTER_VERTICAL);
+		params.setMargins(dpL,0,0,0);
+		fmTemp.setBackgroundColor(context.getResources().getColor(R.color.black_05));
+
+		fmTemp.setLayoutParams(params);
+		TextView tvTemp = new TextView(context);
+		tvTemp.setText(tag);
+		tvTemp.setTextColor(context.getResources().getColor(R.color.black_45));
+//			tvTemp.setTypeface(null,Typeface.BOLD);
+		fmTemp.addView(tvTemp);
+		return fmTemp;
 	}
 
 	/**@param type

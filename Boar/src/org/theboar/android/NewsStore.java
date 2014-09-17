@@ -230,6 +230,12 @@ public class NewsStore implements INewsStore
 			}
 			catch (Exception e) {}
 
+			JSONArray tagArray = story.getJSONArray("tags");
+			String[] tags = new String[tagArray.length()];
+			for (int i = 0; i < tagArray.length(); i++) {
+				tags[i] = ((JSONObject) tagArray.get(i)).getString("slug");
+			}
+
 			head.setHeadlineTitle((Html.fromHtml(storyTitle)).toString());
 			head.setImageUrl(imageURL);
 			head.setDatePublished(datePublished);
@@ -237,6 +243,7 @@ public class NewsStore implements INewsStore
 			head.setPageUrl(story.getString("url"));
 			head.storeHTML(story.getString("content"));
 			head.setCategory(Category.parseCategoryID(story.getJSONArray("categories")));
+			head.setTags(tags);
 			head.setJSONStory(story);
 			head.setUniqueId(story.getString("id"));
 			return head;

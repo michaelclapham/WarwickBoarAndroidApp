@@ -28,6 +28,7 @@ public interface IHeadline
 	 */
 	public Drawable getHighResImage();
 
+	public void setTags(String[] tags);
 	public String[] getTags();
 
 	public int getCategory();

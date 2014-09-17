@@ -18,6 +18,7 @@ import android.os.Handler;
 import android.text.Html;
 import android.util.Log;
 import android.view.Display;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -83,6 +84,7 @@ public class BoarActivity extends Activity implements BottomReachedListener
 	private String query;
 
 	private boolean isFullScreenEnabled;
+	private boolean[] beenReloaded;
 
 	//----------------------------------Lifecycle------------------------------
 
@@ -334,6 +336,11 @@ public class BoarActivity extends Activity implements BottomReachedListener
 		vis(VISIBLE,R.id.drop_down_browser);
 		View actionBar = findViewById(R.id.action_bar_main);
 
+		View menu = findViewById(R.id.menu_button_img);
+		View close = findViewById(R.id.close_button_img);
+		View more = findViewById(R.id.more_button_img);
+		View logo = findViewById(R.id.actionbar_logo_img);
+
 		//----------------article open-----------------------
 		if (articleOpen) {//in article View
 			setOrientationMargin(actionBar,false);
@@ -381,11 +388,6 @@ public class BoarActivity extends Activity implements BottomReachedListener
 			heading.setText(categoryName);
 			heading.setTextColor(colorText);
 		}
-
-		View menu = findViewById(R.id.menu_button_img);
-		View close = findViewById(R.id.close_button_img);
-		View more = findViewById(R.id.more_button_img);
-		View logo = findViewById(R.id.actionbar_logo_img);
 
 		if (!articleOpen
 				&& (currentCategory == Category.HOME ||
@@ -632,6 +634,7 @@ public class BoarActivity extends Activity implements BottomReachedListener
 				populateNews(true,true);
 				if (articleOpen) closeArticle();
 				vis(GONE,R.id.main_toast_root,true);
+				beenReloaded[currentCategory] = true;
 				break;
 
 			default:
@@ -639,7 +642,6 @@ public class BoarActivity extends Activity implements BottomReachedListener
 			}
 		}
 	};
-	private boolean[] beenReloaded;
 
 	private void setArticleColors(int category)
 	{
@@ -713,6 +715,13 @@ public class BoarActivity extends Activity implements BottomReachedListener
 		TextView tvDate = (TextView) findViewById(R.id.story_date);
 		String date = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm").format(hl.getDatePublished());
 		tvDate.setText(date);
+		//-------------------------------------------Tabs----------------------------------------
+		LinearLayout tagsRoot = (LinearLayout) findViewById(R.id.story_tab_root);
+		tagsRoot.removeAllViews();
+		for (String tag : hl.getTags()) {
+			FrameLayout fmTemp = CNS.getTagBox(tag,context);
+			tagsRoot.addView(fmTemp);
+		}
 
 		LinearLayout webViewLL = (LinearLayout) findViewById(R.id.story_ll_root);
 		webViewLL.removeAllViews();
@@ -721,7 +730,7 @@ public class BoarActivity extends Activity implements BottomReachedListener
 		WebView webview = (WebView) new WebView(context);
 		webview.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT,
 				LayoutParams.WRAP_CONTENT));
-		webview.setVisibility(View.INVISIBLE);
+//		webview.setVisibility(View.INVISIBLE);
 		webview.setBackgroundColor(context.getResources().getColor(R.color.Transparent));
 		webview.setWebViewClient(new WebViewClient() {
 
@@ -739,7 +748,7 @@ public class BoarActivity extends Activity implements BottomReachedListener
 			{
 				LinearLayout webViewLL = (LinearLayout) findViewById(R.id.story_ll_root);
 				webViewLL.addView(view);
-				view.setVisibility(View.VISIBLE);
+//				view.setVisibility(View.VISIBLE);
 				vis(GONE,R.id.story_ll_progress);
 //				view.startAnimation(CNS.Animate(view,CNS.FADE,0,1,1000,true));
 			}
@@ -972,8 +981,8 @@ public class BoarActivity extends Activity implements BottomReachedListener
 				}
 			}
 
-			Log.d(CNS.LOGPRINT,"fL" + (currentCategory != Category.FAVOURITES && !forSearch));
-			if (currentCategory != Category.FAVOURITES && currentCategory != Category.HOME
+			if (currentCategory != Category.FAVOURITES
+					&& currentCategory != Category.HOME
 					&& !forSearch) {
 				if (!useInternet && beenReloaded[currentCategory] == false
 						&& CNS.isNetworkConnected(context)) {

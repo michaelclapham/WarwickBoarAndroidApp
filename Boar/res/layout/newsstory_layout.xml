@@ -100,18 +100,19 @@
                     </LinearLayout>
                 </LinearLayout>
 
-                <FrameLayout
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@color/white" >
+                    android:background="@color/white"
+                    android:orientation="vertical" >
 
                     <ProgressBar
                         android:id="@+id/story_ll_progress"
                         android:layout_width="wrap_content"
                         android:layout_height="30dp"
                         android:layout_gravity="center_horizontal"
-                        android:layout_margin="10dp" />
-                    
+                        android:layout_margin="20dp" />
+
                     <LinearLayout
                         android:id="@+id/story_ll_root"
                         android:layout_width="fill_parent"
@@ -127,7 +128,42 @@
                         -->
 
                     </LinearLayout>
-                </FrameLayout>
+
+                    <FrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/black_10" >
+                    </FrameLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="horizontal" >
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:padding="@dimen/tabMar"
+                            android:text="Tags:"
+                            android:textAppearance="?android:attr/textAppearanceSmall"
+                            android:textColor="@color/black_45" />
+
+                        <HorizontalScrollView
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent" >
+
+                            <LinearLayout
+                                android:id="@+id/story_tab_root"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center_vertical"
+                                android:orientation="horizontal"
+                                android:paddingRight="8dp" >
+
+                            </LinearLayout>
+                        </HorizontalScrollView>
+                    </LinearLayout>
+                </LinearLayout>
             </LinearLayout>
         </org.theboar.android.StickyScrollView>
     </FrameLayout>
