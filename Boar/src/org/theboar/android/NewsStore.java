@@ -81,6 +81,15 @@ public class NewsStore implements INewsStore
 		return generateHeadlines(count,boarJSON + "&s=" + query + "&page=" + page,-1,true);
 	}
 
+	@Override
+	public IHeadlineList headlinesFromTag(String slug, int page, int count, IHeadlineListener hl_listener)
+	{
+		this.pageNum = page;
+		this.hl_listener = hl_listener;
+		return generateHeadlines(count,"http://theboar.org/tag/" + slug + "/?json=1&page=" + page
+				+ "&count=" + count,-1,true);
+	}
+
 	//----------------------------------------JSON--------------------------------
 
 	@Override

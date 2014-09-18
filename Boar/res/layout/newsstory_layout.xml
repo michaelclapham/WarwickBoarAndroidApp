@@ -108,10 +108,12 @@
 
                     <ProgressBar
                         android:id="@+id/story_ll_progress"
-                        android:layout_width="wrap_content"
-                        android:layout_height="30dp"
+                        style="?android:attr/progressBarStyleHorizontal"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:visibility="gone"
                         android:layout_gravity="center_horizontal"
-                        android:layout_margin="20dp" />
+                        />
 
                     <LinearLayout
                         android:id="@+id/story_ll_root"
@@ -137,19 +139,22 @@
 
                     <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
+                        android:layout_height="50dp"
                         android:orientation="horizontal" >
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:padding="@dimen/tabMar"
+                            android:layout_gravity="center_vertical"
+                            android:paddingLeft="@dimen/tabMar"
+                            android:paddingRight="8dp"
                             android:text="Tags:"
                             android:textAppearance="?android:attr/textAppearanceSmall"
                             android:textColor="@color/black_45" />
 
                         <HorizontalScrollView
                             android:layout_width="match_parent"
+                                android:id="@+id/story_tab_scroll"
                             android:layout_height="match_parent" >
 
                             <LinearLayout

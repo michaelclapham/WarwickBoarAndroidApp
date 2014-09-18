@@ -10,5 +10,6 @@
     <dimen name="articleMarg">0dp</dimen>
     <dimen name="articleMargHor">0dp</dimen>
 	<dimen name="actionBarHeight">50dp</dimen>
+	<dimen name="actionBarItem">10dp</dimen>
     
 </resources>

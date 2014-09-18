@@ -6,7 +6,7 @@
 
     <!-- android:background="#ffffff" -->
 
-    <LinearLayout
+    <FrameLayout
         android:id="@+id/top_bar_layout"
         android:layout_width="match_parent"
         android:layout_height="@dimen/actionBarHeight"
@@ -16,15 +16,16 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:baselineAligned="false"
-            android:layout_height="49dp" >
+            android:layout_height="@dimen/actionBarHeight"
+            android:baselineAligned="false" >
 
             <FrameLayout
                 android:id="@+id/menu_button"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:background="@drawable/clickable"
-                android:clickable="true" >
+                android:clickable="true"
+                android:padding="@dimen/actionBarItem" >
 
                 <ImageView
                     android:id="@+id/menu_button_img"
@@ -32,7 +33,6 @@
                     android:layout_height="match_parent"
                     android:layout_gravity="center_vertical"
                     android:adjustViewBounds="true"
-                    android:padding="8dp"
                     android:src="@drawable/menu_black" />
             </FrameLayout>
 
@@ -42,6 +42,7 @@
                 android:layout_height="match_parent"
                 android:background="@drawable/clickable"
                 android:clickable="true"
+                android:padding="@dimen/actionBarItem"
                 android:visibility="gone" >
 
                 <ImageView
@@ -50,7 +51,6 @@
                     android:layout_height="match_parent"
                     android:layout_gravity="center_vertical"
                     android:adjustViewBounds="true"
-                    android:padding="8dp"
                     android:src="@drawable/close_black" />
             </FrameLayout>
 
@@ -69,7 +69,7 @@
                     android:layout_height="match_parent"
                     android:layout_gravity="center_vertical"
                     android:adjustViewBounds="true"
-                    android:padding="8dp"
+                    android:padding="@dimen/actionBarItem"
                     android:src="@drawable/back_black" />
 
                 <TextView
@@ -77,10 +77,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
-                    android:paddingEnd="8dp"
-                    android:text="About"
                     android:textColor="@color/black_op_90"
-                    android:textSize="22sp" />
+                    android:textSize="20sp" />
             </LinearLayout>
 
             <FrameLayout
@@ -88,22 +86,23 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:background="@drawable/clickable" >
+                android:background="@drawable/clickable"
+                android:padding="@dimen/actionBarItem" >
 
                 <ImageView
                     android:id="@+id/actionbar_logo_img"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_gravity="center_horizontal"
-                    android:padding="11dp"
-                    android:src="@drawable/the_boar_logo_black" />
+                    android:src="@drawable/the_boar_logo" />
             </FrameLayout>
 
             <FrameLayout
                 android:id="@+id/more_button"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:background="@drawable/clickable" >
+                android:background="@drawable/clickable"
+                android:padding="@dimen/actionBarItem" >
 
                 <ImageView
                     android:id="@+id/more_button_img"
@@ -111,7 +110,6 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:adjustViewBounds="true"
-                    android:padding="8dp"
                     android:src="@drawable/more_black" />
             </FrameLayout>
         </LinearLayout>
@@ -124,10 +122,9 @@
             android:background="@color/black_05"
             android:orientation="vertical" >
         </LinearLayout>
-    </LinearLayout>
+    </FrameLayout>
 
     <FrameLayout
-        
         android:id="@+id/dummy_actionBar_underlay"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -257,7 +254,7 @@
                     android:textColor="@color/black_80"
                     android:textSize="15sp" />
             </FrameLayout>
-            
+
             <FrameLayout
                 android:id="@+id/drop_down_browser"
                 android:layout_width="match_parent"

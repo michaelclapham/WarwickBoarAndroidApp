@@ -40,6 +40,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
@@ -72,6 +73,7 @@ public class BoarActivity extends Activity implements BottomReachedListener
 	private float currHeadlineImageSize;
 
 	public static final String VISIBLE = "vis", GONE = "gone", INVISIBLE = "inv";
+	private static final String SEARCH = "Search", TAG = "Tag";
 	public static int numCount = 10;
 
 	private boolean populating = false;
@@ -80,11 +82,13 @@ public class BoarActivity extends Activity implements BottomReachedListener
 	private int headlinesParsedSoFar = 0;
 	private int pageNum;
 
-	private boolean forSearch;
+//	private boolean forSearch;
 	private String query;
 
 	private boolean isFullScreenEnabled;
 	private boolean[] beenReloaded;
+	private boolean forTag;
+	private String REQUEST;
 
 	//----------------------------------Lifecycle------------------------------
 
@@ -118,9 +122,13 @@ public class BoarActivity extends Activity implements BottomReachedListener
 		}
 
 		Bundle bundle = getIntent().getExtras();
-		forSearch = false;
+//		forSearch = false;
 		if (bundle != null && bundle.getBoolean("forSearch",false)) {
-			forSearch = true;
+			REQUEST = SEARCH;
+		} else if (bundle != null && bundle.getBoolean("forTag",false)) {
+			REQUEST = TAG;
+			tagSlug = bundle.getString("tag");
+			populateNews(true,true);
 		} else {
 			setSlidingMenu();
 			String catName = CNS.getSharedPreferences(this).getString("default_category","Home");
@@ -361,7 +369,7 @@ public class BoarActivity extends Activity implements BottomReachedListener
 			vis(GONE,R.id.close_button);
 			vis(VISIBLE,R.id.actionBar_shadow);
 
-			if (forSearch) {
+			if (REQUEST == SEARCH || REQUEST == TAG) {
 				vis(VISIBLE,R.id.back_button);
 				colorTo = getResources().getColor(R.color.white);
 
@@ -391,7 +399,7 @@ public class BoarActivity extends Activity implements BottomReachedListener
 
 		if (!articleOpen
 				&& (currentCategory == Category.HOME ||
-						currentCategory == Category.FAVOURITES || forSearch)) { //set fonts to white
+						currentCategory == Category.FAVOURITES || REQUEST == SEARCH || REQUEST == TAG)) { //set fonts to white
 			setImage(menu,R.drawable.menu_black);
 			setImage(more,R.drawable.more_black);
 			setImage(close,R.drawable.close_black);
@@ -496,45 +504,41 @@ public class BoarActivity extends Activity implements BottomReachedListener
 				}
 			}
 		});
-		/*	storyScroll.addOnLayoutChangeListener(new OnLayoutChangeListener() {
 
-				@Override
-				public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft,
-						int oldTop, int oldRight, int oldBottom)
-				{
-					if (oldRight != right) {//changeActionBarhere
-						int marginHor = (int) getResources().getDimension(R.dimen.articleMargHor);
-						setOrientationMargin(findViewById(R.id.action_bar_main),marginHor);
-					}
-				}
-			});*/
+		if (REQUEST == TAG) {
+			setActionBarForCategory(-1,false);
+			vis(VISIBLE,R.id.back_button).setOnClickListener(clickEvent);
 
-		if (forSearch) {
+			TextView title = (TextView) findViewById(R.id.actionbar_title);
+			title.setText(tagSlug);
+		}
+		if (REQUEST == SEARCH) {
 			setActionBarForCategory(-1,false);
 
 			vis(VISIBLE,R.id.back_button).setOnClickListener(clickEvent);
 
 			TextView title = (TextView) findViewById(R.id.actionbar_title);
-			title.setText("Search");
+			title.setText(REQUEST);
 
-			final EditText textarea = (EditText) vis(VISIBLE,R.id.search_area);
-			textarea.setOnEditorActionListener(new EditText.OnEditorActionListener() {
+			if (REQUEST == SEARCH) {
+				final EditText textarea = (EditText) vis(VISIBLE,R.id.search_area);
+				textarea.setOnEditorActionListener(new EditText.OnEditorActionListener() {
 
-				@Override
-				public boolean onEditorAction(TextView v, int actionId, KeyEvent event)
-				{
-					query = v.getText().toString();
-					TextView txtQuery = (TextView) findViewById(R.id.search_query);
-					txtQuery.setText("Searching for '" + query + "'");
-					populateNews(true,true);
+					@Override
+					public boolean onEditorAction(TextView v, int actionId, KeyEvent event)
+					{
+						query = v.getText().toString();
+						TextView txtQuery = (TextView) findViewById(R.id.search_query);
+						txtQuery.setText("Searching for '" + query + "'");
+						populateNews(true,true);
 
-					InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-					imm.hideSoftInputFromWindow(textarea.getWindowToken(),0);
+						InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+						imm.hideSoftInputFromWindow(textarea.getWindowToken(),0);
 
-					return true;
-				}
-			});
-
+						return true;
+					}
+				});
+			}
 		}
 
 	}
@@ -565,7 +569,6 @@ public class BoarActivity extends Activity implements BottomReachedListener
 				v.startAnimation(anim);
 				if (articleOpen) {
 					populateArticle(currHeadline);
-//					startArticle(currHeadline);
 				} else {
 					populateNews(true,true);
 				}
@@ -587,7 +590,6 @@ public class BoarActivity extends Activity implements BottomReachedListener
 			case R.id.drop_down_share:
 				vis(GONE,R.id.drop_down,true);
 				try {
-
 					Intent share = new Intent(Intent.ACTION_SEND);
 					share.setType("text/plain");
 					share.putExtra(Intent.EXTRA_TEXT,currHeadline.getPageUrl());
@@ -615,16 +617,18 @@ public class BoarActivity extends Activity implements BottomReachedListener
 				break;
 			case R.id.drop_down_browser:
 				vis(GONE,R.id.drop_down,true);
-				String url = currHeadline.getPageUrl();
+				String url = "http://theboar.org/";
 				if (!articleOpen) {
-					if (forSearch) {
+					if (REQUEST == SEARCH) {
 						url = "http://theboar.org/page/" + pageNum + "/?s=" + query == null ? "" : query;
-					} else if (currentCategory == Category.FAVOURITES) {
-						url = "http://theboar.org/";
+					} else if (REQUEST == TAG) {
+						url = "http://theboar.org/tag/" + tagSlug + "/";
 					} else {
 						url = "http://theboar.org/"
 								+ Category.getCategoryName(currentCategory,false,false) + "/";
 					}
+				} else {
+					currHeadline.getPageUrl();
 				}
 				Intent i = new Intent(Intent.ACTION_VIEW);
 				i.setData(Uri.parse(url));
@@ -642,6 +646,7 @@ public class BoarActivity extends Activity implements BottomReachedListener
 			}
 		}
 	};
+	private String tagSlug;
 
 	private void setArticleColors(int category)
 	{
@@ -663,7 +668,7 @@ public class BoarActivity extends Activity implements BottomReachedListener
 		int catColor, main, secondary;
 
 		LinearLayout headingGroup = (LinearLayout) findViewById(R.id.story_headline_group);
-		LinearLayout headingGroupHeading = (LinearLayout) findViewById(R.id.story_headline_group_headline);
+		View headingGroupHeading = findViewById(R.id.story_headline_group_headline);
 //			FrameLayout imgFrame = (FrameLayout) findViewById(R.id.story_newImage_frame);
 		TextView tvDate = (TextView) findViewById(R.id.story_date);
 		TextView tv = (TextView) findViewById(R.id.story_headline);
@@ -690,6 +695,8 @@ public class BoarActivity extends Activity implements BottomReachedListener
 	{
 		ScrollView sv = (ScrollView) findViewById(R.id.storyScrollView);
 		sv.fullScroll(ScrollView.FOCUS_UP);
+		HorizontalScrollView svTag = (HorizontalScrollView) findViewById(R.id.story_tab_scroll);
+		svTag.fullScroll(HorizontalScrollView.FOCUS_LEFT);
 
 		ImageView iv = (ImageView) findViewById(R.id.story_newsImage);
 		String imageURL = hl.getImageUrl();
@@ -718,16 +725,29 @@ public class BoarActivity extends Activity implements BottomReachedListener
 		//-------------------------------------------Tabs----------------------------------------
 		LinearLayout tagsRoot = (LinearLayout) findViewById(R.id.story_tab_root);
 		tagsRoot.removeAllViews();
-		for (String tag : hl.getTags()) {
+		for (final String tag : hl.getTags()) {
 			FrameLayout fmTemp = CNS.getTagBox(tag,context);
+			fmTemp.setOnClickListener(new OnClickListener() {
+
+				@Override
+				public void onClick(View v)
+				{
+					Intent i = new Intent(context,BoarActivity.class);
+					i.putExtra("forTag",true);
+					i.putExtra("tag",tag);
+					context.startActivity(i);
+
+				}
+			});
 			tagsRoot.addView(fmTemp);
 		}
 
 		LinearLayout webViewLL = (LinearLayout) findViewById(R.id.story_ll_root);
 		webViewLL.removeAllViews();
-		vis(VISIBLE,R.id.story_ll_progress);
+//		vis(VISIBLE,R.id.story_ll_progress);
 
 		WebView webview = (WebView) new WebView(context);
+		webViewLL.addView(webview);
 		webview.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT,
 				LayoutParams.WRAP_CONTENT));
 //		webview.setVisibility(View.INVISIBLE);
@@ -746,16 +766,17 @@ public class BoarActivity extends Activity implements BottomReachedListener
 
 			public void onPageFinished(WebView view, String url)
 			{
-				LinearLayout webViewLL = (LinearLayout) findViewById(R.id.story_ll_root);
-				webViewLL.addView(view);
+//				LinearLayout webViewLL = (LinearLayout) findViewById(R.id.story_ll_root);
+//				webViewLL.addView(view);
 //				view.setVisibility(View.VISIBLE);
-				vis(GONE,R.id.story_ll_progress);
+//				vis(GONE,R.id.story_ll_progress);
 //				view.startAnimation(CNS.Animate(view,CNS.FADE,0,1,1000,true));
 			}
 
 		});
 //		webview.getSettings().setPluginState(PluginState.ON);
 		webview.getSettings().setAllowFileAccess(true);
+
 //		String data = CNS.generateBetterHTML(webViewLL,hl.getArticleHTML(),context);
 //		webview.loadDataWithBaseURL(null,data,"text/html","UTF-8",null);
 
@@ -853,7 +874,7 @@ public class BoarActivity extends Activity implements BottomReachedListener
 
 		if (menu != null) menu.setSlidingEnabled(true);
 		this.articleOpen = false;
-		setActionBarForCategory(forSearch ? -1 : currentCategory,true);
+		setActionBarForCategory((REQUEST == SEARCH || REQUEST == TAG) ? -1 : currentCategory,true);
 	}
 
 	//----------------------------------Fetching Headlines------------------------------
@@ -903,7 +924,8 @@ public class BoarActivity extends Activity implements BottomReachedListener
 			if (loadingNew) {
 				vis(VISIBLE,R.id.loading_layout);
 				vis(VISIBLE,R.id.loading_text);
-				if (forSearch || currentCategory == Category.FAVOURITES) vis(GONE,R.id.loading_text);
+				if (REQUEST == SEARCH || REQUEST == TAG || currentCategory == Category.FAVOURITES)
+					vis(GONE,R.id.loading_text);
 			}
 		}
 
@@ -913,8 +935,11 @@ public class BoarActivity extends Activity implements BottomReachedListener
 			if (currentCategory == Category.FAVOURITES) {
 				newsStore.headlinesFromFavourites(this);
 			}
-			else if (forSearch) {
+			else if (REQUEST == SEARCH) {
 				newsStore.headlinesFromSearch(query,pageNum,numCount,this);
+			}
+			else if (REQUEST == TAG) {
+				newsStore.headlinesFromTag(tagSlug,pageNum,numCount,this);
 			}
 			else {
 				useInternet = currentCategory == Category.HOME ? true : useInternet;
@@ -963,10 +988,11 @@ public class BoarActivity extends Activity implements BottomReachedListener
 			TextView txt = (TextView) vis(GONE,R.id.search_query);
 
 			if (count == 0 || Integer.parseInt(totalAvailablePages) < pageNum) {
-				if (forSearch) {
+				if (REQUEST == SEARCH) {
 					txt.setVisibility(View.VISIBLE);
-					if (pageNum == 1)
+					if (pageNum == 1) {
 						txt.setText("'" + query + "' returned no results");
+					}
 				}
 				else if (count == 0 && currentCategory == Category.FAVOURITES) {
 					txt.setVisibility(View.VISIBLE);
@@ -975,15 +1001,25 @@ public class BoarActivity extends Activity implements BottomReachedListener
 				pageNum = 0;
 			} else {
 				pageNum++;
-				if (forSearch) {
+				if (REQUEST == SEARCH) {
 					txt.setVisibility(View.VISIBLE);
 					txt.setText(totalCount + " results returned for '" + query + "'");
 				}
+				else if (REQUEST == TAG) {
+					txt.setVisibility(View.VISIBLE);
+					txt.setText("Articles with tag: " + tagSlug);
+				}
 			}
 
+			checkAndNotifyForNew();
+
+		}
+
+		private void checkAndNotifyForNew()
+		{
 			if (currentCategory != Category.FAVOURITES
 					&& currentCategory != Category.HOME
-					&& !forSearch) {
+					&& REQUEST != SEARCH && REQUEST != TAG) {
 				if (!useInternet && beenReloaded[currentCategory] == false
 						&& CNS.isNetworkConnected(context)) {
 					//if current category hasnt been checked already
@@ -1008,7 +1044,6 @@ public class BoarActivity extends Activity implements BottomReachedListener
 					t.start();
 				}
 			}
-
 		}
 
 		private void addHeadlineToView(IHeadline hl)
@@ -1029,7 +1064,7 @@ public class BoarActivity extends Activity implements BottomReachedListener
 			categoryBox = (FrameLayout) newsItems.findViewById(R.id.content_typecolor);
 			categoryBox.setVisibility(View.GONE);
 			int c = currentCategory;
-//			if (c == Category.HOME || c == Category.FAVOURITES || forSearch) {
+//			if (c == Category.HOME || c == Category.FAVOURITES || REQUEST==SEARCH) {
 			categoryBox.setVisibility(View.VISIBLE);
 			categoryBox.setBackgroundColor(Category.getCategoryColourText(hl.getCategory(),getResources()));
 

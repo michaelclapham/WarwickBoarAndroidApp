@@ -17,4 +17,6 @@ public interface INewsStore
 
 	public abstract IHeadlineList headlinesFromFavourites(IHeadlineListener hl_listener);
 
+	public abstract IHeadlineList headlinesFromTag(String slug, int page, int count, IHeadlineListener hl_listener);
+
 }
