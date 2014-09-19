@@ -13,6 +13,9 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.Transformation;
+import android.widget.ImageView;
 import android.widget.ScrollView;
 
 /**
@@ -101,17 +104,23 @@ public class StickyScrollView extends ScrollView
 		//not parallax thing
 		doTheStickyThing();
 
-		float parallax = parallaxFactor;
-		float alpha = alphaFactor;
-		for (ParallaxedView parallaxedView : parallaxedViews) {
-			parallaxedView.setOffset((float) t / parallax);
-			parallax *= innerParallaxFactor;
-			if (alpha != DEFAULT_ALPHA_FACTOR) {
-				float fixedAlpha = (t <= 0) ? 1 : (100 / ((float) t * alpha));
-				parallaxedView.setAlpha(fixedAlpha);
-				alpha /= alphaFactor;
+		if (t >= 0) {
+			float parallax = parallaxFactor;
+			float alpha = alphaFactor;
+			for (ParallaxedView parallaxedView : parallaxedViews) {
+				parallaxedView.setOffset((float) t / parallax);
+				parallax *= innerParallaxFactor;
+				if (alpha != DEFAULT_ALPHA_FACTOR) {
+					float fixedAlpha = (t <= 0) ? 1 : (100 / ((float) t * alpha));
+					parallaxedView.setAlpha(fixedAlpha);
+					alpha /= alphaFactor;
+				}
+				parallaxedView.animateNow();
 			}
-			parallaxedView.animateNow();
+		} else {
+			for (ParallaxedView parallaxedView : parallaxedViews) {
+				parallaxedView.animateNow();
+			}
 		}
 	}
 
@@ -371,6 +380,11 @@ public class StickyScrollView extends ScrollView
 
 		if (ev.getAction() == MotionEvent.ACTION_UP || ev.getAction() == MotionEvent.ACTION_CANCEL) {
 			hasNotDoneActionDown = true;
+			if (iv != null && ivHeight > 0) {
+				BackAnimimation animation = new BackAnimimation(iv,ivHeight,false);
+				animation.setDuration(300);
+				iv.startAnimation(animation);
+			}
 		}
 
 		return super.onTouchEvent(ev);
@@ -513,6 +527,101 @@ public class StickyScrollView extends ScrollView
 	protected void onSizeChanged(int w, int h, int oldw, int oldh)
 	{
 		Log.e(CNS.LOGPRINT,"SIZE CHANGED!");
+	}
+
+	//---------------------------------ZOOM IMAGE----------------------
+
+	public int maxYOverscrollDistance;
+	public ImageView iv;
+	public int ivHeight;
+	public double scaleFactor = 1.5;
+
+	public void newImage()
+	{
+		if (iv != null) {
+			ivHeight = 0;
+//		if (iv == null) iv = (ImageView) findViewById(R.id.story_newsImage);
+			iv.getLayoutParams().height = LayoutParams.WRAP_CONTENT;
+			iv.requestLayout();
+		}
+	}
+
+	@Override
+	protected boolean overScrollBy(int deltaX, int deltaY, int scrollX, int scrollY,
+			int scrollRangeX, int scrollRangeY, int maxOverScrollX, int maxOverScrollY,
+			boolean isTouchEvent)
+	{
+		try {
+			if (ivHeight <= 0) ivHeight = iv.getHeight();
+
+			int max = (int) (ivHeight * scaleFactor);
+			if (iv != null && ivHeight > 0 && iv.getHeight() <= max && isTouchEvent) {
+				if (deltaY < 0) {
+					Log.d(CNS.LOGPRINT,"" + (iv.getHeight() - deltaY / 2) + ">=" + ivHeight +
+							" && " + scrollY
+							+ (iv.getHeight() - deltaY / 2 >= ivHeight && scrollY <= 0));
+//					if (iv.getHeight() - deltaY / 2 >= ivHeight && scrollY <= 0) {
+					if (iv.getHeight() - deltaY / 2 >= ivHeight && scrollY <= 0) {
+						iv.getLayoutParams().height = iv
+								.getHeight() - deltaY / 2 < max ? iv
+								.getHeight() - deltaY / 2
+								: max;
+
+						iv.requestLayout();
+					}
+				} else {
+					if (iv.getHeight() > ivHeight) {
+						iv.getLayoutParams().height = iv
+								.getHeight() - deltaY > ivHeight ? iv
+								.getHeight() - deltaY
+								: ivHeight;
+
+						iv.requestLayout();
+					}
+				}
+			}
+		}
+		catch (Exception e) {}
+		return super.overScrollBy(deltaX,deltaY,scrollX,scrollY,scrollRangeX,scrollRangeY,
+				maxOverScrollX,maxYOverscrollDistance,isTouchEvent);
+	}
+
+	class BackAnimimation extends Animation
+	{
+		int targetHeight;
+		int originalHeight;
+		int extraHeight;
+		View view;
+		boolean down;
+
+		protected BackAnimimation(View view, int targetHeight, boolean down) {
+			this.view = view;
+			this.targetHeight = targetHeight;
+			this.down = down;
+			originalHeight = view.getHeight();
+			extraHeight = this.targetHeight - originalHeight;
+		}
+
+		@Override
+		protected void applyTransformation(float interpolatedTime, Transformation t)
+		{
+
+			int newHeight;
+
+			newHeight = (int) (targetHeight - extraHeight * (1 - interpolatedTime));
+
+			view.getLayoutParams().height = newHeight;
+			view.requestLayout();
+		}
+
+		@Override
+		public void initialize(int width, int height, int parentWidth,
+				int parentHeight)
+		{
+			super.initialize(width,height,parentWidth,parentHeight);
+
+		}
+
 	}
 
 }

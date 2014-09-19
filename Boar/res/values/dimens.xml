@@ -9,7 +9,7 @@
     <dimen name="slidingmenu_shadow_size">4sp</dimen>
     <dimen name="articleMarg">0dp</dimen>
     <dimen name="articleMargHor">0dp</dimen>
-	<dimen name="actionBarHeight">50dp</dimen>
-	<dimen name="actionBarItem">10dp</dimen>
+	<dimen name="actionBarHeight">55dp</dimen>
+	<dimen name="actionBarItem">14dp</dimen>
     
 </resources>

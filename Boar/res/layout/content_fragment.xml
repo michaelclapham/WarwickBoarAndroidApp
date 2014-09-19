@@ -35,7 +35,7 @@
                     android:baselineAlignBottom="false"
                     android:cropToPadding="false"
                     android:scaleType="centerCrop"
-                    />
+                    android:src="@drawable/fallback_img" />
 
                 <FrameLayout
                     android:id="@+id/content_typecolor"
@@ -73,7 +73,6 @@
                     android:layout_marginBottom="5dp"
                     android:maxLines="2"
                     android:minLines="2"
-                    android:text="Tom Daley&apos;s Video IS a Big Deal. "
                     android:textColor="@color/black"
                     android:textSize="17sp" />
 
@@ -94,10 +93,10 @@
                     android:layout_height="wrap_content"
                     android:layout_alignParentLeft="false"
                     android:layout_below="@id/topicname"
-                    android:paddingBottom="5dp"
                     android:layout_marginLeft="5dp"
                     android:layout_toRightOf="@id/author_by"
-                    android:text="Unknown"
+                    android:paddingBottom="5dp"
+                    android:text="Anonymous"
                     android:textColor="@color/black_20"
                     android:textSize="15sp" />
 
@@ -108,7 +107,6 @@
                     android:layout_alignParentRight="true"
                     android:layout_below="@id/topicname"
                     android:paddingBottom="5dp"
-                    android:text="5 hours ago"
                     android:textColor="@color/black_20"
                     android:textSize="15sp" />
 

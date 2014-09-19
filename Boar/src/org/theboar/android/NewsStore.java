@@ -231,11 +231,16 @@ public class NewsStore implements INewsStore
 			Date datePublished = sdf.parse(story.getString("date"));
 
 			String imageURL = null;
+			String[] imageDimension = { "0", "0" };
 			try {
 				boolean imgRes = CNS.getSharedPreferences(context).getBoolean("image_quality",true);
 
-				imageURL = story.getJSONObject("thumbnail_images").getJSONObject(imgRes ? "large"
-						: "medium").getString("url");
+				JSONObject imgObj = story.getJSONObject("thumbnail_images").getJSONObject(imgRes
+						? "large"
+						: "medium");
+				imageURL = imgObj.getString("url");
+				imageDimension[0] = imgObj.getString("width");
+				imageDimension[1] = imgObj.getString("height");
 			}
 			catch (Exception e) {}
 
@@ -250,6 +255,7 @@ public class NewsStore implements INewsStore
 			head.setDatePublished(datePublished);
 			head.setAuthor(story.getJSONObject("author").getString("name"));
 			head.setPageUrl(story.getString("url"));
+			head.setImageDimensions(imageDimension);
 			head.storeHTML(story.getString("content"));
 			head.setCategory(Category.parseCategoryID(story.getJSONArray("categories")));
 			head.setTags(tags);

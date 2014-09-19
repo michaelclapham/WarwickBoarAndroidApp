@@ -28,6 +28,7 @@ public class Headline implements IHeadline
 	private String pageUrl;
 	private String imageUrl;
 	private JSONObject jsonStory;
+	private String[] imageDimension;
 
 	public Headline() {
 		//
@@ -266,6 +267,22 @@ public class Headline implements IHeadline
 	public JSONObject getJSONStory()
 	{
 		return jsonStory;
+	}
+
+	public void setImageDimensions(String[] imageDimension)
+	{
+		this.imageDimension = imageDimension;
+
+	}
+	public int[] getImageDimensions()
+	{
+		int[] tmp = { 0, 0 };
+		try {
+			tmp[0] = Integer.parseInt(imageDimension[0]);
+			tmp[1] = Integer.parseInt(imageDimension[1]);
+		}
+		catch (Exception e) {}
+		return tmp;
 	}
 
 }

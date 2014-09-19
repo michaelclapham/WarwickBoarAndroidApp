@@ -373,6 +373,7 @@ public class BoarActivity extends Activity implements BottomReachedListener
 				vis(VISIBLE,R.id.back_button);
 				colorTo = getResources().getColor(R.color.white);
 
+				vis(GONE,R.id.drop_down_share);
 				vis(GONE,R.id.menu_button);
 				vis(GONE,R.id.page_heading);
 				vis(GONE,R.id.drop_down_share);
@@ -469,7 +470,10 @@ public class BoarActivity extends Activity implements BottomReachedListener
 		ScrollViewExt smartScroll = (ScrollViewExt) findViewById(R.id.scrollView_main);
 		smartScroll.setBottomListener(btmListener);
 
-		StickyScrollView storyScroll = (StickyScrollView) findViewById(R.id.storyScrollView);
+		storyScroll = (StickyScrollView) findViewById(R.id.storyScrollView);
+		storyScroll.iv = (ImageView) findViewById(R.id.story_newsImage);
+		storyScroll.scaleFactor = 1.5;
+		storyScroll.maxYOverscrollDistance = 0;
 		storyScroll.getViewTreeObserver().addOnScrollChangedListener(new OnScrollChangedListener() {
 
 			float itrY = 0;
@@ -647,6 +651,7 @@ public class BoarActivity extends Activity implements BottomReachedListener
 		}
 	};
 	private String tagSlug;
+	private StickyScrollView storyScroll;
 
 	private void setArticleColors(int category)
 	{
@@ -693,22 +698,27 @@ public class BoarActivity extends Activity implements BottomReachedListener
 
 	private void populateArticle(Headline hl)
 	{
-		ScrollView sv = (ScrollView) findViewById(R.id.storyScrollView);
-		sv.fullScroll(ScrollView.FOCUS_UP);
+//		storyScroll = (StickyScrollView) findViewById(R.id.storyScrollView);
+		storyScroll.newImage();
+		storyScroll.fullScroll(ScrollView.FOCUS_UP);
 		HorizontalScrollView svTag = (HorizontalScrollView) findViewById(R.id.story_tab_scroll);
 		svTag.fullScroll(HorizontalScrollView.FOCUS_LEFT);
 
+		int maxWidth = setOrientationMargin(null,false) - (2 * CNS.getPXfromDP(10,context));
+
 		ImageView iv = (ImageView) findViewById(R.id.story_newsImage);
+		iv.setImageDrawable(null);
+
 		String imageURL = hl.getImageUrl();
 		if (imageURL != null) {
 			iv.setVisibility(View.VISIBLE);
-			int width = (int) (sv.getWidth() / 1.5);
+			int width = (int) (storyScroll.getWidth());
 			ImageOptions options = new ImageOptions();
 			options.targetWidth = width;
 			options.fallback = R.drawable.fallback_img;
 			aq.id(iv).image(imageURL,options);
+//			storyScroll.ivHeight = hl.getImageDimensions()[1];
 		} else {
-			iv.setImageDrawable(null);
 			iv.setVisibility(View.GONE);
 			currHeadlineImageSize = 0;
 		}
@@ -806,7 +816,6 @@ public class BoarActivity extends Activity implements BottomReachedListener
 			}
 		};
 
-		int maxWidth = setOrientationMargin(null,false) - (2 * CNS.getPXfromDP(10,context));
 		MyRunnable runn = new MyRunnable(webview,maxWidth,hl.getArticleHTML());
 		new Thread(runn).start();
 	}
