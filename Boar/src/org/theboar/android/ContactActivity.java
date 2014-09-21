@@ -44,6 +44,7 @@ public class ContactActivity extends Activity
 		findViewById(R.id.contact_about_link).setOnClickListener(onclick);
 		findViewById(R.id.contact_social_fb).setOnClickListener(onclick);
 		findViewById(R.id.contact_social_twit).setOnClickListener(onclick);
+		findViewById(R.id.contact_feedback_value).setOnClickListener(onclick);
 
 	}
 
@@ -52,10 +53,15 @@ public class ContactActivity extends Activity
 		@Override
 		public void onClick(View v)
 		{
+			String email;
 			String url = null;
 			switch (v.getId()) {
 			case R.id.contact_email_value:
-				String email = (String) ((TextView) findViewById(R.id.contact_email_value)).getText();
+				email = (String) ((TextView) findViewById(R.id.contact_email_value)).getText();
+				url = "mailto: " + email;
+				break;
+			case R.id.contact_feedback_value:
+				email = (String) ((TextView) findViewById(R.id.contact_feedback_value)).getText();
 				url = "mailto: " + email;
 				break;
 			case R.id.contact_about_link:

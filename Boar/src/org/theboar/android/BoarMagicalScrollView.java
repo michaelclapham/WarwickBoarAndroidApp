@@ -8,7 +8,6 @@ import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,12 +17,7 @@ import android.view.animation.Transformation;
 import android.widget.ImageView;
 import android.widget.ScrollView;
 
-/**
- * 
- * @author Emil Sjlander - sjolander.emil@gmail.com
- *
- */
-public class StickyScrollView extends ScrollView
+public class BoarMagicalScrollView extends ScrollView
 {
 
 	/**
@@ -156,15 +150,15 @@ public class StickyScrollView extends ScrollView
 		}
 	};
 
-	public StickyScrollView(Context context) {
+	public BoarMagicalScrollView(Context context) {
 		this(context,null);
 	}
 
-	public StickyScrollView(Context context, AttributeSet attrs) {
+	public BoarMagicalScrollView(Context context, AttributeSet attrs) {
 		this(context,attrs,android.R.attr.scrollViewStyle);
 	}
 
-	public StickyScrollView(Context context, AttributeSet attrs, int defStyle) {
+	public BoarMagicalScrollView(Context context, AttributeSet attrs, int defStyle) {
 		super(context,attrs,defStyle);
 		setup();
 
@@ -524,10 +518,7 @@ public class StickyScrollView extends ScrollView
 		}
 	}
 
-	protected void onSizeChanged(int w, int h, int oldw, int oldh)
-	{
-		Log.e(CNS.LOGPRINT,"SIZE CHANGED!");
-	}
+//	protected void onSizeChanged(int w, int h, int oldw, int oldh)	{}
 
 	//---------------------------------ZOOM IMAGE----------------------
 
@@ -557,9 +548,8 @@ public class StickyScrollView extends ScrollView
 			int max = (int) (ivHeight * scaleFactor);
 			if (iv != null && ivHeight > 0 && iv.getHeight() <= max && isTouchEvent) {
 				if (deltaY < 0) {
-					Log.d(CNS.LOGPRINT,"" + (iv.getHeight() - deltaY / 2) + ">=" + ivHeight +
-							" && " + scrollY
-							+ (iv.getHeight() - deltaY / 2 >= ivHeight && scrollY <= 0));
+//					Log.d(CNS.LOGPRINT,"" + (iv.getHeight() - deltaY / 2) + ">=" + ivHeight +
+//							" && " + scrollY+ (iv.getHeight() - deltaY / 2 >= ivHeight && scrollY <= 0));
 //					if (iv.getHeight() - deltaY / 2 >= ivHeight && scrollY <= 0) {
 					if (iv.getHeight() - deltaY / 2 >= ivHeight && scrollY <= 0) {
 						iv.getLayoutParams().height = iv

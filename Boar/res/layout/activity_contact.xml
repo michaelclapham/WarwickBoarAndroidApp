@@ -22,7 +22,6 @@
         android:visibility="visible" >
 
         <ScrollView
-            android:id="@+id/scrollView1"
             android:layout_width="match_parent"
             android:layout_height="match_parent" >
 
@@ -59,7 +58,8 @@
                     android:layout_below="@id/contact_about_link"
                     android:layout_marginRight="30dp"
                     android:text="Address"
-                    android:textColor="@color/black_30" />
+                    android:textColor="@color/black_30"
+                    android:textSize="13sp" />
 
                 <TextView
                     android:id="@+id/contact_address_value"
@@ -71,7 +71,8 @@
                     android:layout_toRightOf="@+id/contact_address"
                     android:text="@string/about_addr"
                     android:textColor="@color/black_50"
-                    android:textIsSelectable="true" />
+                    android:textIsSelectable="true"
+                    android:textSize="15sp" />
 
                 <TextView
                     android:id="@+id/contact_email"
@@ -80,7 +81,8 @@
                     android:layout_below="@id/contact_address_value"
                     android:layout_marginRight="30dp"
                     android:text="Email"
-                    android:textColor="@color/black_30" />
+                    android:textColor="@color/black_30"
+                    android:textSize="13sp" />
 
                 <TextView
                     android:id="@+id/contact_email_value"
@@ -91,6 +93,7 @@
                     android:layout_toRightOf="@+id/contact_address"
                     android:text="@string/about_email"
                     android:textColor="@color/black_50"
+                    android:textSize="15sp"
                     android:textStyle="bold" />
 
                 <TextView
@@ -100,7 +103,8 @@
                     android:layout_below="@id/contact_email_value"
                     android:layout_marginRight="30dp"
                     android:text="Social"
-                    android:textColor="@color/black_30" />
+                    android:textColor="@color/black_30"
+                    android:textSize="13sp" />
 
                 <LinearLayout
                     android:id="@+id/contact_social_value"
@@ -116,6 +120,7 @@
                         android:layout_height="wrap_content"
                         android:text="facebook.com/warwickboar"
                         android:textColor="#4965A0"
+                        android:textSize="15sp"
                         android:textStyle="bold" />
 
                     <TextView
@@ -125,8 +130,30 @@
                         android:layout_marginBottom="5dp"
                         android:text="twitter.com/warwickboar"
                         android:textColor="#51A5E4"
+                        android:textSize="15sp"
                         android:textStyle="bold" />
                 </LinearLayout>
+
+                <TextView
+                    android:id="@+id/contact_feedback"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/contact_social_value"
+                    android:text="Feedback"
+                    android:textColor="@color/black_30"
+                    android:textSize="13sp" />
+
+                <TextView
+                    android:id="@+id/contact_feedback_value"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignLeft="@+id/contact_social_value"
+                    android:layout_below="@+id/contact_social_value"
+                    android:text="@string/boar_email"
+                    android:textColor="@color/black_50"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+
             </RelativeLayout>
         </ScrollView>
 

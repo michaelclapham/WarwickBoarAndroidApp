@@ -1,7 +1,14 @@
 package org.theboar.android;
 
 import java.io.File;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -11,16 +18,13 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import android.animation.ArgbEvaluator;
-import android.animation.ValueAnimator;
-import android.animation.ValueAnimator.AnimatorUpdateListener;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
-import android.graphics.Color;
+import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -40,8 +44,8 @@ import android.view.animation.RotateAnimation;
 import android.view.animation.ScaleAnimation;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 import android.widget.LinearLayout.LayoutParams;
+import android.widget.TextView;
 
 public class CNS
 {
@@ -314,6 +318,67 @@ public class CNS
 		Matcher m = p.matcher(str);
 		if (m.find()) { return true; }
 		return false;
+	}
+
+	public static View getFavsCountBox(int catID, int count, Context context)
+	{
+		int dpS = CNS.getPXfromDP(3,context);
+		int dpL = CNS.getPXfromDP(8,context);
+		LinearLayout.LayoutParams params;
+
+		params = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT,CNS.getPXfromDP(20,context));
+		params.setMargins(0,0,dpL,0);
+		LinearLayout fmTemp = new LinearLayout(context);
+		fmTemp.setBackgroundColor(Category.getCategoryColourBar(catID,context.getResources()));
+		fmTemp.setLayoutParams(params);
+		//----------------------count num--------------------------
+		params = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT,LayoutParams.WRAP_CONTENT);
+		params.setMargins(dpL,0,dpL,0);
+		params.gravity = Gravity.CENTER_VERTICAL;
+
+		TextView tvCount = new TextView(context);
+		tvCount.setText(Integer.toString(count));
+		tvCount.setTextColor(context.getResources().getColor(R.color.white_90));
+		tvCount.setTypeface(null,Typeface.BOLD);
+		tvCount.setLayoutParams(params);
+
+		//---------------------------CatName---------------------------------------
+
+		TextView tvName = new TextView(context);
+		tvName.setText(Category.getCategoryName(catID,false,true));
+		tvName.setTextColor(context.getResources().getColor(R.color.black_45));
+		tvName.setLayoutParams(params);
+		//------------------------------------greybox-----------------------------
+		params = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT,LayoutParams.MATCH_PARENT);
+
+		FrameLayout fmgrey = new FrameLayout(context);
+		fmgrey.setLayoutParams(params);
+		fmgrey.setPadding(dpL,0,dpL,0);
+		fmgrey.setBackgroundColor(context.getResources().getColor(R.color.fav_box));//grey 0xFFe5e5e5
+
+		//----------------------------------------------------------------------------
+
+		fmTemp.addView(tvCount);
+		fmgrey.addView(tvName);
+		fmTemp.addView(fmgrey);
+		return fmTemp;
+	}
+
+	public static <K, V extends Comparable<? super V>> Map<K, V> sortByValue(Map<K, V> map)
+	{
+		List<Map.Entry<K, V>> list = new LinkedList<Map.Entry<K, V>>(map.entrySet());
+		Collections.sort(list,new Comparator<Map.Entry<K, V>>() {
+			public int compare(Map.Entry<K, V> o1, Map.Entry<K, V> o2)
+			{
+				return (o2.getValue()).compareTo(o1.getValue());
+			}
+		});
+
+		Map<K, V> result = new LinkedHashMap<K, V>();
+		for (Map.Entry<K, V> entry : list) {
+			result.put(entry.getKey(),entry.getValue());
+		}
+		return result;
 	}
 
 }

@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:layout_gravity="center_horizontal"
     android:background="@color/main_background"
-    tools:context=".TabletActivity" >
+    tools:context=".BoarActivity" >
 
     <LinearLayout
         android:id="@+id/main_container"
@@ -43,6 +43,23 @@
                         android:textColor="@color/home_colour"
                         android:textSize="30sp" />
 
+                    <HorizontalScrollView
+                        android:id="@+id/favourite_detail_root_scroll"
+                        android:layout_width="match_parent"
+                        android:layout_height="40dp"
+                        android:layout_marginLeft="@dimen/tabMar"
+                        android:layout_marginRight="@dimen/tabMar" >
+
+                        <LinearLayout
+                            android:id="@+id/favourite_detail_root"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="bottom"
+                            android:orientation="horizontal" >
+                            
+                        </LinearLayout>
+                    </HorizontalScrollView>
+                    
                     <EditText
                         android:id="@+id/search_area"
                         android:layout_width="match_parent"
@@ -174,11 +191,9 @@
             android:layout_gravity="center"
             android:text="New Posts! Touch to see them."
             android:textColor="@color/white_80"
-            android:textSize="18sp"
-            />
-
+            android:textSize="18sp" />
     </FrameLayout>
-    
+
     <include
         android:layout_width="match_parent"
         android:layout_height="match_parent"

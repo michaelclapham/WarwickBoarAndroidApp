@@ -77,6 +77,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
+                    android:paddingRight="@dimen/actionBarItem"
                     android:textColor="@color/black_op_90"
                     android:textSize="20sp" />
             </LinearLayout>
@@ -210,6 +211,7 @@
                 android:layout_height="45dp"
                 android:background="@drawable/clickable"
                 android:orientation="vertical"
+                android:visibility="gone"
                 android:padding="10dp" >
 
                 <TextView

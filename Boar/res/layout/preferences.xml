@@ -36,7 +36,7 @@
     <Preference
         android:key="max_cache"
         android:summary="Set the maximum size of cache to be stored on this device"
-        android:title="Maximum Cache" />
+        android:title="Maximum Cache Size" />
 
     <PreferenceCategory
         android:key="other"

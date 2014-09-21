@@ -9,6 +9,7 @@
     <string name="about_addr">The Boar\nSUHQ, Floor Two\nUniversity of Warwick\nUniversity Road\nCoventry\nCV4 7AL</string>
     <string name="about_boar">The Boar is the University of Warwick’s editorially independent student newspaper produced entirely by and for students.</string>
     <string name="about_email">contact@theboar.org</string>
+    <string name="boar_email">apps@theboar.org</string>
 
     
     <string-array name="menu_options_array">

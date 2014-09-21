@@ -18,11 +18,12 @@
         android:id="@+id/story_root"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_gravity="fill"
         android:layout_marginLeft="@dimen/articleMargHor"
         android:layout_marginRight="@dimen/articleMargHor"
         android:background="@color/white" >
 
-        <org.theboar.android.StickyScrollView
+        <org.theboar.android.BoarMagicalScrollView
             android:id="@+id/storyScrollView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -172,7 +173,7 @@
                     </LinearLayout>
                 </LinearLayout>
             </LinearLayout>
-        </org.theboar.android.StickyScrollView>
+        </org.theboar.android.BoarMagicalScrollView>
     </FrameLayout>
 
 </FrameLayout>

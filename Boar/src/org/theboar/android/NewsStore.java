@@ -44,11 +44,13 @@ public class NewsStore implements INewsStore
 
 	public boolean checkIfNewHeadlines(int categoryId)
 	{
-		String categoryRequestURL = Category.getCategoryRequestURL(categoryId,pageNum,1);
+		int testArticleIndex = categoryId == Category.HOME ? 1 : 0; //because of MissPatina
+
+		String categoryRequestURL = Category.getCategoryRequestURL(categoryId,pageNum,testArticleIndex + 1);
 		JSONObject downloaded = downloadJSON(categoryRequestURL,categoryId);
 		JSONObject cached = getJSONFromFile(CNS.getCategoryCacheFile(context,Category.getCategoryName(categoryId,false,false)));
 
-		return !checkJSONPostsSame(downloaded,cached);
+		return !checkJSONPostsSame(downloaded,cached,testArticleIndex);
 	}
 
 	@Override
@@ -115,15 +117,15 @@ public class NewsStore implements INewsStore
 		return jsonObj;
 	}
 
-	private boolean checkJSONPostsSame(JSONObject json1, JSONObject json2)
+	private boolean checkJSONPostsSame(JSONObject json1, JSONObject json2, int testArticleIndex)
 	{
 		try {
 
 			JSONArray jArray1 = json1.getJSONArray("posts");
-			String id1 = jArray1.getJSONObject(0).getString("id");
+			String id1 = jArray1.getJSONObject(testArticleIndex).getString("id");
 
 			JSONArray jArray2 = json2.getJSONArray("posts");
-			String id2 = jArray2.getJSONObject(0).getString("id");
+			String id2 = jArray2.getJSONObject(testArticleIndex).getString("id");
 
 			if (id1.equals(id2)) return true;
 		}

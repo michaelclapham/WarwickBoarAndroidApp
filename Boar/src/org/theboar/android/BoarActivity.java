@@ -1,10 +1,10 @@
 package org.theboar.android;
 
-import java.io.File;
 import java.text.SimpleDateFormat;
-import java.util.Iterator;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import android.app.Activity;
 import android.content.Context;
@@ -18,16 +18,11 @@ import android.os.Handler;
 import android.text.Html;
 import android.util.Log;
 import android.view.Display;
-import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.WindowManager;
 import android.view.View.OnClickListener;
-import android.view.View.OnLayoutChangeListener;
 import android.view.View.OnTouchListener;
-import android.view.ViewTreeObserver.OnDrawListener;
-import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.view.ViewTreeObserver.OnScrollChangedListener;
 import android.view.Window;
 import android.view.animation.Animation;
@@ -368,12 +363,12 @@ public class BoarActivity extends Activity implements BottomReachedListener
 //			actionBar.getLayoutParams().width = LayoutParams.MATCH_PARENT;
 			vis(GONE,R.id.close_button);
 			vis(VISIBLE,R.id.actionBar_shadow);
+			vis(GONE,R.id.drop_down_share);
 
 			if (REQUEST == SEARCH || REQUEST == TAG) {
 				vis(VISIBLE,R.id.back_button);
 				colorTo = getResources().getColor(R.color.white);
 
-				vis(GONE,R.id.drop_down_share);
 				vis(GONE,R.id.menu_button);
 				vis(GONE,R.id.page_heading);
 				vis(GONE,R.id.drop_down_share);
@@ -415,6 +410,13 @@ public class BoarActivity extends Activity implements BottomReachedListener
 		View topBar = findViewById(R.id.top_bar_layout);
 //		CNS.animateBackgroundColor(topBar,currColor,colorTo);
 		topBar.setBackgroundColor(colorTo);
+
+		//--------------------------------------------other ui elements--------------------
+		if (currentCategory == Category.FAVOURITES) {
+			vis(VISIBLE,R.id.favourite_detail_root_scroll);
+		} else {
+			vis(GONE,R.id.favourite_detail_root_scroll);
+		}
 	}
 
 	protected void hideActionBar()
@@ -470,7 +472,7 @@ public class BoarActivity extends Activity implements BottomReachedListener
 		ScrollViewExt smartScroll = (ScrollViewExt) findViewById(R.id.scrollView_main);
 		smartScroll.setBottomListener(btmListener);
 
-		storyScroll = (StickyScrollView) findViewById(R.id.storyScrollView);
+		storyScroll = (BoarMagicalScrollView) findViewById(R.id.storyScrollView);
 		storyScroll.iv = (ImageView) findViewById(R.id.story_newsImage);
 		storyScroll.scaleFactor = 1.5;
 		storyScroll.maxYOverscrollDistance = 0;
@@ -524,25 +526,23 @@ public class BoarActivity extends Activity implements BottomReachedListener
 			TextView title = (TextView) findViewById(R.id.actionbar_title);
 			title.setText(REQUEST);
 
-			if (REQUEST == SEARCH) {
-				final EditText textarea = (EditText) vis(VISIBLE,R.id.search_area);
-				textarea.setOnEditorActionListener(new EditText.OnEditorActionListener() {
+			final EditText textarea = (EditText) vis(VISIBLE,R.id.search_area);
+			textarea.setOnEditorActionListener(new EditText.OnEditorActionListener() {
 
-					@Override
-					public boolean onEditorAction(TextView v, int actionId, KeyEvent event)
-					{
-						query = v.getText().toString();
-						TextView txtQuery = (TextView) findViewById(R.id.search_query);
-						txtQuery.setText("Searching for '" + query + "'");
-						populateNews(true,true);
+				@Override
+				public boolean onEditorAction(TextView v, int actionId, KeyEvent event)
+				{
+					query = v.getText().toString();
+					TextView txtQuery = (TextView) findViewById(R.id.search_query);
+					txtQuery.setText("Searching for '" + query + "'");
+					populateNews(true,true);
 
-						InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-						imm.hideSoftInputFromWindow(textarea.getWindowToken(),0);
+					InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+					imm.hideSoftInputFromWindow(textarea.getWindowToken(),0);
 
-						return true;
-					}
-				});
-			}
+					return true;
+				}
+			});
 		}
 
 	}
@@ -651,7 +651,7 @@ public class BoarActivity extends Activity implements BottomReachedListener
 		}
 	};
 	private String tagSlug;
-	private StickyScrollView storyScroll;
+	private BoarMagicalScrollView storyScroll;
 
 	private void setArticleColors(int category)
 	{
@@ -698,7 +698,7 @@ public class BoarActivity extends Activity implements BottomReachedListener
 
 	private void populateArticle(Headline hl)
 	{
-//		storyScroll = (StickyScrollView) findViewById(R.id.storyScrollView);
+//		storyScroll = (BoarMagicalScrollView) findViewById(R.id.storyScrollView);
 		storyScroll.newImage();
 		storyScroll.fullScroll(ScrollView.FOCUS_UP);
 		HorizontalScrollView svTag = (HorizontalScrollView) findViewById(R.id.story_tab_scroll);
@@ -919,6 +919,7 @@ public class BoarActivity extends Activity implements BottomReachedListener
 		public boolean loadingNew;
 		private String totalCount = "0";
 		private boolean useInternet;
+		private Map<Integer, Integer> catCountMap;
 
 		public HeadlineAsyncTask(boolean loadingNew, boolean useInternet) {
 			this.loadingNew = loadingNew;
@@ -942,6 +943,8 @@ public class BoarActivity extends Activity implements BottomReachedListener
 		protected Void doInBackground(String... params)
 		{
 			if (currentCategory == Category.FAVOURITES) {
+				Log.d(CNS.LOGPRINT,"STARTING FAV");
+				catCountMap = new HashMap<Integer, Integer>();
 				newsStore.headlinesFromFavourites(this);
 			}
 			else if (REQUEST == SEARCH) {
@@ -951,7 +954,7 @@ public class BoarActivity extends Activity implements BottomReachedListener
 				newsStore.headlinesFromTag(tagSlug,pageNum,numCount,this);
 			}
 			else {
-				useInternet = currentCategory == Category.HOME ? true : useInternet;
+//				useInternet = currentCategory == Category.HOME ? true : useInternet;
 				//FIXME home always returns tru becuase miss patina is always on the top. has to be fixed from boar website. 
 				newsStore.headlinesFromCategory(currentCategory,pageNum,numCount,this,useInternet);
 			}
@@ -969,6 +972,7 @@ public class BoarActivity extends Activity implements BottomReachedListener
 		{
 			super.onProgressUpdate(values);
 			Headline hl = (Headline) values[0];
+
 			if (!missPatina(hl))  //hack to stop showing THAT post from february
 				addHeadlineToView(hl);
 
@@ -976,6 +980,21 @@ public class BoarActivity extends Activity implements BottomReachedListener
 			totalAvailablePages = msgs[1];
 			totalCount = msgs[2];
 			count++;
+
+			if (currentCategory == Category.FAVOURITES) {
+				collectFavouriteInfo(hl.getCategory());
+			}
+		}
+
+		private void collectFavouriteInfo(int category)
+		{
+			if (catCountMap == null) {
+				catCountMap = new HashMap<Integer, Integer>();
+			}
+			if (!catCountMap.containsKey(category)) {
+				catCountMap.put(category,0);
+			}
+			catCountMap.put(category,catCountMap.get(category) + 1);
 		}
 
 		private boolean missPatina(Headline hl)
@@ -1020,22 +1039,36 @@ public class BoarActivity extends Activity implements BottomReachedListener
 				}
 			}
 
-			checkAndNotifyForNew();
+			if (currentCategory == Category.FAVOURITES) {
+				addFavOptions();
+			} else if (REQUEST != SEARCH && REQUEST != TAG) {
+				checkAndNotifyForNew();
+			}
+		}
+
+		private void addFavOptions()
+		{
+			LinearLayout llFavOpt = (LinearLayout) vis(VISIBLE,R.id.favourite_detail_root);
+			llFavOpt.removeAllViews();
+			catCountMap = CNS.sortByValue(catCountMap);
+			for (Map.Entry<Integer, Integer> entry : catCountMap.entrySet()) {
+				llFavOpt.addView(CNS.getFavsCountBox(entry.getKey(),entry.getValue(),context));
+			}
 
 		}
 
 		private void checkAndNotifyForNew()
 		{
-			if (currentCategory != Category.FAVOURITES
-					&& currentCategory != Category.HOME
-					&& REQUEST != SEARCH && REQUEST != TAG) {
-				if (!useInternet && beenReloaded[currentCategory] == false
-						&& CNS.isNetworkConnected(context)) {
-					//if current category hasnt been checked already
-					Thread t = new Thread() {
-						public void run()
-						{
-							final boolean newAvailable = newsStore.checkIfNewHeadlines(currentCategory);
+
+			if (!useInternet && beenReloaded[currentCategory] == false
+					&& CNS.isNetworkConnected(context)) {
+				//if current category hasnt been checked already
+				Thread t = new Thread() {
+					public void run()
+					{
+						final int categoryWas = currentCategory;
+						final boolean newAvailable = newsStore.checkIfNewHeadlines(currentCategory);
+						if (categoryWas == currentCategory) {
 							runOnUiThread(new Runnable() {
 								public void run()
 								{
@@ -1049,9 +1082,9 @@ public class BoarActivity extends Activity implements BottomReachedListener
 								}
 							});
 						}
-					};
-					t.start();
-				}
+					}
+				};
+				t.start();
 			}
 		}
 
