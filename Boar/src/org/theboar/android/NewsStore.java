@@ -92,6 +92,15 @@ public class NewsStore implements INewsStore
 				+ "&count=" + count,-1,true);
 	}
 
+	@Override
+	public IHeadlineList headlinesFromFeaturedNews(int pageNum, int count, IHeadlineListener hl_listener)
+	{
+		this.pageNum = pageNum;
+		this.hl_listener = hl_listener;
+		String categoryRequestURL = "http://theboar.org/category/news/featured-news/?json=1&count=7";
+		return generateHeadlines(count,categoryRequestURL,-1,true);
+
+	}
 	//----------------------------------------JSON--------------------------------
 
 	@Override
@@ -261,6 +270,7 @@ public class NewsStore implements INewsStore
 			head.storeHTML(story.getString("content"));
 			head.setCategory(Category.parseCategoryID(story.getJSONArray("categories")));
 			head.setTags(tags);
+			head.setCommentsNum(story.getJSONArray("comments").length());
 			head.setJSONStory(story);
 			head.setUniqueId(story.getString("id"));
 			return head;
@@ -281,8 +291,9 @@ public class NewsStore implements INewsStore
 			downloadedJSON = downloadJSON(categoryRequestURL,categoryId);
 		}
 
+		String categoryName = Category.getCategoryName(categoryId,false,false);
+
 		if (downloadedJSON == null || !checkAgain) {//retrieve from cache
-			String categoryName = Category.getCategoryName(categoryId,false,false);
 			if (categoryName != null) { //eg. query
 				File cacheFile = CNS.getCategoryCacheFile(context,categoryName);
 				downloadedJSON = getJSONFromFile(cacheFile);
@@ -291,7 +302,6 @@ public class NewsStore implements INewsStore
 			}
 		}
 
-		String categoryName = Category.getCategoryName(categoryId,false,false);
 		if (categoryName != null && pageNum == 1) { //only add 1st page to cache
 			File cacheFile = CNS.getCategoryCacheFile(context,categoryName);
 			writeJSONtoFile(downloadedJSON,cacheFile);

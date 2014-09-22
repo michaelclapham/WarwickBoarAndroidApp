@@ -11,31 +11,38 @@
     <FrameLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
         android:layout_marginBottom="@dimen/tabMar"
+        android:layout_marginTop="10dp"
         android:background="@drawable/box_outline_straight" >
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@color/white"
             android:orientation="vertical" >
 
             <FrameLayout
                 android:id="@+id/content_picture"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
+                android:background="@color/white_op_90"
                 android:orientation="vertical" >
 
                 <ImageView
                     android:id="@+id/content_newsImage"
                     android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="150dp"
                     android:adjustViewBounds="true"
                     android:baselineAlignBottom="false"
                     android:cropToPadding="false"
                     android:scaleType="centerCrop"
-                    android:src="@drawable/fallback_img" />
+                     />
+
+                <ProgressBar
+                    android:id="@+id/content_newsImage_progress"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"
+                    android:layout_gravity="center" />
 
                 <FrameLayout
                     android:id="@+id/content_typecolor"
@@ -54,69 +61,83 @@
                         android:text="LIFESTYLE"
                         android:textColor="@color/white"
                         android:textSize="13sp" />
-
                 </FrameLayout>
             </FrameLayout>
 
             <RelativeLayout
+                android:id="@+id/content_head_color"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/white"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"
-                android:paddingTop="5dp" >
+                android:layout_gravity="bottom"
+                android:background="@color/white_op_90" >
+
+                <FrameLayout
+                    android:id="@+id/topicname_divider"
+                    android:layout_width="match_parent"
+                    android:layout_height="2dp"
+                    android:layout_alignParentTop="true"
+                    android:background="@drawable/gradient_black_du" >
+                </FrameLayout>
 
                 <TextView
                     android:id="@+id/topicname"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="false"
                     android:layout_marginBottom="5dp"
                     android:maxLines="2"
-                    android:minLines="2"
-                    android:textColor="@color/black"
-                    android:textSize="17sp" />
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
+                    android:paddingTop="5dp"
+                    android:text="Heading"
+                    android:textColor="@color/black_op_90"
+                    android:textSize="19sp"
+                    android:textStyle="normal" />
 
-                <TextView
-                    android:id="@+id/author_by"
-                    android:layout_width="wrap_content"
+                <RelativeLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentLeft="true"
                     android:layout_below="@id/topicname"
                     android:paddingBottom="5dp"
-                    android:text="by"
-                    android:textColor="@color/black_20"
-                    android:textSize="15sp" />
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
+                    android:paddingTop="5dp" >
 
-                <TextView
-                    android:id="@+id/author_name"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentLeft="false"
-                    android:layout_below="@id/topicname"
-                    android:layout_marginLeft="5dp"
-                    android:layout_toRightOf="@id/author_by"
-                    android:paddingBottom="5dp"
-                    android:text="Anonymous"
-                    android:textColor="@color/black_20"
-                    android:textSize="15sp" />
+                    <TextView
+                        android:id="@+id/author_by"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentLeft="true"
+                        android:text="by"
+                        android:textColor="@color/black_30"
+                        android:textSize="15sp" />
 
-                <TextView
-                    android:id="@+id/content_date"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
-                    android:layout_below="@id/topicname"
-                    android:paddingBottom="5dp"
-                    android:textColor="@color/black_20"
-                    android:textSize="15sp" />
+                    <TextView
+                        android:id="@+id/author_name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentLeft="false"
+                        android:layout_marginLeft="5dp"
+                        android:layout_toRightOf="@id/author_by"
+                        android:text="Anonymous"
+                        android:textColor="@color/black_30"
+                        android:textSize="15sp" />
 
+                    <TextView
+                        android:id="@+id/content_date"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentRight="true"
+                        android:textColor="@color/black_30"
+                        android:textSize="15sp" />
+                </RelativeLayout>
             </RelativeLayout>
 
             <FrameLayout
                 android:layout_width="match_parent"
-                android:visibility="gone"
                 android:layout_height="2dp"
-                android:background="@color/black_10" >
+                android:background="@color/black_05"
+                android:visibility="visible" >
             </FrameLayout>
         </LinearLayout>
     </FrameLayout>

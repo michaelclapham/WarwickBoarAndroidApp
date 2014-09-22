@@ -3,6 +3,7 @@
     android:id="@+id/news_story_frame"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:layout_marginBottom="-10dp"
     android:animateLayoutChanges="true"
     android:visibility="visible" >
 
@@ -21,7 +22,7 @@
         android:layout_gravity="fill"
         android:layout_marginLeft="@dimen/articleMargHor"
         android:layout_marginRight="@dimen/articleMargHor"
-        android:background="@color/white" >
+        android:background="@color/white_op_90" >
 
         <org.theboar.android.BoarMagicalScrollView
             android:id="@+id/storyScrollView"
@@ -46,16 +47,21 @@
                         android:layout_height="wrap_content"
                         android:adjustViewBounds="true"
                         android:cropToPadding="false"
-                        android:scaleType="centerCrop"
-                        android:src="@drawable/loading_img" />
+                        android:scaleType="centerCrop" />
 
+                    <ProgressBar
+                        android:id="@+id/story_img_progress"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:visibility="gone" />
                 </FrameLayout>
 
                 <LinearLayout
                     android:id="@+id/story_headline_group"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@color/money"
+                    android:background="@color/lifestyle"
                     android:orientation="vertical" >
 
                     <LinearLayout
@@ -73,7 +79,8 @@
                             android:paddingLeft="10dp"
                             android:paddingRight="10dp"
                             android:paddingTop="10dp"
-                            android:textColor="@color/black_80"
+                            android:text="Brown fix jumps over something"
+                            android:textColor="@color/white_90"
                             android:textSize="18sp"
                             android:textStyle="bold" />
                     </LinearLayout>
@@ -81,7 +88,7 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:paddingBottom="10dp"
+                        android:paddingBottom="5dp"
                         android:paddingLeft="10dp"
                         android:paddingRight="10dp" >
 
@@ -90,7 +97,8 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:gravity="left"
-                            android:textColor="@color/black_50"
+                            android:text="By John Doe"
+                            android:textColor="@color/white_70"
                             android:textSize="15sp" />
 
                         <TextView
@@ -98,7 +106,8 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:gravity="right"
-                            android:textColor="@color/black_50"
+                            android:text="6 hours ago"
+                            android:textColor="@color/white_70"
                             android:textSize="15sp" />
                     </LinearLayout>
                 </LinearLayout>
@@ -106,7 +115,7 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@color/white"
+                    android:background="@color/white_op_90"
                     android:orientation="vertical" >
 
                     <ProgressBar
@@ -114,9 +123,8 @@
                         style="?android:attr/progressBarStyleHorizontal"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:visibility="gone"
                         android:layout_gravity="center_horizontal"
-                        />
+                        android:visibility="gone" />
 
                     <LinearLayout
                         android:id="@+id/story_ll_root"
@@ -133,6 +141,52 @@
                         -->
 
                     </LinearLayout>
+
+                    <FrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingBottom="5dp"
+                        android:paddingTop="5dp" >
+
+                        <FrameLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:layout_weight="0.5"
+                            android:paddingLeft="16dp"
+                            android:paddingRight="10dp" >
+
+                            <TextView
+                                android:id="@+id/story_category_text"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="0.5"
+                                android:gravity="left"
+                                android:text="Art"
+                                android:textColor="@color/black_30"
+                                android:textSize="14sp"
+                                android:textStyle="bold" />
+                        </FrameLayout>
+
+                        <FrameLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:layout_gravity="right"
+                            android:layout_weight="0.5"
+                            android:paddingLeft="10dp"
+                            android:paddingRight="16dp" >
+
+                            <TextView
+                                android:id="@+id/story_comments_num"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="0.5"
+                                android:gravity="right"
+                                android:text="0 Comments"
+                                android:textColor="@color/black_30"
+                                android:textSize="14sp"
+                                android:textStyle="bold" />
+                        </FrameLayout>
+                    </FrameLayout>
 
                     <FrameLayout
                         android:layout_width="match_parent"
@@ -156,8 +210,8 @@
                             android:textColor="@color/black_45" />
 
                         <HorizontalScrollView
+                            android:id="@+id/story_tab_scroll"
                             android:layout_width="match_parent"
-                                android:id="@+id/story_tab_scroll"
                             android:layout_height="match_parent" >
 
                             <LinearLayout
@@ -167,7 +221,6 @@
                                 android:layout_gravity="center_vertical"
                                 android:orientation="horizontal"
                                 android:paddingRight="8dp" >
-
                             </LinearLayout>
                         </HorizontalScrollView>
                     </LinearLayout>

@@ -56,10 +56,9 @@
                             android:layout_height="wrap_content"
                             android:layout_gravity="bottom"
                             android:orientation="horizontal" >
-                            
                         </LinearLayout>
                     </HorizontalScrollView>
-                    
+
                     <EditText
                         android:id="@+id/search_area"
                         android:layout_width="match_parent"
@@ -82,6 +81,7 @@
                         android:id="@+id/loading_layout"
                         android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
+                        android:layout_margin="8dp"
                         android:layout_weight="33"
                         android:gravity="center_horizontal"
                         android:orientation="horizontal"
@@ -90,16 +90,14 @@
 
                         <ProgressBar
                             android:id="@+id/progressBar1"
-                            style="?android:attr/progressBarStyleSmall"
+                            style="?android:attr/progressBarStyle"
                             android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_margin="10dp" />
+                            android:layout_height="30dp" />
 
                         <TextView
                             android:id="@+id/loading_text"
                             android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_margin="8dp"
+                            android:layout_height="match_parent"
                             android:gravity="center"
                             android:text="Fetching news list"
                             android:textColor="@color/black_20"
@@ -117,6 +115,15 @@
                         android:textColor="@color/black_45"
                         android:textSize="15sp"
                         android:visibility="gone" />
+
+                    <!--
+                    <com.daimajia.slider.library.SliderLayout
+                        android:id="@+id/main_slider"
+                        android:layout_width="match_parent"
+                        android:layout_height="200dp" >
+                    </com.daimajia.slider.library.SliderLayout>
+                    -->
+
 
                     <LinearLayout
                         android:id="@+id/tablet_l_root"

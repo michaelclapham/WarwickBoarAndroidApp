@@ -47,7 +47,7 @@ public class Category
 			= 15
 			;
 
-	public static final int OTHER = 80;
+	public static final int OTHER = 80, FEATURED = 81;
 
 	public static String getCategoryName(int index, boolean fullName, boolean shortName)
 	{

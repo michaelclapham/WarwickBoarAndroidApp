@@ -549,7 +549,8 @@ public class BoarMagicalScrollView extends ScrollView
 			if (iv != null && ivHeight > 0 && iv.getHeight() <= max && isTouchEvent) {
 				if (deltaY < 0) {
 //					Log.d(CNS.LOGPRINT,"" + (iv.getHeight() - deltaY / 2) + ">=" + ivHeight +
-//							" && " + scrollY+ (iv.getHeight() - deltaY / 2 >= ivHeight && scrollY <= 0));
+//							" && " + scrollY + "=="
+//							+ (iv.getHeight() - deltaY / 2 >= ivHeight && scrollY <= 0));
 //					if (iv.getHeight() - deltaY / 2 >= ivHeight && scrollY <= 0) {
 					if (iv.getHeight() - deltaY / 2 >= ivHeight && scrollY <= 0) {
 						iv.getLayoutParams().height = iv

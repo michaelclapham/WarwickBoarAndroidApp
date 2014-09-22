@@ -29,6 +29,7 @@ public class Headline implements IHeadline
 	private String imageUrl;
 	private JSONObject jsonStory;
 	private String[] imageDimension;
+	private int commentsNum;
 
 	public Headline() {
 		//
@@ -283,6 +284,16 @@ public class Headline implements IHeadline
 		}
 		catch (Exception e) {}
 		return tmp;
+	}
+
+	public int getCommentsNum()
+	{
+		return commentsNum;
+	}
+
+	public void setCommentsNum(int num)
+	{
+		this.commentsNum = num;
 	}
 
 }
