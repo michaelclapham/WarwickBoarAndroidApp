@@ -17,6 +17,7 @@ import org.jsoup.nodes.DataNode;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.theboar.android.Headline.Node;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
@@ -31,6 +32,7 @@ import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Environment;
 import android.preference.PreferenceManager;
+import android.text.Html;
 import android.text.format.DateUtils;
 import android.util.Log;
 import android.util.TypedValue;
@@ -42,6 +44,7 @@ import android.view.animation.Animation;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.RotateAnimation;
 import android.view.animation.ScaleAnimation;
+import android.webkit.WebView;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
@@ -387,6 +390,28 @@ public class CNS
 			result.put(entry.getKey(),entry.getValue());
 		}
 		return result;
+	}
+
+	public static View getCommentView(String name, String comment, Node parent, int depth, Context context)
+	{
+		View fm = BoarActivity.activity.getLayoutInflater().inflate(
+				context.getResources().getLayout(R.layout.comment_box),null,false);
+		LinearLayout ll = (LinearLayout) fm.findViewById(R.id.comment_single_root);
+		int lPadding = getPXfromDP(10 * depth,context);
+		ll.setPadding(lPadding,0,0,0);
+
+		TextView txtName = (TextView) fm.findViewById(R.id.comment_name);
+		if (depth > 0) {
+			txtName.setText(Html.fromHtml(name) + "  >  " + Html.fromHtml(parent.name));
+
+		} else {
+
+			txtName.setText(Html.fromHtml(name));
+		}
+
+		TextView txtComment = (TextView) fm.findViewById(R.id.comment_content);
+		txtComment.setText(Html.fromHtml(comment));
+		return fm;
 	}
 
 }

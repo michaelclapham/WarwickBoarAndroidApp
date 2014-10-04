@@ -1,7 +1,11 @@
 package org.theboar.android;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -9,6 +13,7 @@ import org.json.JSONObject;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.text.Html;
 import android.util.Log;
 
 public class Headline implements IHeadline
@@ -18,10 +23,8 @@ public class Headline implements IHeadline
 	private String headlineTitle;
 	private boolean favourite = false;
 	private boolean isNew = false;
-	private String authorName = "Unknown";
+	private String authorName = "Anonymous"; //Anonymous 
 	private Date datePublished;
-	private Drawable lowResImage = null;
-	private boolean hasImage = false;
 	private String[] tags;
 	private int category = Category.OTHER;
 	private String internalHTML;
@@ -30,20 +33,21 @@ public class Headline implements IHeadline
 	private JSONObject jsonStory;
 	private String[] imageDimension;
 	private int commentsNum;
+	private Map<String, Node> mapCom;
+	private HashMap<Integer, String> categoriesMap;
 
 	public Headline() {
 		//
 	}
 
-	public void setCategory(int category)
+	public void setCategory(int cat)
 	{
-		this.category = category;
+		this.category = cat;
 	}
 
-	public void setLowResImage(Drawable lowResImage)
+	public static int parseCategory(JSONArray json)
 	{
-		this.lowResImage = lowResImage;
-		hasImage = true;
+		return Category.parseCategoryID(json);
 	}
 
 	public void storeHTML(String HTML)
@@ -62,41 +66,15 @@ public class Headline implements IHeadline
 		return headlineTitle;
 	}
 
-	@Deprecated
-	public Drawable getImage()
-	{
-		if (hasImage) {
-			if (lowResImage != null) {
-				return lowResImage;
-			} else {
-				return null;
-			}
-		}
-		return null;
-	}
-
-	@Deprecated
-	public Drawable getHighResImage()
-	{
-		if (hasImage) {
-			if (lowResImage != null) {
-				return lowResImage;
-			} else {
-				return null;
-			}
-		}
-		return null;
-	}
-
 	@Override
 	public String[] getTags()
 	{
 		return tags;
 	}
 
-	@Override
 	public void setTags(String[] tags)
 	{
+
 		this.tags = tags;
 
 	}
@@ -165,15 +143,11 @@ public class Headline implements IHeadline
 	}
 
 	@Override
-	public boolean isNew()
-	{
-		return isNew;
-	}
-
-	@Override
 	public boolean setFavourite(boolean fav, Context context)
 	{
 		favourite = fav;
+
+		//cool. now modify the file to store favs
 		File favFile = CNS.getFavouriteFile();
 		JSONObject jsonObj = NewsStore.getJSONFromFile(favFile);
 		JSONArray jsArr = new JSONArray();
@@ -195,12 +169,6 @@ public class Headline implements IHeadline
 		catch (JSONException e) {}
 		return true;
 	}
-	@Override
-	public boolean setNew(boolean isNew)
-	{
-		this.isNew = isNew;
-		return true;
-	}
 
 	public void setAuthor(String authorName)
 	{
@@ -209,6 +177,7 @@ public class Headline implements IHeadline
 
 	public void setDatePublished(Date datePublished)
 	{
+
 		this.datePublished = datePublished;
 	}
 
@@ -259,22 +228,14 @@ public class Headline implements IHeadline
 		return imageUrl;
 	}
 
-	public void setJSONStory(JSONObject story)
-	{
-		this.jsonStory = story;
-
-	}
-
-	public JSONObject getJSONStory()
-	{
-		return jsonStory;
-	}
-
+	@Override
 	public void setImageDimensions(String[] imageDimension)
 	{
 		this.imageDimension = imageDimension;
 
 	}
+
+	@Override
 	public int[] getImageDimensions()
 	{
 		int[] tmp = { 0, 0 };
@@ -294,6 +255,120 @@ public class Headline implements IHeadline
 	public void setCommentsNum(int num)
 	{
 		this.commentsNum = num;
+	}
+
+	public Map<String, Node> getComments()
+	{
+		return mapCom;
+	}
+
+	public void setComments(Map<String, Node> map)
+	{
+		this.mapCom = map;
+	}
+
+	class Node
+	{
+		String id;
+		String comment;
+		Node parent;
+		ArrayList<String> children;
+		String name;
+
+		public Node(String id, String comment, String name, Node Parent, ArrayList<String> children) {
+			this.id = id;
+			this.comment = comment;
+			this.name = name;
+			this.parent = Parent;
+			this.children = children;
+
+		}
+	}
+
+	public static String[] parseTags(JSONArray tagArray)
+	{
+		String[] tags = new String[0];
+		try {
+			tags = new String[tagArray.length()];
+			for (int i = 0; i < tagArray.length(); i++) {
+				tags[i] = ((JSONObject) tagArray.get(i)).getString("slug");
+			}
+		}
+		catch (JSONException e) {}
+		return tags;
+	}
+
+	public void setComments(final JSONArray jsonArray)
+	{
+//		final JSONArray commentsTree = jsonArray;
+
+		Thread t = new Thread() {
+
+			public void run()
+			{
+
+				HashMap<String, Node> mapCom = new HashMap<String, Node>();
+				try {
+					for (int i = 0; i < jsonArray.length(); i++) {
+						String id = ((JSONObject) jsonArray.get(i)).getString("id");
+						String idParent = ((JSONObject) jsonArray.get(i)).getString("parent");
+						String name = ((JSONObject) jsonArray.get(i)).getString("name");
+						String content = ((JSONObject) jsonArray.get(i)).getString("content");
+
+						if (!mapCom.containsKey(id)) {
+							if (idParent.equals("0")) {
+								mapCom.put(id,new Node(id,content,name,null,new ArrayList<String>()));
+							} else {
+								Node parentNode = mapCom.get(idParent);
+								Node subComment = new Node(id,content,name,parentNode,
+										new ArrayList<String>());
+								parentNode.children.add(subComment.id);
+								mapCom.put(id,subComment);
+							}
+						}
+					}
+					setCommentsNum(mapCom.size());
+					setComments(mapCom);
+				}
+				catch (Exception e) {
+					Log.d(CNS.LOGPRINT,"Error Occurred setting Comments to map");
+				}
+			}
+		};
+		t.start();
+	}
+
+	public void setStory(JSONObject story)
+	{
+		jsonStory = story;
+	}
+
+	public static HashMap<Integer, String> parseCategories(JSONArray jsonArray)
+	{
+		HashMap<Integer, String> cats = new HashMap<Integer, String>();
+		try {
+			for (int i = 0; i < jsonArray.length(); i++) {
+				String title = ((JSONObject) jsonArray.get(i)).getString("title");
+				int id = Integer.parseInt(((JSONObject) jsonArray.get(i)).getString("id"));
+				cats.put(id,Html.fromHtml(title).toString());
+			}
+		}
+		catch (JSONException e) {}
+		return cats;
+	}
+
+	/**
+	 * @return map [Integer, String] : id, title
+	 */
+	public HashMap<Integer, String> getCategoriesList()
+	{
+		return categoriesMap;
+	}
+
+	public void setCategoriesList(HashMap<Integer, String> map)
+	{
+		this.categoriesMap = map;
+
 	}
 
 }

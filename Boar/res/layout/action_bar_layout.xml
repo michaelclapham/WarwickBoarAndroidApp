@@ -6,17 +6,17 @@
 
     <!-- android:background="#ffffff" -->
 
-    <FrameLayout
-        android:id="@+id/top_bar_layout"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="@dimen/actionBarHeight"
+        android:layout_height="wrap_content"
         android:layout_gravity="top"
-        android:background="@color/white"
         android:orientation="vertical" >
 
         <LinearLayout
+            android:id="@+id/top_bar_layout"
             android:layout_width="match_parent"
             android:layout_height="@dimen/actionBarHeight"
+            android:background="@color/white"
             android:baselineAligned="false" >
 
             <FrameLayout
@@ -123,7 +123,7 @@
             android:background="@color/black_05"
             android:orientation="vertical" >
         </LinearLayout>
-    </FrameLayout>
+    </LinearLayout>
 
     <FrameLayout
         android:id="@+id/dummy_actionBar_underlay"
@@ -211,8 +211,8 @@
                 android:layout_height="45dp"
                 android:background="@drawable/clickable"
                 android:orientation="vertical"
-                android:visibility="gone"
-                android:padding="10dp" >
+                android:padding="10dp"
+                android:visibility="gone" >
 
                 <TextView
                     android:layout_width="wrap_content"

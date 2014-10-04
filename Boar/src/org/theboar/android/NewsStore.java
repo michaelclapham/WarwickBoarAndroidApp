@@ -68,7 +68,7 @@ public class NewsStore implements INewsStore
 			}
 			catch (NumberFormatException e) {}
 			catch (JSONException e) {}
-			IHeadlineList hList = parseJSONtoHeadlineList(numPosts,favJSON);
+			IHeadlineList hList = parseJSONtoHeadlineList(numPosts,favJSON,false);
 			return hList;
 		}
 		return null;
@@ -173,23 +173,24 @@ public class NewsStore implements INewsStore
 
 	public static void writeJSONtoFile(final JSONObject json, final File file)
 	{
-		Runnable r = new Runnable() {
-			public void run()
-			{
-				try {
-					if (!file.exists()) file.createNewFile();
-					FileUtils.writeStringToFile(file,json.toString());
+		if (json != null) {
+			Runnable r = new Runnable() {
+				public void run()
+				{
+					try {
+						if (!file.exists()) file.createNewFile();
+						FileUtils.writeStringToFile(file,json.toString());
+					}
+					catch (IOException e) {}
 				}
-				catch (IOException e) {}
-			}
-		};
-		new Thread(r).start();
-
+			};
+			new Thread(r).start();
+		}
 	}
 
 	//----------------------------------------ARTICLES--------------------------------
 
-	public IHeadlineList parseJSONtoHeadlineList(int count, JSONObject jObject)
+	public IHeadlineList parseJSONtoHeadlineList(int count, JSONObject jObject, boolean isFromCache)
 	{
 		if (jObject == null) { return null; }
 
@@ -218,7 +219,7 @@ public class NewsStore implements INewsStore
 
 					String[] ls = new String[3];
 //					ls[0] = "Loading: " + (i + 1) + "/" + jArray.length();
-					ls[0] = HAS_NEW;
+					ls[0] = isFromCache ? "fromCache" : "false";
 					ls[1] = pagesTotal;
 					ls[2] = countTotal;
 
@@ -255,12 +256,6 @@ public class NewsStore implements INewsStore
 			}
 			catch (Exception e) {}
 
-			JSONArray tagArray = story.getJSONArray("tags");
-			String[] tags = new String[tagArray.length()];
-			for (int i = 0; i < tagArray.length(); i++) {
-				tags[i] = ((JSONObject) tagArray.get(i)).getString("slug");
-			}
-
 			head.setHeadlineTitle((Html.fromHtml(storyTitle)).toString());
 			head.setImageUrl(imageURL);
 			head.setDatePublished(datePublished);
@@ -268,11 +263,12 @@ public class NewsStore implements INewsStore
 			head.setPageUrl(story.getString("url"));
 			head.setImageDimensions(imageDimension);
 			head.storeHTML(story.getString("content"));
-			head.setCategory(Category.parseCategoryID(story.getJSONArray("categories")));
-			head.setTags(tags);
-			head.setCommentsNum(story.getJSONArray("comments").length());
-			head.setJSONStory(story);
+			head.setCategory(Headline.parseCategory(story.getJSONArray("categories")));
+			head.setTags(Headline.parseTags(story.getJSONArray("tags")));
 			head.setUniqueId(story.getString("id"));
+			head.setComments(story.getJSONArray("comments"));
+			head.setStory(story);
+			head.setCategoriesList(Headline.parseCategories(story.getJSONArray("categories")));
 			return head;
 		}
 		catch (JSONException e) {
@@ -287,27 +283,31 @@ public class NewsStore implements INewsStore
 	private IHeadlineList generateHeadlines(int count, String categoryRequestURL, int categoryId, boolean checkAgain)
 	{
 		JSONObject downloadedJSON = null;
+		String categoryName = Category.getCategoryName(categoryId,false,false);
+		boolean isFromCache = false;
+
 		if (checkAgain) { //only download from url when requested
 			downloadedJSON = downloadJSON(categoryRequestURL,categoryId);
 		}
-
-		String categoryName = Category.getCategoryName(categoryId,false,false);
-
 		if (downloadedJSON == null || !checkAgain) {//retrieve from cache
 			if (categoryName != null) { //eg. query
 				File cacheFile = CNS.getCategoryCacheFile(context,categoryName);
 				downloadedJSON = getJSONFromFile(cacheFile);
-				if (downloadedJSON == null) //if not cache then download from url
+				//if even cache not available THEN download from url
+				if (downloadedJSON == null) {
 					downloadedJSON = downloadJSON(categoryRequestURL,categoryId);
+				} else {
+					isFromCache = true;
+				}
 			}
 		}
 
-		if (categoryName != null && pageNum == 1) { //only add 1st page to cache
+		if (categoryName != null && pageNum == 1 && !isFromCache) { //only add 1st page to cache
 			File cacheFile = CNS.getCategoryCacheFile(context,categoryName);
 			writeJSONtoFile(downloadedJSON,cacheFile);
 		}
 
-		IHeadlineList hList = parseJSONtoHeadlineList(count,downloadedJSON);
+		IHeadlineList hList = parseJSONtoHeadlineList(count,downloadedJSON,isFromCache);
 		return hList;
 	}
 

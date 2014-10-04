@@ -1,10 +1,14 @@
 package org.theboar.android;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+
+import org.theboar.android.Headline.Node;
 
 import android.app.Activity;
 import android.content.Context;
@@ -13,6 +17,7 @@ import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Typeface;
 import android.net.Uri;
+import android.opengl.Visibility;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -20,6 +25,7 @@ import android.os.Handler;
 import android.text.Html;
 import android.util.Log;
 import android.view.Display;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -30,6 +36,7 @@ import android.view.Window;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationUtils;
+import android.view.animation.TranslateAnimation;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -283,6 +290,8 @@ public class BoarActivity extends Activity implements BottomReachedListener
 	private int getNextLayoutAdd(int i)
 	{
 		int L = 1;
+		int h1 = l1.getHeight();
+//		Log.d(CNS.LOGPRINT,"h1: " + h1);
 		if (!CNS.isTablet(this)) { // isPhone
 			if (CNS.isPortrait(this)) { //isPortrait
 				L = 1;
@@ -293,11 +302,13 @@ public class BoarActivity extends Activity implements BottomReachedListener
 			}
 		}
 		else { //isTablet
+
 			if (CNS.isPortrait(this)) { //isPortrait
 				int k2 = i % 2;
 				L = k2 == 0 ? 1 : 2;
 			}
 			else { //isLandscape
+
 				int k3 = i % 3;
 				if (k3 == 0) L = 1;
 				else if (k3 == 1) L = 2;
@@ -370,10 +381,15 @@ public class BoarActivity extends Activity implements BottomReachedListener
 
 //			actionBar.getLayoutParams().width = LayoutParams.MATCH_PARENT;
 			vis(GONE,R.id.close_button);
-			vis(VISIBLE,R.id.actionBar_shadow);
+			vis(GONE,R.id.actionBar_shadow);
+			if (category == Category.FAVOURITES || category == Category.HOME) {
+				vis(VISIBLE,R.id.actionBar_shadow);
+			}
 			vis(GONE,R.id.drop_down_share);
 
 			if (REQUEST == SEARCH || REQUEST == TAG) {
+				vis(VISIBLE,R.id.actionBar_shadow);
+
 				vis(VISIBLE,R.id.back_button);
 				colorTo = getResources().getColor(R.color.white);
 
@@ -463,6 +479,7 @@ public class BoarActivity extends Activity implements BottomReachedListener
 		findViewById(R.id.drop_down_favourite).setOnClickListener(clickEvent);
 		findViewById(R.id.drop_down_share).setOnClickListener(clickEvent);
 		findViewById(R.id.main_toast_root).setOnClickListener(clickEvent);
+		findViewById(R.id.story_comment_expander).setOnClickListener(clickEvent);
 
 		TextView heading = (TextView) findViewById(R.id.page_heading);
 		heading.setTypeface(Typeface.createFromAsset(getAssets(),"Lato-Regular.ttf"));
@@ -535,6 +552,7 @@ public class BoarActivity extends Activity implements BottomReachedListener
 			TextView title = (TextView) findViewById(R.id.actionbar_title);
 			title.setText(REQUEST);
 
+			vis(VISIBLE,R.id.search_area_root);
 			final EditText textarea = (EditText) vis(VISIBLE,R.id.search_area);
 			textarea.setOnEditorActionListener(new EditText.OnEditorActionListener() {
 
@@ -653,6 +671,16 @@ public class BoarActivity extends Activity implements BottomReachedListener
 				vis(GONE,R.id.main_toast_root,true);
 				beenReloaded[currentCategory] = true;
 				break;
+			case R.id.story_comment_expander://settag for flags
+				View commentSection = findViewById(R.id.story_comment_root);
+				if (commentSection.getVisibility() == View.VISIBLE) {
+					commentSection.setVisibility(View.GONE);
+					vis(GONE,R.id.story_comment_divider);
+				} else {
+					commentSection.setVisibility(View.VISIBLE);
+					vis(VISIBLE,R.id.story_comment_divider);
+				}
+				break;
 
 			default:
 				break;
@@ -704,6 +732,17 @@ public class BoarActivity extends Activity implements BottomReachedListener
 
 	private void populateArticle(Headline hl)
 	{
+		//----------------------------------Comment Test------------------------------------------
+
+		final Map<String, Node> commentsTree = hl.getComments();
+		new Handler().postDelayed(new Runnable() {
+			public void run()
+			{
+				populateComments(commentsTree);
+			}
+		},1000);
+		//----------------------------------------------------------------------------
+
 //		storyScroll = (BoarMagicalScrollView) findViewById(R.id.storyScrollView);
 		storyScroll.newImage();
 		storyScroll.fullScroll(ScrollView.FOCUS_UP);
@@ -729,9 +768,19 @@ public class BoarActivity extends Activity implements BottomReachedListener
 			currHeadlineImageSize = 0;
 		}
 
-		((TextView) findViewById(R.id.story_category_text)).setText(Category.getCategoryName(hl.getCategory(),true,false));
-		((TextView) findViewById(R.id.story_comments_num)).setText(Integer.toString(hl.getCommentsNum())
-				+ " Comments");
+		HashMap<Integer, String> categoriesList = hl.getCategoriesList();
+		String catText = "";
+		int i = 0;
+		for (Entry<Integer, String> title : categoriesList.entrySet()) {
+			catText += title.getValue();
+			catText += i == categoriesList.size() - 1 ? "" : ", ";
+			i++;
+		}
+		((TextView) findViewById(R.id.story_category_text)).setText(catText);
+//				Category.getCategoryName(hl.getCategory(),true,false));
+		String commentNum = Integer.toString(hl.getCommentsNum());
+		((TextView) findViewById(R.id.story_comments_num)).setText(commentNum
+				+ (commentNum.equals("1") ? " Comment" : " Comments"));
 
 		TextView tv = (TextView) findViewById(R.id.story_headline);
 		tv.setText(hl.getHeadline());
@@ -765,12 +814,12 @@ public class BoarActivity extends Activity implements BottomReachedListener
 		LinearLayout webViewLL = (LinearLayout) findViewById(R.id.story_ll_root);
 		webViewLL.removeAllViews();
 //		vis(VISIBLE,R.id.story_ll_progress);
+		vis(VISIBLE,R.id.story_progress);
 
 		WebView webview = (WebView) new WebView(context);
 		webViewLL.addView(webview);
 		webview.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT,
 				LayoutParams.WRAP_CONTENT));
-//		webview.setVisibility(View.INVISIBLE);
 		webview.setBackgroundColor(context.getResources().getColor(R.color.Transparent));
 		webview.setWebViewClient(new WebViewClient() {
 
@@ -786,6 +835,7 @@ public class BoarActivity extends Activity implements BottomReachedListener
 
 			public void onPageFinished(WebView view, String url)
 			{
+				vis(GONE,R.id.story_progress);
 //				LinearLayout webViewLL = (LinearLayout) findViewById(R.id.story_ll_root);
 //				webViewLL.addView(view);
 //				view.setVisibility(View.VISIBLE);
@@ -794,11 +844,7 @@ public class BoarActivity extends Activity implements BottomReachedListener
 			}
 
 		});
-//		webview.getSettings().setPluginState(PluginState.ON);
 		webview.getSettings().setAllowFileAccess(true);
-
-//		String data = CNS.generateBetterHTML(webViewLL,hl.getArticleHTML(),context);
-//		webview.loadDataWithBaseURL(null,data,"text/html","UTF-8",null);
 
 		class MyRunnable implements Runnable
 		{
@@ -830,30 +876,71 @@ public class BoarActivity extends Activity implements BottomReachedListener
 		new Thread(runn).start();
 	}
 
-	private void startArticle(final Headline hl)
+	private void populateComments(Map<String, Node> tree)
 	{
-		articleOpen = true;
-		currHeadline = hl;
+		LinearLayout commRoot = (LinearLayout) findViewById(R.id.story_comment_root);
+		commRoot.setVisibility(View.GONE);
+		commRoot.removeAllViews();
 
-		setActionBarForCategory(hl.getCategory(),false);
-		setArticleColors(hl.getCategory());
-		populateArticle(hl);
-
-		View articleView = vis(VISIBLE,R.id.news_story_frame);
-		Animation anim = AnimationUtils.loadAnimation(context,R.anim.article_start);
-		articleView.startAnimation(anim);
-
-		ImageView favIcon = (ImageView) findViewById(R.id.drop_down_favourite_icon);
-		if (hl.isFavourite(context)) {
-			favIcon.setImageDrawable(getResources().getDrawable(R.drawable.fav_true_black));
-			favIcon.setTag("true");
-		} else {
-			favIcon.setImageDrawable(getResources().getDrawable(R.drawable.fav_false_black));
-			favIcon.setTag("false");
+		for (Map.Entry<String, Node> node : tree.entrySet()) {
+			Node value = node.getValue();
+			if (value.parent == null) {
+				addCommentChildren(tree,commRoot,value,0);
+			}
+		}
+		if (tree.size() == 0) {
+			TextView txt = new TextView(context);
+			txt.setText("No Comments");
+			txt.setTextColor(getResources().getColor(R.color.black_45));
+			LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+					LayoutParams.WRAP_CONTENT,LayoutParams.WRAP_CONTENT,1);
+			params.gravity = Gravity.CENTER;
+			txt.setLayoutParams(params);
+			commRoot.addView(txt);
 		}
 
-		if (menu != null) menu.setSlidingEnabled(false);
+	}
 
+	public void addCommentChildren(Map<String, Node> tree, LinearLayout root, Node childNode, int depth)
+	{
+		root.addView(CNS.getCommentView(childNode.name,
+				childNode.comment,
+				childNode.parent,
+				depth,context));
+
+		depth++;
+		for (String childID : childNode.children) {
+			addCommentChildren(tree,root,tree.get(childID),depth);
+		}
+
+	}
+
+	private void startArticle(final Headline hl)
+	{
+		try {
+			articleOpen = true;
+			currHeadline = hl;
+
+			setActionBarForCategory(hl.getCategory(),false);
+			setArticleColors(hl.getCategory());
+			populateArticle(hl);
+
+			View articleView = vis(VISIBLE,R.id.news_story_frame);
+			Animation anim = AnimationUtils.loadAnimation(context,R.anim.article_start);
+			articleView.startAnimation(anim);
+
+			ImageView favIcon = (ImageView) findViewById(R.id.drop_down_favourite_icon);
+			if (hl.isFavourite(context)) {
+				favIcon.setImageDrawable(getResources().getDrawable(R.drawable.fav_true_black));
+				favIcon.setTag("true");
+			} else {
+				favIcon.setImageDrawable(getResources().getDrawable(R.drawable.fav_false_black));
+				favIcon.setTag("false");
+			}
+
+			if (menu != null) menu.setSlidingEnabled(false);
+		}
+		catch (Exception e) {}
 	}
 
 	private void closeArticle()
@@ -888,6 +975,9 @@ public class BoarActivity extends Activity implements BottomReachedListener
 				((ImageView) findViewById(R.id.story_newsImage)).setImageDrawable(null);
 				findViewById(R.id.drop_down_favourite).setVisibility(FrameLayout.GONE);
 				findViewById(R.id.drop_down_share).setVisibility(FrameLayout.GONE);
+
+				((LinearLayout) findViewById(R.id.story_comment_root)).removeAllViews();
+				vis(GONE,R.id.story_comment_divider);
 			}
 		});
 
@@ -918,7 +1008,7 @@ public class BoarActivity extends Activity implements BottomReachedListener
 		}
 	}
 
-	private void populateNews(boolean useInternet, boolean loadNew)
+	private void populateNews(boolean useInternet, boolean loadingNew)
 	{
 		if (hat != null && hat.getStatus().equals(AsyncTask.Status.RUNNING)) {
 			hat.cancel(true);
@@ -932,11 +1022,11 @@ public class BoarActivity extends Activity implements BottomReachedListener
 		l2 = (LinearLayout) findViewById(R.id.tablet_lld2);
 		l3 = (LinearLayout) findViewById(R.id.tablet_lld3);
 
-		if (loadNew) {
+		if (loadingNew) {
 			ScrollView sv = (ScrollView) findViewById(R.id.scrollView_main);
-			sv.fullScroll(ScrollView.FOCUS_UP);
+//			sv.fullScroll(ScrollView.FOCUS_UP);
 
-			vis(GONE,R.id.progress_bottom,true);
+			loadingLayout(false,true,null);
 			pageNum = 1;
 			l1.removeAllViews();
 			l2.removeAllViews();
@@ -945,7 +1035,7 @@ public class BoarActivity extends Activity implements BottomReachedListener
 		}
 		selectColumns();
 
-		hat = new HeadlineAsyncTask(loadNew,useInternet);
+		hat = new HeadlineAsyncTask(loadingNew,useInternet);
 		hat.execute("default");
 
 //		if (currentCategory == Category.HOME) {
@@ -966,6 +1056,8 @@ public class BoarActivity extends Activity implements BottomReachedListener
 		private boolean useInternet;
 		private Map<Integer, Integer> catCountMap;
 		private boolean forFeatured;
+		boolean isFromCache;
+		protected int wait = 0;
 
 		public HeadlineAsyncTask(boolean loadingNew, boolean useInternet) {
 			this.loadingNew = loadingNew;
@@ -978,11 +1070,13 @@ public class BoarActivity extends Activity implements BottomReachedListener
 			super.onPreExecute();
 			findViewById(R.id.tablet_l_root).setVisibility(View.VISIBLE);
 			if (loadingNew) {
-				vis(VISIBLE,R.id.loading_layout);
-				vis(VISIBLE,R.id.loading_text);
-				if (REQUEST == SEARCH || REQUEST == TAG || currentCategory == Category.FAVOURITES)
-					vis(GONE,R.id.loading_text);
+				if (REQUEST == SEARCH || REQUEST == TAG || currentCategory == Category.FAVOURITES) {
+					loadingLayout(true,false,null);
+				} else {
+					loadingLayout(true,true,"Fetching news");
+				}
 			}
+
 		}
 
 		@Override
@@ -990,7 +1084,8 @@ public class BoarActivity extends Activity implements BottomReachedListener
 		{
 			forFeatured = params[0].equals("featured");
 			if (forFeatured) {
-				newsStore.headlinesFromFeaturedNews(1,7,this);
+				//TODO if in the future we want featured news carousel.
+				//newsStore.headlinesFromFeaturedNews(1,7,this);
 			}
 			else if (currentCategory == Category.FAVOURITES) {
 				catCountMap = new HashMap<Integer, Integer>();
@@ -1019,22 +1114,20 @@ public class BoarActivity extends Activity implements BottomReachedListener
 		protected void onProgressUpdate(Object... values)
 		{
 			super.onProgressUpdate(values);
-			Headline hl = (Headline) values[0];
+			final Headline hl = (Headline) values[0];
 
-			if (forFeatured) {
-//				TextSliderView textSliderView = new TextSliderView(context);
-//				textSliderView
-//						.description("Game of Thrones")
-//						.image("http://images.boomsbeat.com/data/images/full/19640/game-of-thrones-season-4-jpg.jpg");
+			if (forFeatured) {} else {
 
-//				sliderShow.addSlider(textSliderView);
-				Log.d(CNS.LOGPRINT,"" + hl.getHeadline());
-			} else {
+				//hack to stop showing THAT post from february
 
-				if (!missPatina(hl))  //hack to stop showing THAT post from february
-					addHeadlineToView(hl);
+				if (!missPatina(hl)) {
+					addHeadlineToView(hl,wait);
+					wait += 100;
+				}
 
 				String[] msgs = (String[]) values[1];
+
+				isFromCache = msgs[0].equals("fromCache") ? true : false;
 				totalAvailablePages = msgs[1];
 				totalCount = msgs[2];
 				count++;
@@ -1068,17 +1161,20 @@ public class BoarActivity extends Activity implements BottomReachedListener
 		{
 			super.onPostExecute(result);
 			populating = false;
+			if (loadingNew) {
+				ScrollView sv = (ScrollView) findViewById(R.id.scrollView_main);
+				sv.fullScroll(ScrollView.FOCUS_UP);
+			}
 
-			vis(GONE,R.id.progress_bottom,true);
-			vis(GONE,R.id.loading_layout);
+			loadingLayout(false,true,null);
 
 			if (!forFeatured) setMessageText();
 
 			if (currentCategory == Category.FAVOURITES) {
 				addFavOptions();
 			} else if (forFeatured) {
-				//TODO
-			} else if (REQUEST != SEARCH && REQUEST != TAG) {
+				//TODO add to layouts if we want to show featured!
+			} else if (REQUEST != SEARCH && REQUEST != TAG && isFromCache) {
 				checkAndNotifyForNew();
 			}
 		}
@@ -1088,26 +1184,37 @@ public class BoarActivity extends Activity implements BottomReachedListener
 			TextView txt = (TextView) vis(GONE,R.id.search_query);
 
 			if (count == 0 || Integer.parseInt(totalAvailablePages) < pageNum) {
+				//Search
 				if (REQUEST == SEARCH) {
 					txt.setVisibility(View.VISIBLE);
 					if (pageNum == 1) {
 						txt.setText("'" + query + "' returned no results");
 					}
 				}
+				//Favourites
 				else if (count == 0 && currentCategory == Category.FAVOURITES) {
 					txt.setVisibility(View.VISIBLE);
 					txt.setText("You have not added any articles to your favourites.");
 				}
+				//Tag
 				else if (count == 0 && REQUEST == TAG) {
 					txt.setVisibility(View.VISIBLE);
+					txt.setText("There are no articles available");
+				}
+				//categories
+				else if (count == 0) {
+					txt.setVisibility(View.VISIBLE);
+					txt.setText("There are no articles available");
 				}
 				pageNum = 0;
 			} else {
 				pageNum++;
+				//Search
 				if (REQUEST == SEARCH) {
 					txt.setVisibility(View.VISIBLE);
 					txt.setText(totalCount + " results returned for '" + query + "'");
 				}
+				//Tag
 				else if (REQUEST == TAG) {
 					txt.setVisibility(View.VISIBLE);
 					txt.setText("Articles with tag: " + tagSlug);
@@ -1132,6 +1239,7 @@ public class BoarActivity extends Activity implements BottomReachedListener
 			if (!useInternet && beenReloaded[currentCategory] == false
 					&& CNS.isNetworkConnected(context)) {
 				//if current category hasnt been checked already
+				vis(VISIBLE,R.id.page_progress_forNew,true);
 				Thread t = new Thread() {
 					public void run()
 					{
@@ -1141,12 +1249,13 @@ public class BoarActivity extends Activity implements BottomReachedListener
 							runOnUiThread(new Runnable() {
 								public void run()
 								{
+									vis(GONE,R.id.page_progress_forNew,true);
 									if (newAvailable) {
 										vis(VISIBLE,R.id.main_toast_root,true);
-										Log.d(CNS.LOGPRINT,"New Posts available" + currentCategory);
+										Log.d(CNS.LOGPRINT,"New Posts available!");
 									} else {
 										beenReloaded[currentCategory] = true;
-										Log.d(CNS.LOGPRINT,"No new Posts available " + currentCategory);
+										Log.d(CNS.LOGPRINT,"No new Posts available. ");
 									}
 								}
 							});
@@ -1157,132 +1266,152 @@ public class BoarActivity extends Activity implements BottomReachedListener
 			}
 		}
 
-		private void addHeadlineToView(IHeadline hl)
+		private void addHeadlineToView(IHeadline hl, int waitDuration)
 		{
-//			try {
-			ImageView iv = null;
-			FrameLayout categoryBox;
-			TextView authorName = null, newsDate = null, newsName = null;
+			try {
+				ImageView iv = null;
+				FrameLayout categoryBox;
+				TextView authorName = null, newsDate = null, newsName = null;
 
-			//---------------------------------------------------------
-			int imageHeight = CNS.getPXfromDP(150,context);
-			FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(CNS.getFillParent(),
-					imageHeight);
-			final View newsItems = getLayoutInflater().inflate(R.layout.content_fragment,null,false);
+				//---------------------------------------------------------
+				final View newsItems = getLayoutInflater().inflate(R.layout.content_fragment,null,false);
+				//---------------------------------News Type Colour---------------------------
+				categoryBox = (FrameLayout) newsItems.findViewById(R.id.content_typecolor);
+				categoryBox.setVisibility(View.VISIBLE);
+				int catColor = Category.getCategoryColourText(hl.getCategory(),getResources());
+				categoryBox.setBackgroundColor(catColor);
+				if (Build.VERSION.SDK_INT > Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+					CNS.setAlpha(categoryBox,0.9f);
+				}
 
-			//---------------------------------News Type Colour---------------------------
-			categoryBox = (FrameLayout) newsItems.findViewById(R.id.content_typecolor);
-			categoryBox.setVisibility(View.GONE);
-			categoryBox.setVisibility(View.VISIBLE);
-			int catColor = Category.getCategoryColourText(hl.getCategory(),getResources());
-			categoryBox.setBackgroundColor(catColor);
-			if (Build.VERSION.SDK_INT > Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-				CNS.setAlpha(categoryBox,0.9f);
-			}
+				TextView categoryName = (TextView) newsItems.findViewById(R.id.category_name);
+				categoryName.setText(Category.getCategoryName(hl.getCategory(),false,true).toUpperCase());
+				//------------------------------------ IMAGE--------------------------------
+				iv = (ImageView) newsItems.findViewById(R.id.content_newsImage);
 
-			TextView categoryName = (TextView) newsItems.findViewById(R.id.category_name);
-			categoryName.setText(Category.getCategoryName(hl.getCategory(),false,true).toUpperCase());
-			//------------------------------------ IMAGE--------------------------------
-			iv = (ImageView) newsItems.findViewById(R.id.content_newsImage);
+				String imageURL = hl.getImageUrl();
+				if (imageURL != null) {
+					iv.setVisibility(View.VISIBLE);
+					ImageOptions options = new ImageOptions();
+					int width = (int) (l1.getWidth() -
+							(2 * getResources().getDimension(R.dimen.tabMar)));
+					options.targetWidth = width;
+					options.fallback = R.drawable.fallback_img;
+//				newsItems.findViewById(R.id.content_newsImage_progress).setVisibility(View.VISIBLE);
 
-			String imageURL = hl.getImageUrl();
-			if (imageURL != null) {
-				iv.setVisibility(View.VISIBLE);
-				int width = (int) (l1.getWidth() / 1.5);
-//				ImageOptions options = new ImageOptions();
-//				options.targetWidth = width;
-//				options.fallback = R.drawable.fallback_img;
-				newsItems.findViewById(R.id.content_newsImage_progress).setVisibility(View.VISIBLE);
-				aq.id(iv).image(imageURL,false,true,width,R.drawable.fallback_img,new BitmapAjaxCallback() {
+					int[] ivWH = hl.getImageDimensions();
+					iv.getLayoutParams().height = getIdealHeight(ivWH[0],ivWH[1]);
+					View progress = newsItems.findViewById(R.id.content_newsImage_progress);
+					aq.id(iv).progress(progress).image(imageURL,options);
+				} else {
+					iv.setVisibility(View.GONE);
+
+					FrameLayout.LayoutParams llp = (FrameLayout.LayoutParams) categoryBox.getLayoutParams();
+					llp.topMargin = 0;
+					iv.getLayoutParams().height = 0;
+					newsItems.findViewById(R.id.content_picture).getLayoutParams().height = LayoutParams.WRAP_CONTENT;
+
+					(newsItems.findViewById(R.id.topicname_divider)).setVisibility(View.INVISIBLE);
+
+				}
+
+				//--------------------------------News Title||-----------------------------
+				newsName = (TextView) newsItems.findViewById(R.id.topicname);
+				CharSequence headlineText = Html.fromHtml(hl.getHeadline());
+				newsName.setText(headlineText);
+				newsName.setTypeface(Typeface.createFromAsset(getAssets(),"Roboto-Regular.ttf"));
+				newsName.setTextSize(17);
+				//-----------------------------------------News Author------------------------------------
+				authorName = (TextView) newsItems.findViewById(R.id.author_name);
+				authorName.setText(hl.getAuthor());
+				//-------------------------------------------Date----------------------------------------
+				newsDate = (TextView) newsItems.findViewById(R.id.content_date);
+//			String dateTimeString = DateFormat.getDateInstance().format(hl.getDatePublished());
+				String dateTimeString = CNS.timeElapsed(hl.getDatePublished());
+				newsDate.setText(dateTimeString);
+				//-------------------------------Set On touch/Click-----------------------------------------
+				class ArticleClickListener implements OnClickListener
+				{
+					private Headline head;
+
+					public ArticleClickListener(IHeadline hl) {
+						this.head = (Headline) hl;
+					}
 
 					@Override
-					protected void callback(String url, ImageView iv, Bitmap bm, AjaxStatus status)
+					public void onClick(View v)
 					{
-						newsItems.findViewById(R.id.content_newsImage_progress).setVisibility(View.GONE);
-						iv.setImageBitmap(bm);
-						iv.getLayoutParams().height = getIdealHeight(bm.getWidth(),bm.getHeight());
-					}
-
-					private int getIdealHeight(int width, int height)
-					{
-
-						if (width > 500 && (width / height) < 1.2) return CNS.getPXfromDP(300,context);
-						else if (width > 500 && (width / height) < 1.6)
-							return CNS.getPXfromDP(200,context);
-
-						return CNS.getPXfromDP(150,context);
-					}
-
-				});
-
-//				iv.getLayoutParams().height = imageHeight;
-			} else {
-				iv.setVisibility(View.GONE);
-
-				FrameLayout.LayoutParams llp = (FrameLayout.LayoutParams) categoryBox.getLayoutParams();
-				llp.topMargin = 0;
-				iv.getLayoutParams().height = 0;
-				newsItems.findViewById(R.id.content_picture).getLayoutParams().height = LayoutParams.WRAP_CONTENT;
-
-				(newsItems.findViewById(R.id.topicname_divider)).setVisibility(View.INVISIBLE);
-
-			}
-
-			//--------------------------------News Title||-----------------------------
-			newsName = (TextView) newsItems.findViewById(R.id.topicname);
-			CharSequence headlineText = Html.fromHtml(hl.getHeadline());
-			newsName.setText(headlineText);
-			newsName.setTypeface(Typeface.createFromAsset(getAssets(),"Roboto-Regular.ttf"));
-			newsName.setTextSize(17);
-			//-----------------------------------------News Author------------------------------------
-			authorName = (TextView) newsItems.findViewById(R.id.author_name);
-			authorName.setText(hl.getAuthor());
-			//-------------------------------------------Date----------------------------------------
-			newsDate = (TextView) newsItems.findViewById(R.id.content_date);
-//			String dateTimeString = DateFormat.getDateInstance().format(hl.getDatePublished());
-			String dateTimeString = CNS.timeElapsed(hl.getDatePublished());
-			newsDate.setText(dateTimeString);
-			//-------------------------------Set On touch/Click-----------------------------------------
-			class ArticleClickListener implements OnClickListener
-			{
-				private Headline head;
-
-				public ArticleClickListener(IHeadline hl) {
-					this.head = (Headline) hl;
-				}
-
-				@Override
-				public void onClick(View v)
-				{
 //					populateArticle(head);
-					startArticle(head);
+						startArticle(head);
 
+					}
 				}
+				newsItems.setOnClickListener(new ArticleClickListener(hl));
+				CNS.onTouchHighlight(context,newsItems,((FrameLayout) newsItems).getChildAt(0));
+				//-------------------------------Finally Add View (Old Tablet Code)-----------------------------------------
+
+				newsItems.setVisibility(View.INVISIBLE);
+				int nextLayoutAdd = getNextLayoutAdd(headlinesParsedSoFar);
+				switch (nextLayoutAdd)
+				{
+				case 1:
+					l1.addView(newsItems);
+					break;
+				case 2:
+					l2.addView(newsItems);
+					break;
+				case 3:
+					l3.addView(newsItems);
+					break;
+				}
+
+				Animation anim = AnimationUtils.loadAnimation(context,R.anim.article_start);
+				anim.setStartOffset(waitDuration);
+				newsItems.startAnimation(anim);
+
+				newsItems.setVisibility(View.VISIBLE);
+
 			}
-			newsItems.setOnClickListener(new ArticleClickListener(hl));
-			CNS.onTouchHighlight(context,newsItems,((FrameLayout) newsItems).getChildAt(0));
-			//-------------------------------Finally Add View (Old Tablet Code)-----------------------------------------
-			int nextLayoutAdd = getNextLayoutAdd(headlinesParsedSoFar);
-			switch (nextLayoutAdd)
-			{
-			case 1:
-				l1.addView(newsItems);
-				break;
-			case 2:
-				l2.addView(newsItems);
-				break;
-			case 3:
-				l3.addView(newsItems);
-				break;
+			catch (Exception e) {
+				Log.e(CNS.LOGPRINT,"Error while populating article to view."
+						+ e.toString() + e.getMessage());
 			}
-//			}
-//			catch (Exception e) {
-//				Log.e(CNS.LOGPRINT,"Error while populating article to view."
-//						+ e.toString() + e.getMessage());
-//			}
 			headlinesParsedSoFar++;
 
 		}
+		private int getIdealHeight(int width, int height)
+		{
+
+			if (width > 500 && (width / height) < 1.2) return CNS.getPXfromDP(300,context);
+			else if (width > 500 && (width / height) < 1.6)
+				return CNS.getPXfromDP(200,context);
+
+			return CNS.getPXfromDP(150,context);
+		}
+	}
+
+	private void loadingLayout(boolean show, boolean showText, String text)
+	{
+		Log.d(CNS.LOGPRINT,"Called: " + show);
+		TextView txt = (TextView) findViewById(R.id.loading_text);
+		txt.setVisibility(showText ? View.VISIBLE : View.GONE);
+		txt.setText(text);
+
+		View lay = findViewById(R.id.loading_layout_color);
+		CNS.setAlpha(lay,0.7f);
+		lay.setBackgroundColor(Category.getCategoryColourText
+				(currentCategory,getResources()));
+		vis(show ? VISIBLE : GONE,R.id.loading_layout,true);
+//		View progRot = findViewById(R.id.progress_bottom);
+		/*if (show) {
+			Animation rot = AnimationUtils.loadAnimation(context,R.anim.refresh);
+			rot.setRepeatCount(Animation.INFINITE);
+			progRot.startAnimation(rot);
+		} else {
+			if (progRot.getAnimation() != null)
+				progRot.getAnimation().cancel();
+		}*/
+
 	}
 
 	//----------------------------------Others------------------------------	
@@ -1329,7 +1458,7 @@ public class BoarActivity extends Activity implements BottomReachedListener
 			if (pageNum > 0) {
 				if (CNS.isNetworkConnected(this)) {
 					populateNews(true,false);
-					vis(VISIBLE,R.id.progress_bottom,true);
+					loadingLayout(true,false,null);
 				} else {
 					populating = true;
 					new Handler().postDelayed(new Runnable() {

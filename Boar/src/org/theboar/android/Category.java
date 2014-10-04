@@ -47,13 +47,17 @@ public class Category
 			= 15
 			;
 
-	public static final int OTHER = 80, FEATURED = 81;
+	public static final int OTHER = 80, FEATURED = 81, PHOTOGRAPHY = 595;
 
 	public static String getCategoryName(int index, boolean fullName, boolean shortName)
 	{
 		if (index == SCI_TECH && fullName == true) return "Science and Technology";
 		else if (index == SCI_TECH && shortName == true) return "Sci - Tech";
 		else if (index == OTHER) return "Other";
+		else if (index == PHOTOGRAPHY) {
+			if (shortName) return "Photos";
+			else return "Photography";
+		}
 		try {
 			return MENU_STRINGS[index];
 		}
@@ -117,8 +121,8 @@ public class Category
 			return res.getColor(R.color.black);
 		case FAVOURITES:
 			return res.getColor(R.color.favourites_white);
-//		case PHOTOGRAPHY:
-//			return res.getColor(R.color.photography);
+		case PHOTOGRAPHY:
+			return res.getColor(R.color.photography);
 		}
 		return res.getColor(R.color.white);
 	}
@@ -137,15 +141,65 @@ public class Category
 	public static int parseCategoryID(JSONArray cats)
 	{
 		try {
+//			for (int i = 0; i < cats.length(); i++) {
+//				String catSlug = cats.getJSONObject(i).getString("slug");
+//				for (int j = 0; j < MENU_STRINGS.length; j++) {
+//					if (catSlug.equalsIgnoreCase(MENU_STRINGS[j])) { return j; }
+//				}
+//			}
 			for (int i = 0; i < cats.length(); i++) {
-				String catSlug = cats.getJSONObject(i).getString("slug");
-				for (int j = 0; j < MENU_STRINGS.length; j++) {
-					if (catSlug.equalsIgnoreCase(MENU_STRINGS[j])) { return j; }
+				String parentCat = cats.getJSONObject(i).getString("parent");
+				if (parentCat.equals("0")) {
+					String slugCat = cats.getJSONObject(i).getString("id");
+					return getCategoryFromBoarID(Integer.parseInt(slugCat));
+				} else {
+					int temp = getCategoryFromBoarID(Integer.parseInt(parentCat));
+					if (temp != OTHER) return temp;
 				}
 			}
 		}
 		catch (JSONException e) {}
+
 		return OTHER;
+	}
+
+	private static int getCategoryFromBoarID(int id)
+	{
+		switch (id) {
+		case 1:
+			return NEWS;
+		case 2:
+			return COMMENT;
+		case 3:
+			return MONEY;
+		case 4:
+			return FEATURES;
+		case 5:
+			return SCI_TECH;
+		case 6:
+			return MUSIC;
+		case 7:
+			return GAMES;
+		case 8:
+			return TV;
+		case 9:
+			return FILM;
+		case 10:
+			return BOOKS;
+		case 11:
+			return ARTS;
+		case 12:
+			return LIFESTYLE;
+		case 13:
+			return TRAVEL;
+		case 14:
+			return SPORT;
+		case 595:
+			return PHOTOGRAPHY;
+		default:
+			return OTHER;
+		}
+
 	}
 
 	public static boolean isCategoryColorDark(int catID)

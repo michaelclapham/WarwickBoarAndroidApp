@@ -143,9 +143,11 @@
                     </LinearLayout>
 
                     <FrameLayout
+                        android:id="@+id/story_comment_expander"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:paddingBottom="5dp"
+                        android:background="@drawable/clickable"
                         android:paddingTop="5dp" >
 
                         <FrameLayout
@@ -166,6 +168,13 @@
                                 android:textSize="14sp"
                                 android:textStyle="bold" />
                         </FrameLayout>
+
+                        <ProgressBar
+                            android:id="@+id/story_progress"
+                            style="?android:attr/progressBarStyleSmall"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_horizontal" />
 
                         <FrameLayout
                             android:layout_width="wrap_content"
@@ -190,6 +199,24 @@
 
                     <FrameLayout
                         android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/black_10" >
+                    </FrameLayout>
+
+                    <LinearLayout
+                        android:id="@+id/story_comment_root"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="16dp"
+                        android:visibility="gone"
+                        android:background="@color/black_05"
+                        android:orientation="vertical" >
+                    </LinearLayout>
+
+                    <FrameLayout
+                         android:id="@+id/story_comment_divider"
+                        android:layout_width="match_parent"
+                        android:visibility="gone"
                         android:layout_height="1dp"
                         android:background="@color/black_10" >
                     </FrameLayout>

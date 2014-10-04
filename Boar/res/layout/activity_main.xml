@@ -30,25 +30,41 @@
 
                     <!-- android:paddingBottom="50dp" -->
 
-                    <TextView
-                        android:id="@+id/page_heading"
-                        android:layout_width="wrap_content"
+                    <FrameLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="@dimen/tabMar"
                         android:layout_marginRight="@dimen/tabMar"
                         android:layout_marginTop="@dimen/tabMar"
-                        android:layout_weight="33"
-                        android:gravity="left"
-                        android:text="Home"
-                        android:textColor="@color/home_colour"
-                        android:textSize="30sp" />
+                        android:visibility="visible" >
+
+                        <TextView
+                            android:id="@+id/page_heading"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="left"
+                            android:paddingTop="10dp"
+                            android:text="Home"
+                            android:textColor="@color/black_80"
+                            android:textSize="30sp" />
+
+                        <ProgressBar
+                            android:id="@+id/page_progress_forNew"
+                            style="?android:attr/progressBarStyle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="20dp"
+                            android:layout_gravity="right|center_vertical"
+                            android:layout_marginTop="5dp"
+                            android:visibility="gone" />
+                    </FrameLayout>
 
                     <HorizontalScrollView
                         android:id="@+id/favourite_detail_root_scroll"
                         android:layout_width="match_parent"
                         android:layout_height="40dp"
                         android:layout_marginLeft="@dimen/tabMar"
-                        android:layout_marginRight="@dimen/tabMar" >
+                        android:layout_marginRight="@dimen/tabMar"
+                        android:visibility="gone" >
 
                         <LinearLayout
                             android:id="@+id/favourite_detail_root"
@@ -59,49 +75,41 @@
                         </LinearLayout>
                     </HorizontalScrollView>
 
-                    <EditText
-                        android:id="@+id/search_area"
+                    <LinearLayout
+                        android:id="@+id/search_area_root"
                         android:layout_width="match_parent"
-                        android:layout_height="40dp"
+                        android:layout_height="wrap_content"
                         android:layout_marginLeft="@dimen/tabMar"
                         android:layout_marginRight="@dimen/tabMar"
-                        android:layout_marginTop="@dimen/tabMar"
-                        android:background="@color/white"
-                        android:ems="10"
-                        android:hint="Search for News articles"
-                        android:inputType="textPersonName"
-                        android:paddingLeft="6dp"
-                        android:paddingRight="6dp"
-                        android:textColor="@color/black_80"
-                        android:textColorHint="@color/black_30"
-                        android:textSize="15sp"
-                        android:visibility="gone" />
+                        android:background="@drawable/box_dropshadow"
+                        android:orientation="vertical"
+                        android:visibility="gone"
+                        android:padding="2px" >
 
-                    <LinearLayout
-                        android:id="@+id/loading_layout"
-                        android:layout_width="fill_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="8dp"
-                        android:layout_weight="33"
-                        android:gravity="center_horizontal"
-                        android:orientation="horizontal"
-                        android:padding="4sp"
-                        android:visibility="gone" >
+                        <EditText
+                            android:id="@+id/search_area"
+                            android:layout_width="match_parent"
+                            android:layout_height="40dp"
+                            
+                            android:background="@color/white"
+                            android:ems="10"
+                            android:hint="Search for News articles"
+                            android:inputType="textPersonName"
+                            android:paddingLeft="6dp"
+                            android:paddingRight="6dp"
+                            android:textColor="@color/black_80"
+                            android:textColorHint="@color/black_30"
+                            android:textSize="15sp"
+                            android:visibility="visible" >
 
-                        <ProgressBar
-                            android:id="@+id/progressBar1"
-                            style="?android:attr/progressBarStyle"
-                            android:layout_width="wrap_content"
-                            android:layout_height="30dp" />
+                            <requestFocus />
+                        </EditText>
 
-                        <TextView
-                            android:id="@+id/loading_text"
-                            android:layout_width="wrap_content"
-                            android:layout_height="match_parent"
-                            android:gravity="center"
-                            android:text="Fetching news list"
-                            android:textColor="@color/black_20"
-                            android:textSize="18sp" />
+                        <FrameLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp" >
+
+                        </FrameLayout>
                     </LinearLayout>
 
                     <TextView
@@ -124,12 +132,10 @@
                     </com.daimajia.slider.library.SliderLayout>
                     -->
 
-
                     <LinearLayout
                         android:id="@+id/tablet_l_root"
                         android:layout_width="fill_parent"
                         android:layout_height="fill_parent"
-                        android:animateLayoutChanges="true"
                         android:orientation="horizontal" >
 
                         <LinearLayout
@@ -140,7 +146,6 @@
                             android:layout_marginRight="@dimen/tabMar"
                             android:layout_marginTop="@dimen/tabMar"
                             android:layout_weight="33"
-                            android:animateLayoutChanges="true"
                             android:orientation="vertical" >
                         </LinearLayout>
 
@@ -151,7 +156,6 @@
                             android:layout_marginRight="@dimen/tabMar"
                             android:layout_marginTop="@dimen/tabMar"
                             android:layout_weight="33"
-                            android:animateLayoutChanges="true"
                             android:orientation="vertical" >
                         </LinearLayout>
 
@@ -162,7 +166,6 @@
                             android:layout_marginRight="@dimen/tabMar"
                             android:layout_marginTop="@dimen/tabMar"
                             android:layout_weight="33"
-                            android:animateLayoutChanges="true"
                             android:orientation="vertical"
                             android:visibility="gone" >
                         </LinearLayout>
@@ -170,14 +173,42 @@
                 </LinearLayout>
             </org.theboar.android.ScrollViewExt>
 
-            <ProgressBar
-                android:id="@+id/progress_bottom"
-                style="?android:attr/progressBarStyle"
-                android:layout_width="35dp"
-                android:layout_height="wrap_content"
+            <FrameLayout
+                android:id="@+id/loading_layout"
+                android:layout_width="fill_parent"
+                android:layout_height="45dp"
                 android:layout_gravity="bottom|center_horizontal"
-                android:layout_margin="10dp"
-                android:visibility="gone" />
+                android:gravity="center_horizontal"
+                android:visibility="gone" >
+
+                <FrameLayout
+                    android:id="@+id/loading_layout_color"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" >
+                </FrameLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:orientation="horizontal" >
+
+                    <ProgressBar
+                        android:id="@+id/progress_bottom"
+                        style="?android:attr/progressBarStyle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="30dp"
+                        android:visibility="visible" />
+
+                    <TextView
+                        android:id="@+id/loading_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:textColor="@color/white"
+                        android:textSize="17sp" />
+                </LinearLayout>
+            </FrameLayout>
         </FrameLayout>
     </LinearLayout>
 

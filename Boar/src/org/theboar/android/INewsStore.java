@@ -13,7 +13,7 @@ public interface INewsStore
 
 	public abstract JSONObject downloadJSON(String requestURL, int categoryId);
 
-	public abstract IHeadlineList parseJSONtoHeadlineList(int count, JSONObject jObject);
+	public abstract IHeadlineList parseJSONtoHeadlineList(int count, JSONObject jObject, boolean isFromCache);
 
 	public abstract IHeadlineList headlinesFromFavourites(IHeadlineListener hl_listener);
 
