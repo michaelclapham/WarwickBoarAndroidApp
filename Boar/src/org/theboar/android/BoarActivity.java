@@ -651,19 +651,25 @@ public class BoarActivity extends Activity implements BottomReachedListener
 				String url = "http://theboar.org/";
 				if (!articleOpen) {
 					if (REQUEST == SEARCH) {
-						url = "http://theboar.org/page/" + pageNum + "/?s=" + query == null ? "" : query;
+						url = "http://theboar.org/?s=" + (query == null ? "" : query);
 					} else if (REQUEST == TAG) {
 						url = "http://theboar.org/tag/" + tagSlug + "/";
 					} else {
-						url = "http://theboar.org/"
-								+ Category.getCategoryName(currentCategory,false,false) + "/";
+						if (currentCategory != Category.HOME)
+							url = "http://theboar.org/"
+									+ Category.getCategoryName(currentCategory,false,false) + "/";
 					}
 				} else {
 					url = currHeadline.getPageUrl();
 				}
-				Intent i = new Intent(Intent.ACTION_VIEW);
-				i.setData(Uri.parse(url));
-				startActivity(i);
+				try {
+					Intent i = new Intent(Intent.ACTION_VIEW);
+					i.setData(Uri.parse(url));
+					startActivity(i);
+				}
+				catch (Exception e) {
+					Toast.makeText(getApplicationContext(),"An Error Occured",Toast.LENGTH_LONG).show();
+				}
 				break;
 			case R.id.main_toast_root://settag for flags
 				populateNews(true,true);
@@ -1252,10 +1258,10 @@ public class BoarActivity extends Activity implements BottomReachedListener
 									vis(GONE,R.id.page_progress_forNew,true);
 									if (newAvailable) {
 										vis(VISIBLE,R.id.main_toast_root,true);
-										Log.d(CNS.LOGPRINT,"New Posts available!");
+//										Log.d(CNS.LOGPRINT,"New Posts available!");
 									} else {
 										beenReloaded[currentCategory] = true;
-										Log.d(CNS.LOGPRINT,"No new Posts available. ");
+//										Log.d(CNS.LOGPRINT,"No new Posts available. ");
 									}
 								}
 							});
@@ -1392,7 +1398,6 @@ public class BoarActivity extends Activity implements BottomReachedListener
 
 	private void loadingLayout(boolean show, boolean showText, String text)
 	{
-		Log.d(CNS.LOGPRINT,"Called: " + show);
 		TextView txt = (TextView) findViewById(R.id.loading_text);
 		txt.setVisibility(showText ? View.VISIBLE : View.GONE);
 		txt.setText(text);
