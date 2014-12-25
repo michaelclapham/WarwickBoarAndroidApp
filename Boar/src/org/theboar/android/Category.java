@@ -9,39 +9,47 @@ import android.util.Log;
 public class Category
 {
 
-	public static final String[] MENU_STRINGS = { "Home", "News", "Comment", "Features",
+	public static final String[] MENU_STRINGS_UNSORTED = { "Home", "News", "Comment", "Features",
 			"Lifestyle", "Money",
 			"Arts", "Books", "Film", "Games", "Music", "Science-Tech", "Travel", "TV", "Sport",
 			"Favourites" };
 
+	public static final String[] MENU_STRINGS = { "Home",
+			"Money", "Arts", "Comment",
+			"Features", "Sport",
+			"Games", "Science-Tech", "Books",
+			"Travel", "TV",
+			"Lifestyle", "Music", "News", "Film",
+			"Favourites" };
+
 	public static final int HOME = 0
-			, NEWS
-			= 1
-			, COMMENT
-			= 2
-			, FEATURES
-			= 3
-			, LIFESTYLE
-			= 4
 			, MONEY
-			= 5
+			= 1
 			, ARTS
-			= 6
-			, BOOKS
-			= 7
-			, FILM
-			= 8
-			, GAMES
-			= 9
-			, MUSIC
-			= 10
-			, SCI_TECH
-			= 11
-			, TRAVEL
-			= 12
-			, TV
-			= 13
+			= 2
+			, COMMENT
+			= 3
+			, FEATURES
+			= 4
 			, SPORT
+			= 5
+			, GAMES
+			= 6
+			, SCI_TECH
+			= 7
+			, BOOKS
+			= 8
+			, TRAVEL
+			= 9
+			, TV
+			= 10
+			, LIFESTYLE
+			= 11
+			, MUSIC
+			= 12
+			, NEWS
+			= 13
+			, FILM
 			= 14
 			, FAVOURITES
 			= 15
