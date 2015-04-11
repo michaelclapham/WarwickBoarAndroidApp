@@ -34,7 +34,6 @@ import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
-import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.AdapterView;
@@ -54,6 +53,17 @@ import com.androidquery.AQuery;
 import com.androidquery.callback.ImageOptions;
 import com.androidquery.util.AQUtility;
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
+
+
+/**
+ * @author Snehil Bhushan 
+ * @since April 2014-April 2015.
+ * @README
+ * Welcome to the Boar Android App source code. The code written below will not make sense to you. 
+ * When I wrote this code, I knew what it did. Now, not even god knows what it does.
+ * If you are lucky enough to manage this, remember that I feel for you. <br>
+ * <strike>If</strike> When you can't take it anymore, and want someone to talk to, email me: [S.Bhushan@warwick.ac.uk]
+ **/
 
 public class BoarActivity extends Activity implements BottomReachedListener
 {
@@ -550,7 +560,7 @@ public class BoarActivity extends Activity implements BottomReachedListener
 
 			vis(VISIBLE,R.id.back_button).setOnClickListener(clickEvent);
 			vis(GONE,R.id.main_toast_root);
-			
+
 			TextView title = (TextView) findViewById(R.id.actionbar_title);
 			title.setText(REQUEST);
 
@@ -944,8 +954,7 @@ public class BoarActivity extends Activity implements BottomReachedListener
 			}
 
 			if (menu != null) menu.setSlidingEnabled(false);
-		}
-		catch (Exception e) {}
+		} catch (Exception e) {}
 	}
 
 	private void closeArticle()
@@ -995,6 +1004,7 @@ public class BoarActivity extends Activity implements BottomReachedListener
 
 	public void startCategory(int position, View view)
 	{
+		int lastCat = currentCategory;
 		currentCategory = position;
 		if (currPos == null || currPos != view) {
 			setActionBarForCategory(position,true);
@@ -1003,9 +1013,17 @@ public class BoarActivity extends Activity implements BottomReachedListener
 
 			if (currPos != null) {
 				currPos.setBackgroundColor(getResources().getColor(R.color.Transparent));
+				if (lastCat == Category.FAVOURITES) {
+					LinearLayout llb = (LinearLayout) currPos.findViewById(R.id.menu_item_fave_box);
+					llb.setBackgroundColor(getResources().getColor(R.color.Transparent));
+				}
 			}
 			if (view != null) {
-				if (position != Category.HOME) {
+				if (position == Category.FAVOURITES) {
+					LinearLayout llb = (LinearLayout) view.findViewById(R.id.menu_item_fave_box);
+					llb.setBackgroundColor(getResources().getColor(R.color.black_05));
+				}
+				else if (position != Category.HOME) {
 					view.setBackgroundColor(getResources().getColor(R.color.black_05));
 				}
 				currPos = view;
@@ -1376,8 +1394,7 @@ public class BoarActivity extends Activity implements BottomReachedListener
 
 				newsItems.setVisibility(View.VISIBLE);
 
-			}
-			catch (Exception e) {
+			} catch (Exception e) {
 				Log.e(CNS.LOGPRINT,"Error while populating article to view." + e.toString()
 						+ e.getMessage());
 			}

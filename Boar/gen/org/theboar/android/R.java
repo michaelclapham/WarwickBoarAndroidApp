@@ -298,7 +298,6 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int top_bar_shadow1=0x7f02001f;
     }
     public static final class id {
-        public static final int LinearLayout02=0x7f05005b;
         public static final int TextView01=0x7f05005c;
         public static final int TextView02=0x7f05005d;
         public static final int about_layout=0x7f05001e;
@@ -368,6 +367,7 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int menu_item=0x7f05005e;
         public static final int menu_item_colour=0x7f050060;
         public static final int menu_item_fav=0x7f05005a;
+        public static final int menu_item_fave_box=0x7f05005b;
         public static final int menu_item_home=0x7f050056;
         public static final int menu_item_home_Text=0x7f050057;
         public static final int menu_item_search=0x7f050059;

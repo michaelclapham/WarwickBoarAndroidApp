@@ -215,7 +215,7 @@ public class Preferences extends PreferenceActivity
 				linear.setOrientation(1);
 				linear.setPadding(10,10,10,10);
 
-				String html = "<b>Developers:</b><br/>Snehil Bhushan<br/>Michael Clapham<br/><br/><b>Thanks to The Boar Team</b>";
+				String html = "<b>Developers:</b><br/>Snehil Bhushan<br/>Michael Clapham<br/><br/>";
 
 				final TextView text = new TextView(Preferences.this);
 				text.setPadding(10,10,10,10);

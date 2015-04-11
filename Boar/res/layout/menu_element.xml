@@ -35,19 +35,18 @@
                     android:padding="5dp"
                     android:scaleType="centerInside"
                     android:src="@drawable/home" />
-
             </LinearLayout>
 
-                <TextView
-                    android:id="@+id/menu_item_text_home"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginLeft="10dp"
-                    android:layout_weight="1"
-                    android:text="Home"
-                    android:textColor="@color/white"
-                    android:textSize="18sp" />
+            <TextView
+                android:id="@+id/menu_item_text_home"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginLeft="10dp"
+                android:layout_weight="1"
+                android:text="Home"
+                android:textColor="@color/white"
+                android:textSize="18sp" />
 
             <FrameLayout
                 android:id="@+id/menu_item_search"
@@ -65,7 +64,6 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:src="@drawable/search_white" />
-
             </FrameLayout>
         </LinearLayout>
 
@@ -77,26 +75,27 @@
             android:visibility="visible" >
 
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:id="@+id/menu_item_fave_box"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content" >
 
-            <LinearLayout
-                android:id="@+id/LinearLayout02"
-                android:layout_width="55dp"
-                android:layout_height="@dimen/actionBarHeight"
-                android:orientation="horizontal"
-                android:visibility="visible" >
+                <LinearLayout
+                    android:layout_width="55dp"
+                    android:layout_height="@dimen/actionBarHeight"
+                    android:orientation="horizontal"
+                    android:visibility="visible" >
 
-                <ImageView
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_gravity="center_vertical"
-                    android:adjustViewBounds="true"
-                    android:cropToPadding="false"
-                    android:padding="16dp"
-                    android:scaleType="centerInside"
-                    android:src="@drawable/fav_true_black" />
-            </LinearLayout>
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_gravity="center_vertical"
+                        android:adjustViewBounds="true"
+                        android:cropToPadding="false"
+                        android:padding="16dp"
+                        android:scaleType="centerInside"
+                        android:src="@drawable/fav_true_black" />
+                </LinearLayout>
+
                 <TextView
                     android:id="@+id/TextView01"
                     android:layout_width="wrap_content"
@@ -108,24 +107,22 @@
                     android:textSize="18sp" />
             </LinearLayout>
 
-                <FrameLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="2dp"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginRight="10dp"
-                    android:background="@color/black_10" >
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:background="@color/black_10" >
+            </FrameLayout>
 
-                </FrameLayout>
-
-                <TextView
-                    android:id="@+id/TextView02"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="10dp"
-                    android:text="CATEGORIES"
-                    android:textColor="@color/black_30"
-                    android:textSize="13sp" />
-
+            <TextView
+                android:id="@+id/TextView02"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:text="CATEGORIES"
+                android:textColor="@color/black_30"
+                android:textSize="13sp" />
         </LinearLayout>
 
         <LinearLayout
@@ -139,10 +136,9 @@
                 android:id="@+id/menu_divider"
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:visibility="gone"
                 android:background="@color/black_10"
-                android:orientation="vertical" >
-
+                android:orientation="vertical"
+                android:visibility="gone" >
             </LinearLayout>
 
             <LinearLayout
@@ -156,7 +152,6 @@
                     android:layout_width="4dp"
                     android:layout_height="match_parent"
                     android:background="#FF0000" >
-
                 </FrameLayout>
 
                 <TextView
@@ -168,9 +163,7 @@
                     android:text="News"
                     android:textColor="@color/black_50"
                     android:textSize="18sp" />
-
             </LinearLayout>
-
         </LinearLayout>
     </LinearLayout>
 
