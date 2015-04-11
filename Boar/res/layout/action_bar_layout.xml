@@ -273,6 +273,24 @@
                     android:textColor="@color/black_80"
                     android:textSize="15sp" />
             </FrameLayout>
+
+            <FrameLayout
+                android:id="@+id/drop_down_feedback"
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:background="@drawable/clickable"
+                android:orientation="vertical"
+                android:padding="10dp" >
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:text="Send Feedback"
+                    android:textColor="@color/black_80"
+                    android:textSize="15sp" />
+            </FrameLayout>
+
         </LinearLayout>
     </FrameLayout>
 

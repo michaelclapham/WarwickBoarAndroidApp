@@ -33,7 +33,7 @@ public class ScrollViewExt extends ScrollView
 	{
 		View view = (View) getChildAt(getChildCount() - 1);
 		int diff = (view.getBottom() - (getHeight() + getScrollY()));
-		if (diff < 20)
+		if (diff < 520)
 		{
 //			Log.d(CV.LogTAG,"Bottom Reached!");
 			if (bttm != null)

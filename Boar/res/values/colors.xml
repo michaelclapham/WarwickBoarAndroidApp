@@ -30,7 +30,8 @@
 	<color name="other">#FFFFFF</color>
 	
 	
-	<color name="news">#e51c23</color>
+<!-- 	<color name="news">#e51c23</color> -->
+	<color name="news">#e2282f</color>
 	<color name="books">#039be5</color>
 	<color name="comment">#ffc107</color>
 	<color name="features">#8bc34a</color>
@@ -39,12 +40,14 @@
 	<color name="arts">#f57c00</color>
 	<color name="games">#00aaba</color>
 	<color name="film">#8e0021</color>
-	<color name="music">#e00032</color>
+<!-- 	<color name="music">#e00032</color> -->
+	<color name="music">#ed214d</color>
 	<color name="science_tech">#00a6c4</color>
 	<color name="travel">#212e84</color>
 	
 	
-	<color name="menu_bg">#e6e6e6</color>
+<!-- 	<color name="menu_bg">#e6e6e6</color> -->
+	<color name="menu_bg">#d6d6d6</color>
 	<color name="main_background">#FFf1f1f1</color>
 	
 	
@@ -71,7 +74,7 @@
 	<color name="white_20">#33FFFFFF</color>
 	<color name="white_10">#1AFFFFFF</color>
 	
-	<color name="toast">#F26d6d6d</color>
+	<color name="toast">#353535</color>
 	<color name="fav_box">#e0e0e0</color>
 	
 </resources>

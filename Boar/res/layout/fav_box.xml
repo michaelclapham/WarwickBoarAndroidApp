@@ -1,0 +1,47 @@
+<LinearLayout xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="22dp"
+    android:orientation="horizontal"
+    tools:context=".TabletActivity"
+    tools:ignore="MergeRootFrame" >
+
+    <FrameLayout
+        android:id="@+id/fav_num_color"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:background="@color/books" >
+
+        <TextView
+            android:id="@+id/fav_text_cat_num"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:text="0"
+            android:textColor="@color/white_90"
+            android:textStyle="bold" />
+
+    </FrameLayout>
+
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_marginRight="8dp"
+        android:background="@color/fav_box" >
+
+        <TextView
+            android:id="@+id/fav_text_cat"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:text="Other"
+            android:textColor="@color/black_45"
+            android:textSize="15sp" />
+
+    </FrameLayout>
+   
+</LinearLayout>

@@ -34,104 +34,149 @@
                     android:adjustViewBounds="true"
                     android:baselineAlignBottom="false"
                     android:cropToPadding="false"
-                    android:scaleType="centerCrop"
-                     />
+                    android:scaleType="centerCrop" />
 
                 <ProgressBar
                     android:id="@+id/content_newsImage_progress"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:visibility="gone"
-                    android:layout_gravity="center" />
-
-                <FrameLayout
-                    android:id="@+id/content_typecolor"
-                    android:layout_width="80dp"
-                    android:layout_height="20dp"
-                    android:layout_gravity="top|left"
-                    android:layout_marginTop="16dp"
-                    android:background="@android:color/black" >
-
-                    <TextView
-                        android:id="@+id/category_name"
-                        android:layout_width="fill_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_vertical"
-                        android:gravity="center"
-                        android:text="LIFESTYLE"
-                        android:textColor="@color/white"
-                        android:textSize="13sp" />
-                </FrameLayout>
+                    android:layout_gravity="center"
+                    android:visibility="gone" />
             </FrameLayout>
 
-            <RelativeLayout
-                android:id="@+id/content_head_color"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="bottom"
-                android:background="@color/white_op_90" >
+            <FrameLayout
+                android:id="@+id/content_typecolor_2"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:background="@color/blue" >
 
-                <FrameLayout
-                    android:id="@+id/topicname_divider"
-                    android:layout_width="match_parent"
-                    android:layout_height="2dp"
-                    android:layout_alignParentTop="true"
-                    android:background="@drawable/gradient_black_du" >
-                </FrameLayout>
-
-                <TextView
-                    android:id="@+id/topicname"
+                <LinearLayout
+                    android:id="@+id/content_head_color"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentBottom="false"
-                    android:layout_marginBottom="5dp"
-                    android:maxLines="2"
-                    android:paddingLeft="10dp"
-                    android:paddingRight="10dp"
-                    android:paddingTop="5dp"
-                    android:text="Heading"
-                    android:textColor="@color/black_op_90"
-                    android:textSize="19sp"
-                    android:textStyle="normal" />
+                    android:layout_gravity="bottom"
+                    android:background="@color/white_op_90"
+                    android:orientation="vertical" >
 
-                <RelativeLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@id/topicname"
-                    android:paddingBottom="5dp"
-                    android:paddingLeft="10dp"
-                    android:paddingRight="10dp"
-                    android:paddingTop="5dp" >
+                    <FrameLayout
+                        android:id="@+id/topicname_divider"
+                        android:layout_width="match_parent"
+                        android:layout_height="2dp"
+                        android:background="@drawable/gradient_black_du" >
+                    </FrameLayout>
 
                     <TextView
-                        android:id="@+id/author_by"
-                        android:layout_width="wrap_content"
+                        android:id="@+id/topicname"
+                        android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
-                        android:layout_alignParentLeft="true"
-                        android:text="by"
-                        android:textColor="@color/black_30"
-                        android:textSize="15sp" />
+                        android:maxLines="3"
+                        android:paddingLeft="10dp"
+                        android:paddingRight="10dp"
+                        android:paddingTop="5dp"
+                        android:text="Heading"
+                        android:textColor="@color/black_op_90"
+                        android:textSize="19sp"
+                        android:textStyle="normal" />
 
                     <TextView
-                        android:id="@+id/author_name"
-                        android:layout_width="wrap_content"
+                        android:id="@+id/topicname_sub"
+                        android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
-                        android:layout_alignParentLeft="false"
-                        android:layout_marginLeft="5dp"
-                        android:layout_toRightOf="@id/author_by"
-                        android:text="Anonymous"
-                        android:textColor="@color/black_30"
-                        android:textSize="15sp" />
+                        android:layout_below="@id/topicname"
+                        android:paddingLeft="10dp"
+                        android:paddingRight="10dp"
+                        android:paddingTop="5dp"
+                        android:text="No Photo? Don&apos;t worry! We have a short description of the article under the title so that you can get an overview of the article."
+                        android:textColor="@color/black_45"
+                        android:textSize="14sp"
+                        android:textStyle="normal"
+                        android:maxLines="4"
+                        android:visibility="gone" />
 
-                    <TextView
-                        android:id="@+id/content_date"
-                        android:layout_width="wrap_content"
+                    <RelativeLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_alignParentRight="true"
-                        android:textColor="@color/black_30"
-                        android:textSize="15sp" />
-                </RelativeLayout>
-            </RelativeLayout>
+                        android:layout_below="@id/topicname"
+                        android:paddingBottom="5dp"
+                        android:paddingTop="5dp" >
+
+                        <FrameLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="22dp"
+                            android:layout_alignParentLeft="false"
+                            android:layout_alignParentRight="true"
+                            android:layout_gravity="top|left" >
+
+                            <FrameLayout
+                                android:id="@+id/content_typecolor"
+                                android:layout_width="3dp"
+                                android:layout_height="match_parent"
+                                android:layout_gravity="right"
+                                android:background="@color/books" >
+
+                            </FrameLayout>
+
+                            <FrameLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:layout_marginRight="3dp"
+                                android:background="@color/grey"
+                                android:visibility="gone" >
+
+                            </FrameLayout>
+
+                            <TextView
+                                android:id="@+id/category_name"
+                                android:layout_width="fill_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center_vertical"
+                                android:layout_marginLeft="5dp"
+                                android:layout_marginRight="8dp"
+                                android:gravity="center"
+                                android:text="BOOKS"
+                                android:textColor="@color/black_50"
+                                android:textSize="12sp" />
+                        </FrameLayout>
+
+                        <FrameLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:visibility="gone" >
+
+                            <TextView
+                                android:id="@+id/author_by"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_alignParentLeft="true"
+                                android:text="by"
+                                android:textColor="@color/black_30"
+                                android:textSize="15sp" />
+
+                            <TextView
+                                android:id="@+id/author_name"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_alignParentLeft="false"
+                                android:layout_marginLeft="5dp"
+                                android:layout_toRightOf="@id/author_by"
+                                android:text="Anonymous"
+                                android:textColor="@color/black_30"
+                                android:textSize="15sp" />
+                        </FrameLayout>
+
+                        <TextView
+                            android:id="@+id/content_date"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentRight="false"
+                            android:layout_marginLeft="10dp"
+                            android:layout_marginRight="10dp"
+                            android:text="6 hours ago"
+                            android:textColor="@color/black_30"
+                            android:textSize="14sp" />
+                    </RelativeLayout>
+                </LinearLayout>
+            </FrameLayout>
 
             <FrameLayout
                 android:layout_width="match_parent"

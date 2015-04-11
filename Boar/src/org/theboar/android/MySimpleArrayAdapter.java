@@ -34,7 +34,9 @@ public class MySimpleArrayAdapter extends ArrayAdapter<String>
 
 		if (position == Category.HOME) {
 			rowView.findViewById(R.id.menu_item_home).setVisibility(View.VISIBLE);
-			rowView.findViewById(R.id.menu_item).setVisibility(View.GONE);
+			ViewGroup root = ((ViewGroup) rowView.findViewById(R.id.menu_root));
+			root.removeView(rowView.findViewById(R.id.menu_item));
+			root.removeView(rowView.findViewById(R.id.menu_item_fav));
 
 			rowView.findViewById(R.id.menu_item_search).setOnClickListener(new View.OnClickListener() {
 
@@ -48,36 +50,49 @@ public class MySimpleArrayAdapter extends ArrayAdapter<String>
 			});
 		}
 		else if (position == Category.FAVOURITES) {
-			rowView.findViewById(R.id.menu_item_home).setVisibility(View.GONE);
+			ViewGroup root = ((ViewGroup) rowView.findViewById(R.id.menu_root));
+			root.removeView(rowView.findViewById(R.id.menu_item_home));
+			root.removeView(rowView.findViewById(R.id.menu_item));
 
-			TextView tv = (TextView) rowView.findViewById(R.id.menu_item_text);
+			rowView.findViewById(R.id.menu_item_fav).setVisibility(View.VISIBLE);
+			/*TextView tv = (TextView) rowView.findViewById(R.id.menu_item_text);
 			tv.setText(values[position]);
 
 			FrameLayout ll = (FrameLayout) rowView.findViewById(R.id.menu_item_colour);
-//			ll.setBackgroundColor(Category.getCategoryColourText(Category.getCategoryIDFromName(values[position]),
-//					context.getResources()));
+			//			ll.setBackgroundColor(Category.getCategoryColourText(Category.getCategoryIDFromName(values[position]),
+			//					context.getResources()));
 			ll.setBackgroundColor(context.getResources().getColor(R.color.black_30));
-			ll.getLayoutParams().width = CNS.getPXfromDP(30,context);
-			ll.setPadding(10,10,10,10);
+			ll.getLayoutParams().width = CNS.getPXfromDP(45,context);
+			ll.setPadding(15,15,15,15);
 
 			ImageView img = (ImageView) new ImageView(context);
 			img.setImageDrawable(context.getResources().getDrawable(R.drawable.fav_true));
-			FrameLayout.LayoutParams fll = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,FrameLayout.LayoutParams.WRAP_CONTENT,
+			FrameLayout.LayoutParams fll = new FrameLayout.LayoutParams(
+					FrameLayout.LayoutParams.MATCH_PARENT,FrameLayout.LayoutParams.WRAP_CONTENT,
 					Gravity.CENTER);
 
 			ll.addView(img);
-			img.setLayoutParams(fll);
+			img.setLayoutParams(fll);*/
 
-			rowView.findViewById(R.id.menu_divider).setVisibility(View.VISIBLE);
+//			rowView.findViewById(R.id.menu_divider).setVisibility(View.VISIBLE);
 
 		}
 		else {
-			rowView.findViewById(R.id.menu_item_home).setVisibility(View.GONE);
+			ViewGroup root = ((ViewGroup) rowView.findViewById(R.id.menu_root));
+			root.removeView(rowView.findViewById(R.id.menu_item_home));
+			root.removeView(rowView.findViewById(R.id.menu_item_fav));
+
+			int categoryIDFromName = Category.getCategoryIDFromName(values[position]);
+			int categoryColourText = Category.getCategoryColourText(categoryIDFromName,context.getResources());
+
 			TextView tv = (TextView) rowView.findViewById(R.id.menu_item_text);
 			tv.setText(values[position]);
+//			tv.setTextColor(categoryColourText);
+
 			FrameLayout ll = (FrameLayout) rowView.findViewById(R.id.menu_item_colour);
-			ll.setBackgroundColor(Category.getCategoryColourText(Category.getCategoryIDFromName(values[position]),
-					context.getResources()));
+			ll.setBackgroundColor(categoryColourText);
+			//----------------------------------temp------------------------------------------
+//			ll.setVisibility(View.GONE);
 		}
 
 		return rowView;

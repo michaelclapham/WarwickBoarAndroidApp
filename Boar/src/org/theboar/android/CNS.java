@@ -4,7 +4,6 @@ import java.io.File;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -25,7 +24,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
-import android.graphics.Typeface;
+import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -39,12 +38,13 @@ import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.RotateAnimation;
 import android.view.animation.ScaleAnimation;
-import android.webkit.WebView;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
@@ -333,11 +333,11 @@ public class CNS
 
 	public static View getFavsCountBox(int catID, int count, Context context)
 	{
-		int dpS = CNS.getPXfromDP(3,context);
+		/*int dpS = CNS.getPXfromDP(3,context);
 		int dpL = CNS.getPXfromDP(8,context);
 		LinearLayout.LayoutParams params;
 
-		params = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT,CNS.getPXfromDP(20,context));
+		params = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT,CNS.getPXfromDP(22,context));
 		params.setMargins(0,0,dpL,0);
 		LinearLayout fmTemp = new LinearLayout(context);
 		fmTemp.setBackgroundColor(Category.getCategoryColourBar(catID,context.getResources()));
@@ -372,9 +372,18 @@ public class CNS
 		fmTemp.addView(tvCount);
 		fmgrey.addView(tvName);
 		fmTemp.addView(fmgrey);
-		return fmTemp;
-	}
+		return fmTemp;*/
 
+		View ll = BoarActivity.activity.getLayoutInflater().inflate(R.layout.fav_box,null,false);
+		((FrameLayout) ll.findViewById(R.id.fav_num_color)).setBackgroundColor(
+				Category.getCategoryColourBar(catID,context.getResources()));
+		((TextView) ll.findViewById(R.id.fav_text_cat_num))
+				.setText(Integer.toString(count));
+		((TextView) ll.findViewById(R.id.fav_text_cat))
+				.setText(Category.getCategoryName(catID,false,true));
+
+		return ll;
+	}
 	public static <K, V extends Comparable<? super V>> Map<K, V> sortByValue(Map<K, V> map)
 	{
 		List<Map.Entry<K, V>> list = new LinkedList<Map.Entry<K, V>>(map.entrySet());
@@ -412,6 +421,32 @@ public class CNS
 		TextView txtComment = (TextView) fm.findViewById(R.id.comment_content);
 		txtComment.setText(Html.fromHtml(comment));
 		return fm;
+	}
+
+	@TargetApi(Build.VERSION_CODES.LOLLIPOP)
+	public static void transparentStatusBars(Activity act, Context cntxt, int color)
+	{
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+			Window window = act.getWindow();
+
+//						window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+			////			act.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
+			//			window.setFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS,WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+			//			window.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+
+			//----------------------------------lollipop------------------------------------------
+
+//			window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+			window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+//			window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+			window.setStatusBarColor(color);
+//			window.ssetStatusBarColor(color);
+//			act.getActionBar().setElevation(0);
+			//			if (CV.getRotation(cntxt).equals(CV.PORTRAIT)) {
+			//			act.getWindow().setFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION,WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
+			//			}
+		}
+
 	}
 
 }

@@ -21,6 +21,35 @@
         android:padding="@dimen/tabMar"
         android:visibility="visible" >
 
+        <LinearLayout
+            android:id="@+id/contact_boris_bottom"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:orientation="vertical" >
+
+            <ImageView
+                android:layout_width="100dp"
+                android:layout_height="50dp"
+                android:layout_gravity="center_horizontal|bottom"
+                android:adjustViewBounds="true"
+                android:baselineAlignBottom="true"
+                android:cropToPadding="false"
+                android:src="@drawable/boris_crest" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="5dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginTop="5dp"
+                android:gravity="center_horizontal"
+                android:text="@string/about_boar"
+                android:textColor="@color/black_20"
+                android:textSize="12sp" />
+        </LinearLayout>
+
         <ScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent" >
@@ -156,35 +185,6 @@
 
             </RelativeLayout>
         </ScrollView>
-
-        <LinearLayout
-            android:id="@+id/contact_boris_bottom"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:orientation="vertical" >
-
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="50dp"
-                android:layout_gravity="center_horizontal|bottom"
-                android:adjustViewBounds="true"
-                android:baselineAlignBottom="true"
-                android:cropToPadding="false"
-                android:src="@drawable/boris_crest" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="5dp"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"
-                android:layout_marginTop="5dp"
-                android:gravity="center_horizontal"
-                android:text="@string/about_boar"
-                android:textColor="@color/black_20"
-                android:textSize="12sp" />
-        </LinearLayout>
     </RelativeLayout>
 
 </LinearLayout>

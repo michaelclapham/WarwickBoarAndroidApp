@@ -14,48 +14,48 @@ public class Category
 			"Arts", "Books", "Film", "Games", "Music", "Science-Tech", "Travel", "TV", "Sport",
 			"Favourites" };
 
-	public static final String[] MENU_STRINGS = { "Home",
+	public static final String[] MENU_STRINGS = { "Home", "Favourites",
 			"Money", "Arts", "Comment",
 			"Features", "Sport",
 			"Games", "Science-Tech", "Books",
 			"Travel", "TV",
-			"Lifestyle", "Music", "News", "Film",
-			"Favourites" };
+			"Lifestyle", "Music", "News", "Film"
+	};
 
 	public static final int HOME = 0
-			, MONEY
-			= 1
-			, ARTS
-			= 2
-			, COMMENT
-			= 3
-			, FEATURES
-			= 4
-			, SPORT
-			= 5
-			, GAMES
-			= 6
-			, SCI_TECH
-			= 7
-			, BOOKS
-			= 8
-			, TRAVEL
-			= 9
-			, TV
-			= 10
-			, LIFESTYLE
-			= 11
-			, MUSIC
-			= 12
-			, NEWS
-			= 13
-			, FILM
-			= 14
 			, FAVOURITES
+			= 1
+			, MONEY
+			= 2
+			, ARTS
+			= 3
+			, COMMENT
+			= 4
+			, FEATURES
+			= 5
+			, SPORT
+			= 6
+			, GAMES
+			= 7
+			, SCI_TECH
+			= 8
+			, BOOKS
+			= 9
+			, TRAVEL
+			= 10
+			, TV
+			= 11
+			, LIFESTYLE
+			= 12
+			, MUSIC
+			= 13
+			, NEWS
+			= 14
+			, FILM
 			= 15
 			;
 
-	public static final int OTHER = 80, FEATURED = 81, PHOTOGRAPHY = 595;
+	public static final int OTHER = 80, FEATURED = 81, PHOTOGRAPHY = 595, SEARCH=90;
 
 	public static String getCategoryName(int index, boolean fullName, boolean shortName)
 	{

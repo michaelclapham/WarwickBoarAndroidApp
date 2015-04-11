@@ -5,6 +5,8 @@
     android:layout_height="match_parent"
     android:layout_gravity="center_horizontal"
     android:background="@color/main_background"
+    android:fitsSystemWindows="true"
+    android:clipToPadding="false"
     tools:context=".BoarActivity" >
 
     <LinearLayout
@@ -61,16 +63,19 @@
                     <HorizontalScrollView
                         android:id="@+id/favourite_detail_root_scroll"
                         android:layout_width="match_parent"
-                        android:layout_height="40dp"
+                        android:layout_height="44dp"
+                        android:layout_marginTop="8dp"
                         android:layout_marginLeft="@dimen/tabMar"
                         android:layout_marginRight="@dimen/tabMar"
+                        android:scrollbars="none"
+                        android:overScrollMode="ifContentScrolls"
                         android:visibility="gone" >
 
                         <LinearLayout
                             android:id="@+id/favourite_detail_root"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_gravity="bottom"
+                            android:layout_gravity="center_vertical"
                             android:orientation="horizontal" >
                         </LinearLayout>
                     </HorizontalScrollView>
@@ -83,14 +88,13 @@
                         android:layout_marginRight="@dimen/tabMar"
                         android:background="@drawable/box_dropshadow"
                         android:orientation="vertical"
-                        android:visibility="gone"
-                        android:padding="2px" >
+                        android:padding="2px"
+                        android:visibility="gone" >
 
                         <EditText
                             android:id="@+id/search_area"
                             android:layout_width="match_parent"
                             android:layout_height="40dp"
-                            
                             android:background="@color/white"
                             android:ems="10"
                             android:hint="Search for News articles"
@@ -100,7 +104,7 @@
                             android:textColor="@color/black_80"
                             android:textColorHint="@color/black_30"
                             android:textSize="15sp"
-                            android:visibility="visible" >
+                            android:visibility="gone" >
 
                             <requestFocus />
                         </EditText>
@@ -108,7 +112,6 @@
                         <FrameLayout
                             android:layout_width="match_parent"
                             android:layout_height="1dp" >
-
                         </FrameLayout>
                     </LinearLayout>
 
@@ -118,6 +121,8 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
                         android:layout_marginTop="@dimen/tabMar"
+                        android:layout_marginRight="@dimen/tabMar"
+                        android:layout_marginLeft="@dimen/tabMar"
                         android:gravity="center"
                         android:textAppearance="?android:attr/textAppearanceMedium"
                         android:textColor="@color/black_45"
@@ -136,6 +141,7 @@
                         android:id="@+id/tablet_l_root"
                         android:layout_width="fill_parent"
                         android:layout_height="fill_parent"
+                            android:layout_marginTop="6dp"
                         android:orientation="horizontal" >
 
                         <LinearLayout
@@ -144,7 +150,6 @@
                             android:layout_height="fill_parent"
                             android:layout_marginLeft="@dimen/tabMar"
                             android:layout_marginRight="@dimen/tabMar"
-                            android:layout_marginTop="@dimen/tabMar"
                             android:layout_weight="33"
                             android:orientation="vertical" >
                         </LinearLayout>
@@ -154,7 +159,6 @@
                             android:layout_width="match_parent"
                             android:layout_height="fill_parent"
                             android:layout_marginRight="@dimen/tabMar"
-                            android:layout_marginTop="@dimen/tabMar"
                             android:layout_weight="33"
                             android:orientation="vertical" >
                         </LinearLayout>
@@ -164,7 +168,6 @@
                             android:layout_width="match_parent"
                             android:layout_height="fill_parent"
                             android:layout_marginRight="@dimen/tabMar"
-                            android:layout_marginTop="@dimen/tabMar"
                             android:layout_weight="33"
                             android:orientation="vertical"
                             android:visibility="gone" >
@@ -212,25 +215,35 @@
         </FrameLayout>
     </LinearLayout>
 
-    <FrameLayout
+    <LinearLayout
         android:id="@+id/main_toast_root"
         android:layout_width="wrap_content"
-        android:layout_height="50dp"
-        android:layout_gravity="bottom|center"
-        android:layout_marginBottom="30dp"
+        android:layout_height="48dp"
+        android:layout_gravity="left|bottom"
+        android:layout_marginLeft="20dp"
+        android:layout_marginBottom="20dp"
         android:background="@color/toast"
         android:paddingLeft="20dp"
         android:paddingRight="20dp"
-        android:visibility="gone" >
+        android:visibility="visible" >
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text="New Posts! Touch to see them."
+            android:text="New Posts Available"
             android:textColor="@color/white_80"
-            android:textSize="18sp" />
-    </FrameLayout>
+            android:textSize="16sp" />
+        
+        <TextView
+            android:id="@+id/main_toast_RELOAD"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="RELOAD"
+            android:textColor="@color/yellow"
+            android:textSize="16sp" android:layout_marginLeft="30dp" android:textStyle="bold"/>
+    </LinearLayout>
 
     <include
         android:layout_width="match_parent"

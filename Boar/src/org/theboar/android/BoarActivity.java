@@ -1,7 +1,6 @@
 package org.theboar.android;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -14,10 +13,8 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.graphics.Bitmap;
 import android.graphics.Typeface;
 import android.net.Uri;
-import android.opengl.Visibility;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -36,8 +33,8 @@ import android.view.Window;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationUtils;
-import android.view.animation.TranslateAnimation;
 import android.view.inputmethod.InputMethodManager;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.AdapterView;
@@ -49,14 +46,11 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.androidquery.AQuery;
-import com.androidquery.callback.AjaxStatus;
-import com.androidquery.callback.BitmapAjaxCallback;
 import com.androidquery.callback.ImageOptions;
 import com.androidquery.util.AQUtility;
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
@@ -65,13 +59,16 @@ public class BoarActivity extends Activity implements BottomReachedListener
 {
 
 	public static Activity activity;
+	public static int numCount = 10;
+	private final String VISIBLE = "vis", GONE = "gone", INVISIBLE = "inv";
+	private final String SEARCH = "Search", TAG = "Tag";
+
 	private BottomReachedListener btmListener;
 	private AQuery aq;
 	private Context context;
 
 	private LinearLayout l1, l2, l3;
 	private SlidingMenu menu;
-//	private SliderLayout sliderShow;
 	private HeadlineAsyncTask hat;
 
 	private View currPos;
@@ -79,26 +76,19 @@ public class BoarActivity extends Activity implements BottomReachedListener
 	private int currentCategory;
 	private Headline currHeadline;
 	private float currHeadlineImageSize;
-
-	public static final String VISIBLE = "vis", GONE = "gone", INVISIBLE = "inv";
-	private static final String SEARCH = "Search", TAG = "Tag";
-	public static int numCount = 10;
+	private boolean[] beenReloaded;
 
 	private boolean populating = false;
 	private boolean articleOpen = false;
-
 	private int headlinesParsedSoFar = 0;
 	private int pageNum;
 
-//	private boolean forSearch;
-	private String query;
-
-	private boolean isFullScreenEnabled;
-	private boolean[] beenReloaded;
-	private boolean forTag;
 	private String REQUEST;
+	private String query;
 	private String tagSlug;
+
 	private BoarMagicalScrollView storyScroll;
+	private boolean isFullScreenEnabled;
 
 	//----------------------------------Lifecycle------------------------------
 
@@ -165,6 +155,7 @@ public class BoarActivity extends Activity implements BottomReachedListener
 	public void onConfigurationChanged(Configuration newConfig)
 	{
 		super.onConfigurationChanged(newConfig);
+//		CNS.transparentStatusBars(activity,context, null);
 
 		populating = true;
 		refreshOrientationUX();
@@ -266,6 +257,7 @@ public class BoarActivity extends Activity implements BottomReachedListener
 		}
 		Display display = getWindowManager().getDefaultDisplay();
 
+		@SuppressWarnings("deprecation")
 		int width = display.getWidth() - (2 * marginHor);
 		return width;
 	}
@@ -290,8 +282,6 @@ public class BoarActivity extends Activity implements BottomReachedListener
 	private int getNextLayoutAdd(int i)
 	{
 		int L = 1;
-		int h1 = l1.getHeight();
-//		Log.d(CNS.LOGPRINT,"h1: " + h1);
 		if (!CNS.isTablet(this)) { // isPhone
 			if (CNS.isPortrait(this)) { //isPortrait
 				L = 1;
@@ -328,15 +318,15 @@ public class BoarActivity extends Activity implements BottomReachedListener
 		menu.setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);
 		menu.attachToActivity(this,SlidingMenu.SLIDING_CONTENT);
 		menu.setBehindWidthRes(R.dimen.slidingmenu_size);
-		menu.setShadowDrawable(R.drawable.side_bar_shadow1);
-		menu.setShadowWidthRes(R.dimen.slidingmenu_shadow_size);
+//		menu.setShadowDrawable(R.drawable.side_bar_shadow1);
+//		menu.setShadowWidthRes(R.dimen.slidingmenu_shadow_size);
 		menu.setMenu(R.layout.menu);
 		menu.setFadeDegree(0.35f);
 		menu.setSlidingEnabled(true);
 
 		final ListView lv;
 		lv = (ListView) findViewById(R.id.menu_list);
-//		lv.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+//		lv.setAdapter(new MySimpleArrayAdapter(this,Category.MENU_STRINGS));
 		lv.setAdapter(new MySimpleArrayAdapter(this,Category.MENU_STRINGS));
 		lv.setOnItemClickListener(new OnItemClickListener()
 		{
@@ -349,9 +339,19 @@ public class BoarActivity extends Activity implements BottomReachedListener
 			}
 
 		});
+
+		menu.setOnClosedListener(new SlidingMenu.OnClosedListener() {
+
+			@Override
+			public void onClosed()
+			{
+				lv.setSelection(0);
+			}
+		});
+
 	}
 
-	public void setActionBarForCategory(int category, boolean changeHeading)
+	private void setActionBarForCategory(int category, boolean changeHeading)
 	{
 		int colorTo = Category.getCategoryColourBar(category,getResources());
 
@@ -379,7 +379,6 @@ public class BoarActivity extends Activity implements BottomReachedListener
 		else {
 			setOrientationMargin(actionBar,true);
 
-//			actionBar.getLayoutParams().width = LayoutParams.MATCH_PARENT;
 			vis(GONE,R.id.close_button);
 			vis(GONE,R.id.actionBar_shadow);
 			if (category == Category.FAVOURITES || category == Category.HOME) {
@@ -434,6 +433,8 @@ public class BoarActivity extends Activity implements BottomReachedListener
 		View topBar = findViewById(R.id.top_bar_layout);
 //		CNS.animateBackgroundColor(topBar,currColor,colorTo);
 		topBar.setBackgroundColor(colorTo);
+		CNS.transparentStatusBars(activity,context,colorTo);
+		((TextView) findViewById(R.id.main_toast_RELOAD)).setTextColor(colorTo);
 
 		//--------------------------------------------other ui elements--------------------
 		if (currentCategory == Category.FAVOURITES) {
@@ -443,16 +444,15 @@ public class BoarActivity extends Activity implements BottomReachedListener
 		}
 	}
 
-	protected void hideActionBar()
+	private void hideActionBar()
 	{
 		View actionBar = findViewById(R.id.action_bar_main);
 		Animation slideUp = AnimationUtils.loadAnimation(context,R.anim.slide_up);
 		actionBar.startAnimation(slideUp);
 		actionBar.setVisibility(View.GONE);
-		Log.d(CNS.LOGPRINT,"HIDDEN!");
 	}
 
-	protected void showActionBar()
+	private void showActionBar()
 	{
 		View actionBar = findViewById(R.id.action_bar_main);
 		Animation slideDown = AnimationUtils.loadAnimation(context,R.anim.slide_down);
@@ -478,6 +478,7 @@ public class BoarActivity extends Activity implements BottomReachedListener
 		findViewById(R.id.drop_down_browser).setOnClickListener(clickEvent);
 		findViewById(R.id.drop_down_favourite).setOnClickListener(clickEvent);
 		findViewById(R.id.drop_down_share).setOnClickListener(clickEvent);
+		findViewById(R.id.drop_down_feedback).setOnClickListener(clickEvent);
 		findViewById(R.id.main_toast_root).setOnClickListener(clickEvent);
 		findViewById(R.id.story_comment_expander).setOnClickListener(clickEvent);
 
@@ -544,7 +545,7 @@ public class BoarActivity extends Activity implements BottomReachedListener
 			TextView title = (TextView) findViewById(R.id.actionbar_title);
 			title.setText("#" + tagSlug);
 		}
-		if (REQUEST == SEARCH) {
+		else if (REQUEST == SEARCH) {
 			setActionBarForCategory(-1,false);
 
 			vis(VISIBLE,R.id.back_button).setOnClickListener(clickEvent);
@@ -574,7 +575,7 @@ public class BoarActivity extends Activity implements BottomReachedListener
 
 	}
 
-	public OnClickListener clickEvent = new OnClickListener() {
+	private OnClickListener clickEvent = new OnClickListener() {
 		@Override
 		public void onClick(View v)
 		{
@@ -687,12 +688,32 @@ public class BoarActivity extends Activity implements BottomReachedListener
 					vis(VISIBLE,R.id.story_comment_divider);
 				}
 				break;
+			case R.id.drop_down_feedback://settag for flags
+				Intent i = new Intent(Intent.ACTION_VIEW);
+				i.setData(Uri.parse("mailto:apps@theboar.org"));
+				i.putExtra(Intent.EXTRA_SUBJECT,"App Feedback - Android");
+				String LB = "\r\n";
+				String deviceInfo = "";
+				try {
+					deviceInfo = "- - - - - Device Info - - - - -" + LB +
+							"Device: " + Build.MANUFACTURER + " " + Build.MODEL + LB + "Api: "
+							+ Build.VERSION.SDK_INT;
+				}
+				catch (Exception e) {}
+				i.putExtra(Intent.EXTRA_TEXT,"Bug(s) I found:" + LB + LB + LB
+						+ "Things I like/dislike:" + LB + LB + LB +
+						"Other Comments:" + LB + LB + LB +
+						deviceInfo);
+				startActivity(i);
+				break;
 
 			default:
 				break;
 			}
 		}
 	};
+
+	//----------------------------------Article View-----------------------------------------
 
 	private void setArticleColors(int category)
 	{
@@ -711,45 +732,18 @@ public class BoarActivity extends Activity implements BottomReachedListener
 			vis(VISIBLE,R.id.actionBar_shadow);
 		}
 
-		int catColor, main, secondary;
-
+		int catColor = Category.getCategoryColourBar(category,getResources());
 		LinearLayout headingGroup = (LinearLayout) findViewById(R.id.story_headline_group);
 		View headingGroupHeading = findViewById(R.id.story_headline_group_headline);
-//			FrameLayout imgFrame = (FrameLayout) findViewById(R.id.story_newImage_frame);
-		TextView tvDate = (TextView) findViewById(R.id.story_date);
-		TextView tv = (TextView) findViewById(R.id.story_headline);
-		TextView tvAuthor = (TextView) findViewById(R.id.story_author);
 		//-------------------------------------
-
-		catColor = Category.getCategoryColourBar(category,getResources());
-
-		main = getResources().getColor(R.color.white_90);
-		secondary = getResources().getColor(R.color.white_70);
-
-		//---------------------------
 
 		headingGroup.setBackgroundColor(catColor);
 		headingGroupHeading.setBackgroundColor(catColor);
-//		tv.setTextColor(main);
-//		tvAuthor.setTextColor(secondary);
-//		tvDate.setTextColor(secondary);
 
 	}
 
 	private void populateArticle(Headline hl)
 	{
-		//----------------------------------Comment Test------------------------------------------
-
-		final Map<String, Node> commentsTree = hl.getComments();
-		new Handler().postDelayed(new Runnable() {
-			public void run()
-			{
-				populateComments(commentsTree);
-			}
-		},1000);
-		//----------------------------------------------------------------------------
-
-//		storyScroll = (BoarMagicalScrollView) findViewById(R.id.storyScrollView);
 		storyScroll.newImage();
 		storyScroll.fullScroll(ScrollView.FOCUS_UP);
 		HorizontalScrollView svTag = (HorizontalScrollView) findViewById(R.id.story_tab_scroll);
@@ -797,6 +791,14 @@ public class BoarActivity extends Activity implements BottomReachedListener
 		TextView tvDate = (TextView) findViewById(R.id.story_date);
 		String date = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm").format(hl.getDatePublished());
 		tvDate.setText(date);
+		//----------------------------------Comments------------------------------------------
+		final Map<String, Node> commentsTree = hl.getComments();
+		new Handler().postDelayed(new Runnable() {
+			public void run()
+			{
+				populateComments(commentsTree);
+			}
+		},1000);
 		//-------------------------------------------Tabs----------------------------------------
 		LinearLayout tagsRoot = (LinearLayout) findViewById(R.id.story_tab_root);
 		tagsRoot.removeAllViews();
@@ -819,7 +821,6 @@ public class BoarActivity extends Activity implements BottomReachedListener
 
 		LinearLayout webViewLL = (LinearLayout) findViewById(R.id.story_ll_root);
 		webViewLL.removeAllViews();
-//		vis(VISIBLE,R.id.story_ll_progress);
 		vis(VISIBLE,R.id.story_progress);
 
 		WebView webview = (WebView) new WebView(context);
@@ -832,7 +833,6 @@ public class BoarActivity extends Activity implements BottomReachedListener
 			@Override
 			public boolean shouldOverrideUrlLoading(WebView view, String url)
 			{
-//				return super.shouldOverrideUrlLoading(view,url);
 				Intent i = new Intent(Intent.ACTION_VIEW,Uri.parse(url));
 				i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 				view.getContext().startActivity(i);
@@ -842,15 +842,13 @@ public class BoarActivity extends Activity implements BottomReachedListener
 			public void onPageFinished(WebView view, String url)
 			{
 				vis(GONE,R.id.story_progress);
-//				LinearLayout webViewLL = (LinearLayout) findViewById(R.id.story_ll_root);
-//				webViewLL.addView(view);
-//				view.setVisibility(View.VISIBLE);
-//				vis(GONE,R.id.story_ll_progress);
-//				view.startAnimation(CNS.Animate(view,CNS.FADE,0,1,1000,true));
 			}
 
 		});
 		webview.getSettings().setAllowFileAccess(true);
+//		webview.setLayerType(View.LAYER_TYPE_SOFTWARE,null);
+//		webview.getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
+//		webview.getSettings().setRenderPriority(WebSettings.RenderPriority.HIGH);
 
 		class MyRunnable implements Runnable
 		{
@@ -907,7 +905,7 @@ public class BoarActivity extends Activity implements BottomReachedListener
 
 	}
 
-	public void addCommentChildren(Map<String, Node> tree, LinearLayout root, Node childNode, int depth)
+	private void addCommentChildren(Map<String, Node> tree, LinearLayout root, Node childNode, int depth)
 	{
 		root.addView(CNS.getCommentView(childNode.name,
 				childNode.comment,
@@ -1029,7 +1027,7 @@ public class BoarActivity extends Activity implements BottomReachedListener
 		l3 = (LinearLayout) findViewById(R.id.tablet_lld3);
 
 		if (loadingNew) {
-			ScrollView sv = (ScrollView) findViewById(R.id.scrollView_main);
+//			ScrollView sv = (ScrollView) findViewById(R.id.scrollView_main);
 //			sv.fullScroll(ScrollView.FOCUS_UP);
 
 			loadingLayout(false,true,null);
@@ -1075,6 +1073,7 @@ public class BoarActivity extends Activity implements BottomReachedListener
 		{
 			super.onPreExecute();
 			findViewById(R.id.tablet_l_root).setVisibility(View.VISIBLE);
+			vis(GONE,R.id.page_progress_forNew,true);
 			if (loadingNew) {
 				if (REQUEST == SEARCH || REQUEST == TAG || currentCategory == Category.FAVOURITES) {
 					loadingLayout(true,false,null);
@@ -1125,7 +1124,6 @@ public class BoarActivity extends Activity implements BottomReachedListener
 			if (forFeatured) {} else {
 
 				//hack to stop showing THAT post from february
-
 				if (!missPatina(hl)) {
 					addHeadlineToView(hl,wait);
 					wait += 100;
@@ -1176,42 +1174,39 @@ public class BoarActivity extends Activity implements BottomReachedListener
 
 			if (!forFeatured) setMessageText();
 
-			if (currentCategory == Category.FAVOURITES) {
+			if (currentCategory == Category.FAVOURITES && count > 0) {
 				addFavOptions();
-			} else if (forFeatured) {
-				//TODO add to layouts if we want to show featured!
-			} else if (REQUEST != SEARCH && REQUEST != TAG && isFromCache) {
+			} else if (forFeatured) {} else if (REQUEST != SEARCH && REQUEST != TAG && isFromCache) {
 				checkAndNotifyForNew();
 			}
 		}
 
 		private void setMessageText()
 		{
+			/*Log.d(CNS.LOGPRINT,"Count:" + count + ", pagenum:" + pageNum
+					+ ", totalPagesAvailable:" + totalAvailablePages);*/
 			TextView txt = (TextView) vis(GONE,R.id.search_query);
 
+			//no posts
 			if (count == 0 || Integer.parseInt(totalAvailablePages) < pageNum) {
 				//Search
 				if (REQUEST == SEARCH) {
-					txt.setVisibility(View.VISIBLE);
 					if (pageNum == 1) {
+						txt.setVisibility(View.VISIBLE);
 						txt.setText("'" + query + "' returned no results");
 					}
 				}
 				//Favourites
-				else if (count == 0 && currentCategory == Category.FAVOURITES) {
-					txt.setVisibility(View.VISIBLE);
-					txt.setText("You have not added any articles to your favourites.");
+				else if (currentCategory == Category.FAVOURITES) {
+					if (count == 0) {
+						txt.setVisibility(View.VISIBLE);
+						txt.setText("You have not added any articles to your favourites.");
+					}
 				}
-				//Tag
-				else if (count == 0 && REQUEST == TAG) {
-					txt.setVisibility(View.VISIBLE);
-					txt.setText("There are no articles available");
-				}
+				//TAG. do nothing.
+				//else if (REQUEST == TAG) {}
 				//categories
-				else if (count == 0) {
-					txt.setVisibility(View.VISIBLE);
-					txt.setText("There are no articles available");
-				}
+				//else {}
 				pageNum = 0;
 			} else {
 				pageNum++;
@@ -1230,6 +1225,7 @@ public class BoarActivity extends Activity implements BottomReachedListener
 
 		private void addFavOptions()
 		{
+			vis(VISIBLE,R.id.favourite_detail_root_scroll);
 			LinearLayout llFavOpt = (LinearLayout) vis(VISIBLE,R.id.favourite_detail_root);
 			llFavOpt.removeAllViews();
 			catCountMap = CNS.sortByValue(catCountMap);
@@ -1251,7 +1247,7 @@ public class BoarActivity extends Activity implements BottomReachedListener
 					{
 						final int categoryWas = currentCategory;
 						final boolean newAvailable = newsStore.checkIfNewHeadlines(currentCategory);
-						if (categoryWas == currentCategory) {
+						if (categoryWas == currentCategory & REQUEST != SEARCH & REQUEST != TAG) {
 							runOnUiThread(new Runnable() {
 								public void run()
 								{
@@ -1282,16 +1278,16 @@ public class BoarActivity extends Activity implements BottomReachedListener
 				//---------------------------------------------------------
 				final View newsItems = getLayoutInflater().inflate(R.layout.content_fragment,null,false);
 				//---------------------------------News Type Colour---------------------------
-				categoryBox = (FrameLayout) newsItems.findViewById(R.id.content_typecolor);
-				categoryBox.setVisibility(View.VISIBLE);
 				int catColor = Category.getCategoryColourText(hl.getCategory(),getResources());
-				categoryBox.setBackgroundColor(catColor);
-				if (Build.VERSION.SDK_INT > Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-					CNS.setAlpha(categoryBox,0.9f);
-				}
-
 				TextView categoryName = (TextView) newsItems.findViewById(R.id.category_name);
 				categoryName.setText(Category.getCategoryName(hl.getCategory(),false,true).toUpperCase());
+
+				((FrameLayout) newsItems.findViewById(R.id.content_typecolor_2)).setBackgroundColor(catColor);
+
+				categoryBox = (FrameLayout) newsItems.findViewById(R.id.content_typecolor);
+				categoryBox.setBackgroundColor(catColor);
+				categoryName.setTextColor(catColor);
+
 				//------------------------------------ IMAGE--------------------------------
 				iv = (ImageView) newsItems.findViewById(R.id.content_newsImage);
 
@@ -1303,7 +1299,6 @@ public class BoarActivity extends Activity implements BottomReachedListener
 							(2 * getResources().getDimension(R.dimen.tabMar)));
 					options.targetWidth = width;
 					options.fallback = R.drawable.fallback_img;
-//				newsItems.findViewById(R.id.content_newsImage_progress).setVisibility(View.VISIBLE);
 
 					int[] ivWH = hl.getImageDimensions();
 					iv.getLayoutParams().height = getIdealHeight(ivWH[0],ivWH[1]);
@@ -1312,12 +1307,13 @@ public class BoarActivity extends Activity implements BottomReachedListener
 				} else {
 					iv.setVisibility(View.GONE);
 
-					FrameLayout.LayoutParams llp = (FrameLayout.LayoutParams) categoryBox.getLayoutParams();
-					llp.topMargin = 0;
 					iv.getLayoutParams().height = 0;
 					newsItems.findViewById(R.id.content_picture).getLayoutParams().height = LayoutParams.WRAP_CONTENT;
 
 					(newsItems.findViewById(R.id.topicname_divider)).setVisibility(View.INVISIBLE);
+
+					TextView titleSub = (TextView) newsItems.findViewById(R.id.topicname_sub);
+					setAbstract(titleSub,hl.getArticleHTML().substring(0,180));
 
 				}
 
@@ -1325,14 +1321,16 @@ public class BoarActivity extends Activity implements BottomReachedListener
 				newsName = (TextView) newsItems.findViewById(R.id.topicname);
 				CharSequence headlineText = Html.fromHtml(hl.getHeadline());
 				newsName.setText(headlineText);
-				newsName.setTypeface(Typeface.createFromAsset(getAssets(),"Roboto-Regular.ttf"));
-				newsName.setTextSize(17);
+				newsName.setTypeface(Typeface.createFromAsset(getAssets(),"Roboto-Light.ttf")
+						,Typeface.BOLD
+						);
+				newsName.setTextSize(18);
+				newsName.setTextColor(getResources().getColor(R.color.black_60));
 				//-----------------------------------------News Author------------------------------------
 				authorName = (TextView) newsItems.findViewById(R.id.author_name);
 				authorName.setText(hl.getAuthor());
 				//-------------------------------------------Date----------------------------------------
 				newsDate = (TextView) newsItems.findViewById(R.id.content_date);
-//			String dateTimeString = DateFormat.getDateInstance().format(hl.getDatePublished());
 				String dateTimeString = CNS.timeElapsed(hl.getDatePublished());
 				newsDate.setText(dateTimeString);
 				//-------------------------------Set On touch/Click-----------------------------------------
@@ -1379,12 +1377,34 @@ public class BoarActivity extends Activity implements BottomReachedListener
 
 			}
 			catch (Exception e) {
-				Log.e(CNS.LOGPRINT,"Error while populating article to view."
-						+ e.toString() + e.getMessage());
+				Log.e(CNS.LOGPRINT,"Error while populating article to view." + e.toString()
+						+ e.getMessage());
 			}
 			headlinesParsedSoFar++;
 
 		}
+
+		private void setAbstract(TextView titleSub, String body)
+		{
+			int spaceEnd = body.lastIndexOf(" ");
+			int end = spaceEnd;
+
+			/*String newline = System.getProperty("line.separator");
+			if (body.contains(newline)) {
+				int lineEnd = body.indexOf(newline);
+				if (lineEnd > 150) {
+					end = spaceEnd < lineEnd ? spaceEnd : lineEnd;
+					end = end >= 0 ? end : spaceEnd;
+				}
+			}*/
+
+			String segment = body.substring(0,end);
+			if (!segment.contains("<img")) {
+				titleSub.setText(Html.fromHtml(segment + "..."));
+				titleSub.setVisibility(View.VISIBLE);
+			}
+		}
+
 		private int getIdealHeight(int width, int height)
 		{
 
@@ -1395,6 +1415,8 @@ public class BoarActivity extends Activity implements BottomReachedListener
 			return CNS.getPXfromDP(150,context);
 		}
 	}
+
+	//----------------------------------Others------------------------------	
 
 	private void loadingLayout(boolean show, boolean showText, String text)
 	{
@@ -1407,26 +1429,15 @@ public class BoarActivity extends Activity implements BottomReachedListener
 		lay.setBackgroundColor(Category.getCategoryColourText
 				(currentCategory,getResources()));
 		vis(show ? VISIBLE : GONE,R.id.loading_layout,true);
-//		View progRot = findViewById(R.id.progress_bottom);
-		/*if (show) {
-			Animation rot = AnimationUtils.loadAnimation(context,R.anim.refresh);
-			rot.setRepeatCount(Animation.INFINITE);
-			progRot.startAnimation(rot);
-		} else {
-			if (progRot.getAnimation() != null)
-				progRot.getAnimation().cancel();
-		}*/
 
 	}
-
-	//----------------------------------Others------------------------------	
 
 	private void setImage(View menu, int id)
 	{
 		((ImageView) menu).setImageDrawable(getResources().getDrawable(id));
 	}
 
-	public View vis(String visibility, int id)
+	private View vis(String visibility, int id)
 	{
 		int vis = View.VISIBLE;
 		if (visibility == INVISIBLE) vis = View.INVISIBLE;
@@ -1437,7 +1448,7 @@ public class BoarActivity extends Activity implements BottomReachedListener
 		return view;
 	}
 
-	public void vis(String visibility, int id, boolean fadeAnim)
+	private void vis(String visibility, int id, boolean fadeAnim)
 	{
 		int vis = View.VISIBLE;
 		if (visibility == GONE) vis = View.GONE;
