@@ -549,7 +549,8 @@ public class BoarActivity extends Activity implements BottomReachedListener
 			setActionBarForCategory(-1,false);
 
 			vis(VISIBLE,R.id.back_button).setOnClickListener(clickEvent);
-
+			vis(GONE,R.id.main_toast_root);
+			
 			TextView title = (TextView) findViewById(R.id.actionbar_title);
 			title.setText(REQUEST);
 
